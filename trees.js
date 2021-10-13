@@ -1,11 +1,6 @@
-import * as THREE from '../libs/threejs/three.module.js';
-import { GUI } from '../libs/dat.gui.module.js';
-import { WEBGL } from '../libs/WebGL.js';
-import Stats from '../libs/stats.module.js';
-import { OrbitControls } from '../libs/OrbitControls.js';
+import * as THREE from 'three';
 import vertexShader from './shaders/vertex.glsl.js'
 import waterSampleFragment from './shaders/water.frag.js'
-import Perlin from '../libs/perlin.js';
 import { getRandomArbitrary, getRandomInt } from './globalfunctions.js';
 import { shaderTree } from './render.js';
 

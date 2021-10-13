@@ -1,18 +1,19 @@
 // https://threejsfundamentals.org/threejs/lessons/threejs-cameras.html
-import * as THREE from '../libs/threejs/three.module.js';
-import { GUI } from '../libs/dat.gui.module.js';
-import { WEBGL } from '../libs/WebGL.js';
-import Stats from '../libs/stats.module.js';
-import { OrbitControls } from '../libs/OrbitControls.js';
-import { FirstPersonControls } from '../libs/FirstPersonControls.js';
+import * as THREE from 'three';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js';
+import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader.js';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls.js';
+import { GUI } from 'three/examples/jsm/libs/dat.gui.module';
+import Stats from 'three/examples/jsm/libs/stats.module';
+import { WEBGL } from 'three/examples/jsm/WebGL';
+
 import { getRandomArbitrary, getRandomInt } from './globalfunctions.js';
 import { generateShaderTree, generateTree } from './trees.js';
 import { generateMushroom } from './mushrooms.js';
 import { generateGround } from './ground.js';
-import { OBJLoader } from '../libs/loaders/OBJLoader.js';
-import { MTLLoader } from '../libs/loaders/MTLLoader.js';
-import { GLTFLoader } from '../libs/loaders/GLTFLoader.js';
-import { PointerLockControls } from '../libs/PointerLockControls.js';
+
 
 const treeParams = {
   radius: 7,

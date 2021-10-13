@@ -1,12 +1,6 @@
-https://threejsfundamentals.org/threejs/lessons/threejs-fundamentals.html
-
-https://threejs.org/docs/index.html#manual/en/introduction/Creating-a-scene
-
-https://threejsfundamentals.org/threejs/lessons/threejs-prerequisites.html
-
-https://webglfundamentals.org/
-
-https://www.youtube.com/playlist?list=PLUm8BKCCLrpcDJF77qTR8SK3CNREo8SbL 
+# deploying on github
+- https://hackernoon.com/publishing-a-threejs-project-on-github-pages-1d1a33dn
+- 
 
 # Extra library resources
 -[PointerLock for First Person Control](https://threejs.org/examples/?q=control#misc_controls_pointerlock)

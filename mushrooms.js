@@ -1,9 +1,6 @@
-import * as THREE from '../libs/threejs/three.module.js';
-import { GUI } from '../libs/dat.gui.module.js';
+import * as THREE from 'three';
 import vertexShader from './shaders/vertex.glsl.js'
 import fragmentShader from './shaders/fragment.glsl.js'
-import Perlin from '../libs/perlin.js';
-import { getRandomArbitrary, getRandomInt } from './globalfunctions.js';
 
 export function generateMushroom() {
 	const mushroom = new THREE.Object3D()

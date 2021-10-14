@@ -8,12 +8,14 @@ import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockCont
 import { GUI } from 'three/examples/jsm/libs/dat.gui.module';
 import Stats from 'three/examples/jsm/libs/stats.module';
 import { WEBGL } from 'three/examples/jsm/WebGL';
+import fs from 'file-system';
 
 import { getRandomArbitrary, getRandomInt } from './globalfunctions.js';
 import { generateShaderTree, generateTree } from './trees.js';
 import { generateMushroom } from './mushrooms.js';
 import { generateGround } from './ground.js';
-
+// import CACTUS from './libs/threed/cactus.glb';
+// import WEE from './libs/threed/wee.glb'
 
 const treeParams = {
   radius: 7,
@@ -34,6 +36,7 @@ let stats, scene, camera, renderer, camControls;
 
 let raycaster;
 
+let gamepadConnected = false;
 let moveForward = false;
 let moveBackward = false;
 let moveLeft = false;
@@ -203,7 +206,12 @@ function main() {
 
   document.addEventListener( 'keydown', onKeyDown );
   document.addEventListener( 'keyup', onKeyUp );
-
+  window.addEventListener("gamepadconnected", function(e) {
+    console.log("Gamepad connected at index %d: %s. %d buttons, %d axes.",
+      e.gamepad.index, e.gamepad.id,
+      e.gamepad.buttons.length, e.gamepad.axes.length);
+    gamepadConnected = true; 
+  });
   raycaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, - 1, 0 ), 0, 10 );
 
   // camera gui
@@ -216,9 +224,10 @@ function main() {
   // 3d model loader
   // https://sbcode.net/threejs/gltf-animation/
 
+  /**
   const gltfLoader = new GLTFLoader();
   gltfLoader.load (
-    '../libs/threed/cactus.glb',
+    "./public/cactus.glb",
     onLoad,
     function (xhr) {
       console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
@@ -229,7 +238,7 @@ function main() {
   )
   
   gltfLoader.load (
-    '../libs/threed/wee.glb',
+    "./public/wee.glb",
     (gltf) => onLoad(gltf, 50),
     function (xhr) {
       console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
@@ -238,6 +247,7 @@ function main() {
       console.log("error?", error)
     }
   )
+ */
 
   function onLoad(gltf, x, y) {
     gltf.scene.position.y = y || 30;
@@ -249,7 +259,53 @@ function main() {
   }
 }
 
+// gamepad
+function xboxKeyPressed (gamepad) {
+  const buttons = gamepad.buttons;
+
+  if(buttons[12].touched) {  // up
+    moveForward = true;
+    console.log(buttons[12])
+  } 
+  if(!buttons[12].touched) {
+    moveForward = false;
+  }
+  if(buttons[15].touched) {
+    moveRight = true;
+    console.log(buttons[15])
+  }
+  if(!buttons[15].touched){
+    moveRight = false;
+  }
+  if(buttons[13].touched) {
+    moveBackward = true;
+    console.log(buttons[13])
+  }
+  if(!buttons[13].touched){
+    moveBackward = false;
+  }
+  if(buttons[14].touched) {
+    moveLeft = true;
+    console.log(buttons[14])
+  }
+  if(!buttons[14].touched){
+    moveLeft = false;
+  }
+}
+
+function xboxAxesPressed(gamepad) {
+  console.log(gamepad.axes)
+
+}
+
 function animate() {
+
+  //gamepad
+  if (gamepadConnected) {
+    const gamepad = navigator.getGamepads()[0];
+    xboxKeyPressed(gamepad);
+    xboxAxesPressed(gamepad);
+  }
 
   renderDynamicShader();
 

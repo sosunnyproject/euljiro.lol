@@ -1,6 +1,6 @@
 # deploying on github
 - https://hackernoon.com/publishing-a-threejs-project-on-github-pages-1d1a33dn
-- 
+- https://www.matteogregoricchio.com/articles/github-pages-hosting-with-parcel 
 
 # Extra library resources
 -[PointerLock for First Person Control](https://threejs.org/examples/?q=control#misc_controls_pointerlock)

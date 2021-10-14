@@ -5,6 +5,7 @@ import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js';
 import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls.js';
+
 import { GUI } from 'three/examples/jsm/libs/dat.gui.module';
 import Stats from 'three/examples/jsm/libs/stats.module';
 import { WEBGL } from 'three/examples/jsm/WebGL';
@@ -204,6 +205,16 @@ function main() {
 
   };
 
+  // orientation
+  // document.addEventListener('DOMContentLoaded', addListenMouse, false); 
+
+  // function addListenMouse() {
+  //   document.addEventListener('mousemove', e => {
+  //     console.log("move x: ", e.movementX, ", move y: ", e.movementY)
+  //     console.log("camera: ", camera.quaternion)
+  //   })
+  // }
+
   document.addEventListener( 'keydown', onKeyDown );
   document.addEventListener( 'keyup', onKeyUp );
   window.addEventListener("gamepadconnected", function(e) {
@@ -265,37 +276,62 @@ function xboxKeyPressed (gamepad) {
 
   if(buttons[12].touched) {  // up
     moveForward = true;
-    console.log(buttons[12])
   } 
   if(!buttons[12].touched) {
     moveForward = false;
   }
   if(buttons[15].touched) {
     moveRight = true;
-    console.log(buttons[15])
   }
   if(!buttons[15].touched){
     moveRight = false;
   }
   if(buttons[13].touched) {
     moveBackward = true;
-    console.log(buttons[13])
   }
   if(!buttons[13].touched){
     moveBackward = false;
   }
   if(buttons[14].touched) {
     moveLeft = true;
-    console.log(buttons[14])
   }
   if(!buttons[14].touched){
     moveLeft = false;
   }
 }
 
-function xboxAxesPressed(gamepad) {
-  console.log(gamepad.axes)
+const _euler = new THREE.Euler( 0, 0, 0, 'YXZ' );
+const minPolarAngle = 0; // radians
+const maxPolarAngle = Math.PI; // radians 
+const _PI_2 = Math.PI / 2;
+let prevAxisX = 0;
+let prevAxisY = 0;
+let staleX = 0;
+let staleY = 0;
 
+function xboxAxesPressed(gamepad) {
+
+  const movementX = gamepad.axes[2]
+  const movementY = gamepad.axes[3]
+
+  prevAxisY === movementY ? staleY++ : staleY = 0;
+  prevAxisX === movementX ? staleX++ : staleX = 0; 
+
+  if(staleX > 10 && staleY > 10){  // prevent constant camera rotation
+    return
+  } else {
+    _euler.setFromQuaternion( camera.quaternion );
+  
+    _euler.y -= movementX * 0.02;
+    _euler.x -= movementY * 0.02;
+  
+    _euler.x = Math.max( _PI_2 - maxPolarAngle, Math.min( _PI_2 - minPolarAngle, _euler.x ) );
+  
+    camera.quaternion.setFromEuler( _euler );
+  }
+
+  prevAxisX = movementX;
+  prevAxisY = movementY;
 }
 
 function animate() {

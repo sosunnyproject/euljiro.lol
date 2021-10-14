@@ -1,7 +1,7 @@
 {
   "scripts": {
     "start": "parcel -p 3000 index.html --open",
-    "predeploy": "rm -rf dist && parcel build ./*.html --public-url https://github.com/sosunnyproject/threejs-euljiro.git",
+    "predeploy": "rm -rf dist && parcel build ./*.html --public-url https://sosunnyproject.github.io/threejs-euljiro/",
     "deploy": "gh-pages -d dist"
   },
   "dependencies": {

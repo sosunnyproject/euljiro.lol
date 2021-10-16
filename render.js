@@ -59,7 +59,7 @@ var clock = new THREE.Clock();
 
 // socket test
 async function testSocket() {
-  const socket = await io(`http://192.168.219.104:${3000}`,  { transports : ['websocket'] })
+  const socket = await io(`https://gamepad-node.glitch.me`,  { transports : ['websocket'] })
   // client-side
   socket.on("connect", () => {
     console.log(socket.id);

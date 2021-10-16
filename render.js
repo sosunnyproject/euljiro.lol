@@ -62,7 +62,7 @@ async function testSocket() {
   const socket = await io(`http://192.168.219.104:${3000}`,  { transports : ['websocket'] })
   // client-side
   socket.on("connect", () => {
-    console.log(socket.id); // x8WIv7-mJelg7on_ALbx
+    console.log(socket.id);
   });
 
   socket.on('UP BUTTON', (touch) => {
@@ -101,7 +101,7 @@ async function testSocket() {
   });
 }
 
-// testSocket()
+testSocket()
 
 function main() {
   // create a scene, that will hold all our elements such as objects, cameras and lights.

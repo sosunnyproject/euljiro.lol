@@ -3,6 +3,7 @@
 - https://www.matteogregoricchio.com/articles/github-pages-hosting-with-parcel 
 - `npm start` : when running it locally, delete `dist` folder, and then execute this command
 - `npm run deploy` on `main` branch, when deploying to public url
+  - on Windows, `rm` command doesn't work. Change it to `del` in `package.json` command
 - public url: https://sosunnyproject.github.io/threejs-euljiro/
 
 # Extra library resources

@@ -10,6 +10,7 @@ import { GUI } from 'three/examples/jsm/libs/dat.gui.module';
 import Stats from 'three/examples/jsm/libs/stats.module';
 import { WEBGL } from 'three/examples/jsm/WebGL';
 import fs from 'file-system';
+import { io } from "socket.io-client";
 
 import { getRandomArbitrary, getRandomInt } from './globalfunctions.js';
 import { generateShaderTree, generateTree } from './trees.js';
@@ -55,6 +56,52 @@ export let shaderTree;
 const gui = new GUI();
 const WIDTH = window.innerWidth, HEIGHT = window.innerHeight
 var clock = new THREE.Clock();
+
+// socket test
+async function testSocket() {
+  const socket = await io(`http://192.168.219.104:${3000}`,  { transports : ['websocket'] })
+  // client-side
+  socket.on("connect", () => {
+    console.log(socket.id); // x8WIv7-mJelg7on_ALbx
+  });
+
+  socket.on('UP BUTTON', (touch) => {
+    console.log("UP: " + touch)
+    if(touch === "touchstart") {
+      moveForward = true;
+    } else if (touch === "touchend") {
+      moveForward = false;
+    }
+  });
+
+  socket.on('LEFT BUTTON', (touch) => {
+    console.log("LEFT: " + touch)
+    if(touch === "touchstart") {
+      moveLeft = true;
+    } else if (touch === "touchend") {
+      moveLeft = false;
+    }
+  });
+  socket.on('RIGHT BUTTON', (touch) => {
+    console.log("RIGHT: " + touch)
+    if(touch === "touchstart") {
+      moveRight = true;
+    } else if (touch === "touchend") {
+      moveRight = false;
+    }
+  });
+
+  socket.on('DOWN BUTTON', (touch) => {
+    console.log("DOWN: " + touch)
+    if(touch === "touchstart") {
+      moveBackward = true;
+    } else if (touch === "touchend") {
+      moveBackward = false;
+    }
+  });
+}
+
+testSocket()
 
 function main() {
   // create a scene, that will hold all our elements such as objects, cameras and lights.

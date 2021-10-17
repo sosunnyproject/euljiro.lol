@@ -283,8 +283,9 @@ function main() {
   // https://sbcode.net/threejs/gltf-animation/
 
   const gltfLoader = new GLTFLoader();
+  console.log("raw.git")
   gltfLoader.load (
-    "./cactus.glb",
+    "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/models/cactus.glb",
     onLoad,
     function (xhr) {
       console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
@@ -295,7 +296,7 @@ function main() {
   )
   
   gltfLoader.load (
-    "./wee.glb",
+    "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/models/wee.glb",
     (gltf) => onLoad(gltf, 50),
     function (xhr) {
       console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );

@@ -5,6 +5,8 @@
 - `npm run deploy` on `main` branch, when deploying to public url
   - on Windows, `rm` command doesn't work. Change it to `del` in `package.json` command
 - public url: https://sosunnyproject.github.io/threejs-euljiro/
+- add static .glb files to local /dist file after the latest build. No need to push /dist to the github repo.
+  - parcel bundler cannot find .glb models is they are located outside of `/dist` when they build.
 
 # Extra library resources
 -[PointerLock for First Person Control](https://threejs.org/examples/?q=control#misc_controls_pointerlock)

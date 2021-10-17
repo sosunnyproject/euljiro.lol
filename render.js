@@ -282,10 +282,9 @@ function main() {
   // 3d model loader
   // https://sbcode.net/threejs/gltf-animation/
 
-  /**
   const gltfLoader = new GLTFLoader();
   gltfLoader.load (
-    "./public/cactus.glb",
+    "./cactus.glb",
     onLoad,
     function (xhr) {
       console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
@@ -296,7 +295,7 @@ function main() {
   )
   
   gltfLoader.load (
-    "./public/wee.glb",
+    "./wee.glb",
     (gltf) => onLoad(gltf, 50),
     function (xhr) {
       console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
@@ -305,7 +304,7 @@ function main() {
       console.log("error?", error)
     }
   )
- */
+ 
 
   function onLoad(gltf, x, y) {
     gltf.scene.position.y = y || 30;

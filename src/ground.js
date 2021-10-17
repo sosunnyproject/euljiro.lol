@@ -1,6 +1,6 @@
 // https://threejsfundamentals.org/threejs/lessons/threejs-cameras.html
 import * as THREE from 'three';
-import Perlin from './libs/perlin.js';
+import Perlin from '../libs/perlin.js';
 import vertexShader from './shaders/vertex.glsl.js'
 import cnFragment from './shaders/cellularNoise.frag.js';
 import turbulenceFragment from './shaders/turbulence.frag.js';

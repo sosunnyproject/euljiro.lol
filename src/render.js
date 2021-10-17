@@ -9,7 +9,6 @@ import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockCont
 import { GUI } from 'three/examples/jsm/libs/dat.gui.module';
 import Stats from 'three/examples/jsm/libs/stats.module';
 import { WEBGL } from 'three/examples/jsm/WebGL';
-import fs from 'file-system';
 import { io } from "socket.io-client";
 
 import { getRandomArbitrary, getRandomInt } from './globalfunctions.js';
@@ -34,7 +33,7 @@ const params = {
   zFar: 1000
 }
 
-let stats, scene, camera, renderer, camControls;
+let stats, scene, camera, renderer, camControls, character;
 
 let raycaster;
 
@@ -179,6 +178,17 @@ function main() {
   camera.lookAt(new THREE.Vector3(0, 0, 0));
 
   // fps control
+  let characterGeom = new THREE.BoxGeometry(1, 1, 1);
+  let characterMat = new THREE.MeshPhongMaterial( {color: 0x001122} );
+  character = new THREE.Mesh(characterGeom, characterMat);
+  scene.add(character);
+
+  character.position.copy(camera.position);
+  character.rotation.copy(camera.rotation);
+  character.updateMatrix();
+  character.translateZ(-5);
+  character.translateY(-5)
+
   camControls = new PointerLockControls(camera, document.body);
   const instructions = document.getElementById( 'c' );
 
@@ -283,7 +293,6 @@ function main() {
   // https://sbcode.net/threejs/gltf-animation/
 
   const gltfLoader = new GLTFLoader();
-  console.log("raw.git")
   gltfLoader.load (
     "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/models/cactus.glb",
     onLoad,
@@ -443,6 +452,13 @@ function animate() {
   }
 
   prevTime = time;
+
+  // fpx position
+  character.position.copy(camera.position);
+  character.rotation.copy(camera.rotation);
+  character.updateMatrix();
+  character.translateZ(-6);
+  character.translateY(-1);
 
   stats.update();
 };

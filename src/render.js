@@ -34,6 +34,7 @@ const params = {
 }
 
 let stats, scene, camera, renderer, camControls, character;
+let scene1, mainScene;
 
 let raycaster;
 
@@ -105,7 +106,10 @@ testSocket()
 function main() {
   // create a scene, that will hold all our elements such as objects, cameras and lights.
   scene = new THREE.Scene();
-  scene.background = new THREE.Color(0xAAAAAA)
+  scene.background = new THREE.Color(0xAAAAAA);
+
+  scene1 = new THREE.Scene();
+  scene1.background = new THREE.Color(0xBB11AA);
 
   // create a camera, which defines where we're looking at.
   function makeCamera() {
@@ -147,6 +151,13 @@ function main() {
     scene.add(tree);  
   }
 
+  // tree object
+  for(let i = 0; i < 100; i++){
+    const x = getRandomArbitrary(-200, 200)
+    const tree = generateTree(x, 15, getRandomArbitrary(-100, 100))
+    scene1.add(tree);  
+  }
+  
   // torus knot
   const torusKnotGeom = new THREE.TorusKnotGeometry( 10, 6, 100, 20 );
   const torusKnotMat = new THREE.MeshPhongMaterial( {color: 0x00d4ff });
@@ -169,6 +180,20 @@ function main() {
     spotlight.castShadow = true;
     scene.add(light);
     scene.add(spotlight)
+  }
+
+
+  {
+    const skyColor = 0xB1E1FF;  // light blue
+    const groundColor = 0xB97A20;  // brownish orange
+    const intensity = 1;
+    const light = new THREE.HemisphereLight(skyColor, groundColor, intensity);
+
+    const spotlight = new THREE.SpotLight(0xffffff, 0.3)
+    spotlight.position.set(-40, 100, -10);
+    spotlight.castShadow = true;
+    scene1.add(light);
+    scene1.add(spotlight)
   }
 
   // position and point the camera to the center of the scene
@@ -469,16 +494,29 @@ function renderDynamicShader() {
   const time = performance.now();
 
   // send time data to shaders
-  const mushroomMesh = scene.children[ 1 ].children[0];
-  if(shaderTree !== undefined) {
-    shaderTree.rotation.y = time * 0.00075;
-    shaderTree.material.uniforms.u_time.value = time * 0.00075;  
-  }
-
-  mushroomMesh.rotation.y = time * 0.00075;
+  // const mushroomMesh = scene.children[ 1 ].children[0];
+  // if(shaderTree !== undefined) {
+  //   shaderTree.rotation.y = time * 0.00075;
+  //   shaderTree.material.uniforms.u_time.value = time * 0.00075;  
+  // }
+  // mushroomMesh.rotation.y = time * 0.00075;
   // mushroomMesh.material.uniforms.u_time.value = time * 0.01;
   // scene.children[ 1 ].children[1].rotation.y = time * 0.00075
-  renderer.render( scene, camera );
+  renderer.render( mainScene, camera );
+
+}
+
+document.addEventListener('keypress', logKey);
+
+function logKey(e) {
+  console.log(e.code)
+  if(e.code === 'Digit1') {
+    console.log("1 pressed")
+    mainScene = scene
+  } else if(e.code === 'Digit2'){
+    console.log("2 pressed")
+    mainScene = scene1
+  }
 }
 
 
@@ -488,6 +526,7 @@ if(!WEBGL.isWebGLAvailable()) {
 } else {
   initStats();
   main();
+  mainScene = scene;
   animate();
 }
 

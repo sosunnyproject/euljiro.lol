@@ -389,9 +389,9 @@ function renderDynamicShader() {
   // mushroomMesh.material.uniforms.u_time.value = time * 0.01;
 
   // cat eyes
-  sceneOne.children[2].children[0].children[2].rotation.y = (time*0.00075);
-  sceneOne.children[2].children[0].children[3].rotation.y = -(time*0.00075);
-
+  sceneOne.children[2].children[1].children[0].children[2].rotation.y = (time*0.00075);
+  sceneOne.children[2].children[1].children[0].children[3].rotation.y = -(time*0.00075);
+  sceneOne.children[2].children[0].rotation.y = time*0.0005
   renderer.render( currentScene, camera );
 }
 

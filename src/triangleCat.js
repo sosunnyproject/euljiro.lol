@@ -4,6 +4,7 @@ import * as THREE from 'three';
 
 export function generateTriangleCat () {
   const catMesh = new THREE.Object3D();
+  const catFace = new THREE.Object3D();
 
   const faceGeom = new THREE.ConeGeometry( 5, 6, 8);
   const faceMat = new THREE.MeshPhongMaterial( {color: 0x5b917c} );
@@ -58,14 +59,24 @@ export function generateTriangleCat () {
     eye2_1.rotation.y = Math.PI/3;
   }
 
-  catMesh.add(faceCone);
-  catMesh.rotation.z = -Math.PI/2;
+  {
+    // body
+    const geom = new THREE.ConeGeometry(4, 8, 12);
+    const mat = new THREE.MeshNormalMaterial( { color: 0x11ffee } );
+    const body = new THREE.Mesh(geom, mat);
+    catMesh.add(body)
+    
+    body.position.y = 6.0;
+    body.position.x = -0.5;
+  }
+
+  catFace.add(faceCone);
+  catFace.rotation.z = -Math.PI/2;
+  catFace.position.y = 10.0;
   catMesh.receiveShadow = true;
   catMesh.castShadow = true;
-  catMesh.position.y = 10.0;
-  catMesh.name = "rotate";
-  
-  console.log(catMesh)
+
+  catMesh.add(catFace)
 
   return catMesh;
 }

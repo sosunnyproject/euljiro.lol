@@ -41,12 +41,14 @@ const data = {
 
 export function generateShaderTree(xpos, ypos, zpos, gui) {
   const position = {x: xpos, y: ypos + 30, z: zpos}
-  const folder = gui.addFolder('ShaderTree-Dodecahedron');
-  folder.add(data, 'radius', 1, 40).onChange(() => draw(position));
-  folder.add(data, 'detail', 0, 5).step(1).onChange(() => draw(position))
-  // folder.add(data, 'x', 1, 40).onChange(() => draw(position));
-  // folder.add(data, 'y', 0, 5).step(1).onChange(() => draw(position))
-
+  if(gui){
+    const folder = gui.addFolder('ShaderTree-Dodecahedron');
+    folder.add(data, 'radius', 1, 40).onChange(() => draw(position));
+    folder.add(data, 'detail', 0, 5).step(1).onChange(() => draw(position))
+    // folder.add(data, 'x', 1, 40).onChange(() => draw(position));
+    // folder.add(data, 'y', 0, 5).step(1).onChange(() => draw(position))  
+  }
+ 
   const output = draw(position)
   return output;
 }

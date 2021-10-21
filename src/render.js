@@ -15,8 +15,8 @@ import { getRandomArbitrary, getRandomInt } from './globalfunctions.js';
 import { generateShaderTree, generateTree } from './trees.js';
 import { generateMushroom } from './mushrooms.js';
 import { generateGround } from './ground.js';
-// import CACTUS from './libs/threed/cactus.glb';
-// import WEE from './libs/threed/wee.glb'
+import { generateTriangleCat } from './triangleCat.js';
+
 
 const treeParams = {
   radius: 7,
@@ -33,8 +33,8 @@ const params = {
   zFar: 1000
 }
 
-let stats, scene, camera, renderer, camControls, character;
-let scene1, mainScene;
+let stats, camera, renderer, camControls, character, character1;
+let currentScene, sceneGarden, sceneOne, sceneTwo, sceneThree;
 
 let raycaster;
 
@@ -53,9 +53,132 @@ const color = new THREE.Color();
 
 export let shaderTree;
 
-const gui = new GUI();
+// const gui = new GUI();
 const WIDTH = window.innerWidth, HEIGHT = window.innerHeight
 var clock = new THREE.Clock();
+
+// create a camera, which defines where we're looking at.
+function makeCamera() {
+  const { fov, aspect, zNear, zFar} = params;  // the canvas default
+  return new THREE.PerspectiveCamera(fov, aspect, zNear, zFar);
+}
+camera = makeCamera();
+camera.position.set(8, 4, 10).multiplyScalar(1);
+camera.lookAt(0, 0, 0);
+
+// create a render and set the size
+const canvas = document.querySelector('#c');
+renderer = new THREE.WebGLRenderer({ canvas });
+renderer.setClearColor(new THREE.Color(0x000, 1.0));
+renderer.setSize(WIDTH, HEIGHT);
+renderer.shadowMap.enabled = true;
+
+// orbit controls
+const controls = new OrbitControls( camera, renderer.domElement);
+controls.enableZoom = true;
+controls.enableDamping = true;
+controls.update();
+
+// position and point the camera to the center of the scene
+camera.position.x = 100;
+camera.position.y = 10;
+camera.position.z = 10;
+camera.lookAt(new THREE.Vector3(0, 0, 0));
+
+camControls = new PointerLockControls(camera, document.body);
+const instructions = document.getElementById( 'c' );
+
+instructions.addEventListener( 'click', function () {
+  camControls.lock();
+} );
+
+const onKeyDown = function ( event ) {
+
+  switch ( event.code ) {
+
+    case 'ArrowUp':
+    case 'KeyW':
+      moveForward = true;
+      break;
+
+    case 'ArrowLeft':
+    case 'KeyA':
+      moveLeft = true;
+      break;
+
+    case 'ArrowDown':
+    case 'KeyS':
+      moveBackward = true;
+      break;
+
+    case 'ArrowRight':
+    case 'KeyD':
+      moveRight = true;
+      break;
+
+    case 'Space':
+      if ( canJump === true ) velocity.y += 350;
+      canJump = false;
+      break;
+
+  }
+
+};
+
+const onKeyUp = function ( event ) {
+
+  switch ( event.code ) {
+
+    case 'ArrowUp':
+    case 'KeyW':
+      moveForward = false;
+      break;
+
+    case 'ArrowLeft':
+    case 'KeyA':
+      moveLeft = false;
+      break;
+
+    case 'ArrowDown':
+    case 'KeyS':
+      moveBackward = false;
+      break;
+
+    case 'ArrowRight':
+    case 'KeyD':
+      moveRight = false;
+      break;
+
+  }
+
+};
+
+// orientation
+// document.addEventListener('DOMContentLoaded', addListenMouse, false); 
+
+// function addListenMouse() {
+//   document.addEventListener('mousemove', e => {
+//     console.log("move x: ", e.movementX, ", move y: ", e.movementY)
+//     console.log("camera: ", camera.quaternion)
+//   })
+// }
+
+document.addEventListener( 'keydown', onKeyDown );
+document.addEventListener( 'keyup', onKeyUp );
+window.addEventListener("gamepadconnected", function(e) {
+  console.log("Gamepad connected at index %d: %s. %d buttons, %d axes.",
+    e.gamepad.index, e.gamepad.id,
+    e.gamepad.buttons.length, e.gamepad.axes.length);
+  gamepadConnected = true; 
+});
+raycaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, - 1, 0 ), 0, 10 );
+
+// camera gui
+// const guiBox = gui.addFolder('guiBox');
+// guiBox.add(params, 'fov', 1, 100).onChange(makeCamera)
+// guiBox.add(params, 'aspect', 1, 20).onChange(makeCamera)
+// guiBox.add(params, 'zNear', 0.1, 1).onChange(makeCamera)
+// guiBox.add(params, 'zFar', 500, 2000).onChange(makeCamera)
 
 // socket test
 async function testSocket() {
@@ -103,254 +226,6 @@ async function testSocket() {
 
 testSocket()
 
-function main() {
-  // create a scene, that will hold all our elements such as objects, cameras and lights.
-  scene = new THREE.Scene();
-  scene.background = new THREE.Color(0xAAAAAA);
-
-  scene1 = new THREE.Scene();
-  scene1.background = new THREE.Color(0xBB11AA);
-
-  // create a camera, which defines where we're looking at.
-  function makeCamera() {
-    const { fov, aspect, zNear, zFar} = params;  // the canvas default
-    return new THREE.PerspectiveCamera(fov, aspect, zNear, zFar);
-  }
-  camera = makeCamera();
-  camera.position.set(8, 4, 10).multiplyScalar(1);
-  camera.lookAt(0, 0, 0);
-
-  // create a render and set the size
-  const canvas = document.querySelector('#c');
-  renderer = new THREE.WebGLRenderer({ canvas });
-  renderer.setClearColor(new THREE.Color(0x000, 1.0));
-  renderer.setSize(WIDTH, HEIGHT);
-  renderer.shadowMap.enabled = true;
-
-  shaderTree = generateShaderTree(10, 15, 0, gui)
-  scene.add(shaderTree)
-
-  // mushrooms
-  const m = generateMushroom()
-  scene.add(m)
-
-  // ground plane
-  const groundMesh = generateGround();
-  scene.add(groundMesh)
-  
-  // orbit controls
-  const controls = new OrbitControls( camera, renderer.domElement);
-  controls.enableZoom = true;
-  controls.enableDamping = true;
-  controls.update();
-
-  // tree object
-  for(let i = 0; i < 100; i++){
-    const x = getRandomArbitrary(-200, 200)
-    const tree = generateTree(x, 15, getRandomArbitrary(-100, 100))
-    scene.add(tree);  
-  }
-
-  // tree object
-  for(let i = 0; i < 100; i++){
-    const x = getRandomArbitrary(-200, 200)
-    const tree = generateTree(x, 15, getRandomArbitrary(-100, 100))
-    scene1.add(tree);  
-  }
-  
-  // torus knot
-  const torusKnotGeom = new THREE.TorusKnotGeometry( 10, 6, 100, 20 );
-  const torusKnotMat = new THREE.MeshPhongMaterial( {color: 0x00d4ff });
-  const torusKnot = new THREE.Mesh( torusKnotGeom, torusKnotMat );
-  torusKnot.position.y = 60;
-  torusKnot.position.x = -40;
-  scene.add(torusKnot);
-
-  var axes = new THREE.AxesHelper(20);
-  scene.add(axes);
-
-  {
-    const skyColor = 0xB1E1FF;  // light blue
-    const groundColor = 0xB97A20;  // brownish orange
-    const intensity = 1;
-    const light = new THREE.HemisphereLight(skyColor, groundColor, intensity);
-
-    const spotlight = new THREE.SpotLight(0xffffff, 0.3)
-    spotlight.position.set(-40, 100, -10);
-    spotlight.castShadow = true;
-    scene.add(light);
-    scene.add(spotlight)
-  }
-
-
-  {
-    const skyColor = 0xB1E1FF;  // light blue
-    const groundColor = 0xB97A20;  // brownish orange
-    const intensity = 1;
-    const light = new THREE.HemisphereLight(skyColor, groundColor, intensity);
-
-    const spotlight = new THREE.SpotLight(0xffffff, 0.3)
-    spotlight.position.set(-40, 100, -10);
-    spotlight.castShadow = true;
-    scene1.add(light);
-    scene1.add(spotlight)
-  }
-
-  // position and point the camera to the center of the scene
-  camera.position.x = 100;
-  camera.position.y = 10;
-  camera.position.z = 10;
-  camera.lookAt(new THREE.Vector3(0, 0, 0));
-
-  // fps control
-  let characterGeom = new THREE.BoxGeometry(1, 1, 1);
-  let characterMat = new THREE.MeshPhongMaterial( {color: 0x001122} );
-  character = new THREE.Mesh(characterGeom, characterMat);
-  scene.add(character);
-
-  character.position.copy(camera.position);
-  character.rotation.copy(camera.rotation);
-  character.updateMatrix();
-  character.translateZ(-5);
-  character.translateY(-5)
-
-  camControls = new PointerLockControls(camera, document.body);
-  const instructions = document.getElementById( 'c' );
-
-  instructions.addEventListener( 'click', function () {
-
-    camControls.lock();
-
-  } );
-
-
-  scene.add( camControls.getObject() );
-
-  const onKeyDown = function ( event ) {
-
-    switch ( event.code ) {
-
-      case 'ArrowUp':
-      case 'KeyW':
-        moveForward = true;
-        break;
-
-      case 'ArrowLeft':
-      case 'KeyA':
-        moveLeft = true;
-        break;
-
-      case 'ArrowDown':
-      case 'KeyS':
-        moveBackward = true;
-        break;
-
-      case 'ArrowRight':
-      case 'KeyD':
-        moveRight = true;
-        break;
-
-      case 'Space':
-        if ( canJump === true ) velocity.y += 350;
-        canJump = false;
-        break;
-
-    }
-
-  };
-
-  const onKeyUp = function ( event ) {
-
-    switch ( event.code ) {
-
-      case 'ArrowUp':
-      case 'KeyW':
-        moveForward = false;
-        break;
-
-      case 'ArrowLeft':
-      case 'KeyA':
-        moveLeft = false;
-        break;
-
-      case 'ArrowDown':
-      case 'KeyS':
-        moveBackward = false;
-        break;
-
-      case 'ArrowRight':
-      case 'KeyD':
-        moveRight = false;
-        break;
-
-    }
-
-  };
-
-  // orientation
-  // document.addEventListener('DOMContentLoaded', addListenMouse, false); 
-
-  // function addListenMouse() {
-  //   document.addEventListener('mousemove', e => {
-  //     console.log("move x: ", e.movementX, ", move y: ", e.movementY)
-  //     console.log("camera: ", camera.quaternion)
-  //   })
-  // }
-
-  document.addEventListener( 'keydown', onKeyDown );
-  document.addEventListener( 'keyup', onKeyUp );
-  window.addEventListener("gamepadconnected", function(e) {
-    console.log("Gamepad connected at index %d: %s. %d buttons, %d axes.",
-      e.gamepad.index, e.gamepad.id,
-      e.gamepad.buttons.length, e.gamepad.axes.length);
-    gamepadConnected = true; 
-  });
-  raycaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, - 1, 0 ), 0, 10 );
-
-  // camera gui
-  const guiBox = gui.addFolder('guiBox');
-  guiBox.add(params, 'fov', 1, 100).onChange(makeCamera)
-  guiBox.add(params, 'aspect', 1, 20).onChange(makeCamera)
-  guiBox.add(params, 'zNear', 0.1, 1).onChange(makeCamera)
-  guiBox.add(params, 'zFar', 500, 2000).onChange(makeCamera)
- 
-  // 3d model loader
-  // https://sbcode.net/threejs/gltf-animation/
-
-  const gltfLoader = new GLTFLoader();
-  gltfLoader.load (
-    "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/models/cactus.glb",
-    onLoad,
-    function (xhr) {
-      console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
-    },
-    function (error) {
-      console.log("error?", error)
-    }
-  )
-  
-  gltfLoader.load (
-    "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/models/wee.glb",
-    (gltf) => onLoad(gltf, 50),
-    function (xhr) {
-      console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
-    },
-    function (error) {
-      console.log("error?", error)
-    }
-  )
- 
-
-  function onLoad(gltf, x, y) {
-    gltf.scene.position.y = y || 30;
-    gltf.scene.position.x = x || -50;
-    gltf.scene.scale.x = 4;
-    gltf.scene.scale.y = 4;
-    gltf.scene.scale.z = 4;
-    scene.add(gltf.scene);
-  }
-}
-
 // gamepad
 function xboxKeyPressed (gamepad) {
   const buttons = gamepad.buttons;
@@ -381,16 +256,16 @@ function xboxKeyPressed (gamepad) {
   }
 }
 
-const _euler = new THREE.Euler( 0, 0, 0, 'YXZ' );
-const minPolarAngle = 0; // radians
-const maxPolarAngle = Math.PI; // radians 
-const _PI_2 = Math.PI / 2;
 let prevAxisX = 0;
 let prevAxisY = 0;
 let staleX = 0;
 let staleY = 0;
 
 function xboxAxesPressed(gamepad) {
+  const _euler = new THREE.Euler( 0, 0, 0, 'YXZ' );
+  const minPolarAngle = 0; // radians
+  const maxPolarAngle = Math.PI; // radians 
+  const _PI_2 = Math.PI / 2;
 
   const movementX = gamepad.axes[2]
   const movementY = gamepad.axes[3]
@@ -478,12 +353,23 @@ function animate() {
 
   prevTime = time;
 
-  // fpx position
-  character.position.copy(camera.position);
-  character.rotation.copy(camera.rotation);
-  character.updateMatrix();
-  character.translateZ(-6);
-  character.translateY(-1);
+  // fps character position
+  switch(currentScene.name) {
+    case "park":
+      character.position.copy(camera.position);
+      character.rotation.copy(camera.rotation);
+      character.updateMatrix();
+      character.translateZ(-6);
+      character.translateY(-1);
+      break;
+    case "one":
+      character1.position.copy(camera.position);
+      character1.rotation.copy(camera.rotation);
+      character1.updateMatrix();
+      character1.translateZ(-6);
+      character1.translateY(-1);
+      break;
+  }
 
   stats.update();
 };
@@ -501,21 +387,37 @@ function renderDynamicShader() {
   // }
   // mushroomMesh.rotation.y = time * 0.00075;
   // mushroomMesh.material.uniforms.u_time.value = time * 0.01;
-  // scene.children[ 1 ].children[1].rotation.y = time * 0.00075
-  renderer.render( mainScene, camera );
 
+  // cat ears
+  sceneOne.children[2].children[0].children[0].rotation.y = time * 0.00075
+  sceneOne.children[2].children[0].children[1].rotation.y = -time * 0.00075
+
+  renderer.render( currentScene, camera );
+}
+
+function findRotateMesh(item, time) {
+  if(item.name ==="rotateY") {
+    item.rotation.y = time * 2.75
+  } else if (item.name === "rotate"){
+    const innerObj = item.children[0]
+    findRotateMesh(innerObj, time)
+  }
 }
 
 document.addEventListener('keypress', logKey);
 
 function logKey(e) {
-  console.log(e.code)
-  if(e.code === 'Digit1') {
-    console.log("1 pressed")
-    mainScene = scene
-  } else if(e.code === 'Digit2'){
-    console.log("2 pressed")
-    mainScene = scene1
+  currentScene.add(camControls.getObject())
+
+  switch(e.code) {
+    case 'Digit1':
+      console.log("1 pressed")
+      currentScene = sceneGarden
+      break;
+    case 'Digit2':
+      console.log("2 pressed")
+      currentScene = sceneOne
+      break;
   }
 }
 
@@ -525,8 +427,10 @@ if(!WEBGL.isWebGLAvailable()) {
 	 document.getElementById( 'container' ).appendChild( warning );
 } else {
   initStats();
-  main();
-  mainScene = scene;
+  createSceneGarden();
+  createSceneOne()
+  currentScene = sceneOne
+  currentScene.add(camControls.getObject())
   animate();
 }
 
@@ -538,4 +442,154 @@ function initStats() {
   stats.domElement.style.top = '0px';
   document.querySelector("#stats-output").append(stats.domElement);
   return stats;
+}
+
+
+function createSceneGarden() {
+  // create a scene, that will hold all our elements such as objects, cameras and lights.
+  sceneGarden = new THREE.Scene();
+  sceneGarden.background = new THREE.Color(0xAAAAAA);
+  sceneGarden.name = "park"
+
+  shaderTree = generateShaderTree(10, 15, 0)
+
+  // mushrooms
+  const m = generateMushroom()
+
+  // ground plane
+  const groundMesh = generateGround();
+  
+  // tree object
+  for(let i = 0; i < 10; i++){
+    const x = getRandomArbitrary(-200, 200)
+    const tree = generateTree(x, 15, getRandomArbitrary(-100, 100))
+    sceneGarden.add(tree);  
+  }
+
+  // torus knot
+  const torusKnotGeom = new THREE.TorusKnotGeometry( 10, 6, 100, 20 );
+  const torusKnotMat = new THREE.MeshPhongMaterial( {color: 0x00d4ff });
+  const torusKnot = new THREE.Mesh( torusKnotGeom, torusKnotMat );
+  torusKnot.position.y = 60;
+  torusKnot.position.x = -40;
+
+  var axes = new THREE.AxesHelper(20);
+
+  {
+    const skyColor = 0xB1E1FF;  // light blue
+    const groundColor = 0xB97A20;  // brownish orange
+    const intensity = 1;
+    const light = new THREE.HemisphereLight(skyColor, groundColor, intensity);
+
+    const spotlight = new THREE.SpotLight(0xffffff, 0.3)
+    spotlight.position.set(-40, 100, -10);
+    spotlight.castShadow = true;
+    sceneGarden.add(light);
+    sceneGarden.add(spotlight)
+  }
+ 
+  // 3d model loader
+  // https://sbcode.net/threejs/gltf-animation/
+
+  const gltfLoader = new GLTFLoader();
+  gltfLoader.load (
+    "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/models/cactus.glb",
+    onLoad,
+    function (xhr) {
+      console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
+    },
+    function (error) {
+      console.log("error?", error)
+    }
+  )
+  
+  gltfLoader.load (
+    "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/models/wee.glb",
+    (gltf) => onLoad(gltf, 50),
+    function (xhr) {
+      console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
+    },
+    function (error) {
+      console.log("error?", error)
+    }
+  )
+
+  function onLoad(gltf, x, y) {
+    gltf.scene.position.y = y || 30;
+    gltf.scene.position.x = x || -50;
+    gltf.scene.scale.x = 4;
+    gltf.scene.scale.y = 4;
+    gltf.scene.scale.z = 4;
+    sceneGarden.add(gltf.scene);
+  }
+
+  // fps control
+  let characterGeom = new THREE.BoxGeometry(1, 1, 1);
+  let characterMat = new THREE.MeshPhongMaterial( {color: 0x001122} );
+  character = new THREE.Mesh(characterGeom, characterMat);
+
+  character.position.copy(camera.position);
+  character.rotation.copy(camera.rotation);
+  character.updateMatrix();
+  character.translateZ(-5);
+  character.translateY(-5);
+
+  sceneGarden.add(shaderTree)
+  sceneGarden.add(m)
+  sceneGarden.add(groundMesh)
+  sceneGarden.add(axes);
+  sceneGarden.add(character);
+  sceneGarden.add(torusKnot);
+  sceneGarden.add( camControls.getObject() );
+}
+
+function createSceneOne() {
+  sceneOne = new THREE.Scene();
+  sceneOne.background = new THREE.Color(0xAAAAAA);
+  sceneOne.name = "one"
+
+  {
+    const skyColor = 0xB1E1FF;  // light blue
+    const groundColor = 0xB97A20;  // brownish orange
+    const intensity = 1;
+    const light = new THREE.HemisphereLight(skyColor, groundColor, intensity);
+
+    const spotlight = new THREE.SpotLight(0xffffff, 0.3)
+    spotlight.position.set(-40, 100, -10);
+    spotlight.castShadow = true;
+    sceneOne.add(light);
+    sceneOne.add(spotlight)
+  }
+   // ground plane
+   const groundMesh = generateGround();
+
+  // torus knot
+  const torusKnotGeom = new THREE.TorusKnotGeometry( 10, 6, 100, 20 );
+  const torusKnotMat = new THREE.MeshPhongMaterial( {color: 0x00d4ff });
+  const torusKnot = new THREE.Mesh( torusKnotGeom, torusKnotMat );
+  torusKnot.position.y = 60;
+  torusKnot.position.x = -40;
+
+  // fps control
+  const characterGeom = new THREE.BoxGeometry(1, 1, 1);
+  const characterMat = new THREE.MeshPhongMaterial( {color: 0x001122} );
+  character1 = new THREE.Mesh(characterGeom, characterMat);
+
+  character1.position.copy(camera.position);
+  character1.rotation.copy(camera.rotation);
+  character1.updateMatrix();
+  character1.translateZ(-5);
+  character1.translateY(-5);
+
+  const cat = generateTriangleCat();  
+  const axes = new THREE.AxesHelper(20);
+  // The X axis is red. The Y axis is green. The Z axis is blue.
+
+  sceneOne.add(cat)
+  sceneOne.add(axes)
+  sceneOne.add(groundMesh);
+  sceneOne.add(character1);
+  sceneOne.add(torusKnot);
+  sceneOne.add(camControls.getObject() );
+
 }

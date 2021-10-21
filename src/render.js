@@ -388,9 +388,9 @@ function renderDynamicShader() {
   // mushroomMesh.rotation.y = time * 0.00075;
   // mushroomMesh.material.uniforms.u_time.value = time * 0.01;
 
-  // cat ears
-  sceneOne.children[2].children[0].children[0].rotation.y = time * 0.00075
-  sceneOne.children[2].children[0].children[1].rotation.y = -time * 0.00075
+  // cat eyes
+  sceneOne.children[2].children[0].children[2].rotation.y = (time*0.00075);
+  sceneOne.children[2].children[0].children[3].rotation.y = -(time*0.00075);
 
   renderer.render( currentScene, camera );
 }

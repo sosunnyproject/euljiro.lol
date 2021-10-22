@@ -15,7 +15,7 @@ import { getRandomArbitrary, getRandomInt } from './globalfunctions.js';
 import { generateShaderTree, generateTree } from './trees.js';
 import { generateMushroom } from './mushrooms.js';
 import { generateGround } from './ground.js';
-import { generateTriangleCat } from './triangleCat.js';
+import { generateTriangleCat, generateRoads } from './catRoads.js';
 import turbulenceFragment from './shaders/turbulence.frag.js';
 
 
@@ -28,7 +28,7 @@ const treeParams = {
 }
 
 const params = {
-  fov: 20,
+  fov: 50,
   aspect: 2, 
   zNear: 5,
   zFar: 1000
@@ -64,7 +64,7 @@ function makeCamera() {
   return new THREE.PerspectiveCamera(fov, aspect, zNear, zFar);
 }
 camera = makeCamera();
-camera.position.set(8, 4, 10).multiplyScalar(1);
+camera.position.set(-100, 100, 0) //.multiplyScalar(1);
 camera.lookAt(0, 0, 0);
 
 // create a render and set the size
@@ -308,8 +308,8 @@ function animate() {
 
   if ( camControls.isLocked === true ) {
 
-    // raycaster.ray.origin.copy( camControls.getObject().position );
-    // raycaster.ray.origin.y -= 10;
+    raycaster.ray.origin.copy( camControls.getObject().position );
+    raycaster.ray.origin.y -= 10;
 
     // const intersections = raycaster.intersectObjects( objects, false );
 
@@ -344,7 +344,7 @@ function animate() {
     if ( camControls.getObject().position.y < 10 ) {
 
       velocity.y = 0;
-      camControls.getObject().position.y = 10;
+      camControls.getObject().position.y = 5;
 
       canJump = true;
 
@@ -355,6 +355,7 @@ function animate() {
   prevTime = time;
 
   // fps character position
+  /**
   switch(currentScene.name) {
     case "park":
       character.position.copy(camera.position);
@@ -371,6 +372,7 @@ function animate() {
       character1.translateY(-1);
       break;
   }
+   */
 
   stats.update();
 };
@@ -394,15 +396,6 @@ function renderDynamicShader() {
   sceneOne.children[2].children[1].children[0].children[3].rotation.y = -(time*0.00075);
   sceneOne.children[2].children[0].rotation.y = time*0.0005
   renderer.render( currentScene, camera );
-}
-
-function findRotateMesh(item, time) {
-  if(item.name ==="rotateY") {
-    item.rotation.y = time * 2.75
-  } else if (item.name === "rotate"){
-    const innerObj = item.children[0]
-    findRotateMesh(innerObj, time)
-  }
 }
 
 document.addEventListener('keypress', logKey);
@@ -525,6 +518,7 @@ function createSceneGarden() {
   }
 
   // fps control
+  /** 
   let characterGeom = new THREE.BoxGeometry(1, 1, 1);
   let characterMat = new THREE.MeshPhongMaterial( {color: 0x001122} );
   character = new THREE.Mesh(characterGeom, characterMat);
@@ -534,12 +528,13 @@ function createSceneGarden() {
   character.updateMatrix();
   character.translateZ(-5);
   character.translateY(-5);
+  */
 
   sceneGarden.add(shaderTree)
   sceneGarden.add(m)
   sceneGarden.add(groundMesh)
   sceneGarden.add(axes);
-  sceneGarden.add(character);
+  // sceneGarden.add(character);
   sceneGarden.add(torusKnot);
   sceneGarden.add( camControls.getObject() );
 }
@@ -564,6 +559,7 @@ function createSceneOne() {
   }
 
   // fps control
+  /**
   const characterGeom = new THREE.BoxGeometry(1, 1, 1);
   const characterMat = new THREE.MeshPhongMaterial( {color: 0x001122} );
   character1 = new THREE.Mesh(characterGeom, characterMat);
@@ -573,20 +569,64 @@ function createSceneOne() {
   character1.updateMatrix();
   character1.translateZ(-5);
   character1.translateY(-5);
+   */
 
   {
     const cat = generateTriangleCat();
-    cat.position.set(10, 0, 10);
+    cat.position.set(-100, -2, 0);
     sceneOne.add(cat)
 
-    // floor coming from cat's mouth
-    const groundGeom = new THREE.PlaneGeometry(100, 10, 50, 50)
-    const groundMat = new THREE.MeshStandardMaterial( {color: 0xffa600, side: THREE.DoubleSide, metalness: 1.0, roughness: 0.5, flatShading: true} );
-    // const groundMat = new THREE.MeshPhongMaterial( {color: 0xffa600, side: THREE.DoubleSide, envMaps: sceneGarden.environment} );
-
-    const floor = new THREE.Mesh(groundGeom, groundMat)
+    const floor = generateRoads();
     floor.rotation.x = Math.PI/2;
-    floor.position.set(30, 2, 10)
+
+    sceneOne.add(floor)
+  }
+
+  {
+    const cat = generateTriangleCat();
+    cat.position.set(-85, -2, 35);
+    cat.rotation.y = Math.PI/10.0;
+    sceneOne.add(cat)
+
+    const floor = generateRoads();
+    floor.rotation.x = Math.PI/2;
+    floor.rotation.z = -Math.PI/8.0;
+
+    sceneOne.add(floor)
+  }
+
+  {
+    const cat = generateTriangleCat();
+    cat.position.set(-65, -2, 65);
+    cat.rotation.y = Math.PI/4.0;
+    sceneOne.add(cat)
+
+    const floor = generateRoads();
+    floor.rotation.x = Math.PI/2;
+    floor.rotation.z = -Math.PI/4.0;
+
+    sceneOne.add(floor)
+  }
+
+  {
+    const floor = generateRoads(150);
+    floor.rotation.x = Math.PI/2;
+    floor.rotation.z = -Math.PI/2.0;
+
+    sceneOne.add(floor)
+  }
+
+  {
+    const floor = generateRoads(200);
+    floor.rotation.x = Math.PI/2;
+    floor.rotation.z = Math.PI/4.0;
+
+    sceneOne.add(floor)
+  }
+  {
+    const floor = generateRoads();
+    floor.rotation.x = Math.PI/2;
+    floor.rotation.z = Math.PI/8.0;
 
     sceneOne.add(floor)
   }
@@ -601,7 +641,7 @@ function createSceneOne() {
   const axes = new THREE.AxesHelper(20);  // The X axis is red. The Y axis is green. The Z axis is blue.
 
   sceneOne.add(axes)
-  sceneOne.add(character1);
+  // sceneOne.add(character1);
   sceneOne.add(camControls.getObject() );
 
 }

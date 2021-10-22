@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { Scene } from 'three';
 
 // earCone < faceCone < catMesh
 
@@ -7,38 +8,38 @@ export function generateTriangleCat () {
   const catFace = new THREE.Object3D();
 
   const faceGeom = new THREE.ConeGeometry( 5, 6, 8);
-  const faceMat = new THREE.MeshPhongMaterial( {color: 0x5b917c} );
+  const faceMat = new THREE.MeshPhongMaterial( {color: 0xbfbcba} );
   const faceCone = new THREE.Mesh( faceGeom, faceMat );
+  faceCone.scale.set(0.6, 0.6, 0.6)
   faceCone.name = "rotate";
   faceCone.rotation.y = Math.PI/2.0;
 
-  {
+  { 
+    // ears
     const geom = new THREE.ConeGeometry(3, 4, 3);
-    const mat = new THREE.MeshPhongMaterial( { color: 0x11ffee });
-    const earCone = new THREE.Mesh(geom, mat);
-    faceCone.add(earCone)
+    const mat = new THREE.MeshPhongMaterial( { color: 0xf28c0f });
+    const earLeft = new THREE.Mesh(geom, mat);
+    faceCone.add(earLeft)
 
-    earCone.position.set(-5.25, -1.0, -3.5);
-    earCone.rotation.y = -Math.PI/16.0;
-    earCone.scale.set(0.8,0.8,0.8)
-    earCone.name = "rotateY"
+    earLeft.position.set(-5.25, -1.0, -3.5);
+    earLeft.rotation.y = -Math.PI/16.0;
+    earLeft.scale.set(0.8,0.8,0.8)
   }
 
   {
     const geom = new THREE.ConeGeometry(3, 4, 3);
-    const mat = new THREE.MeshPhongMaterial( { color: 0x11ffee });
-    const earCone = new THREE.Mesh(geom, mat);
-    faceCone.add(earCone)
+    const mat = new THREE.MeshPhongMaterial( { color: 0xf28c0f });
+    const earRight = new THREE.Mesh(geom, mat);
+    faceCone.add(earRight)
 
-    earCone.position.set(5.25, -1.0, -3.5);
-    earCone.scale.set(0.8,0.8,0.8);
-    earCone.rotation.y = Math.PI/16.0;
-    earCone.name = "rotateY"
+    earRight.position.set(5.25, -1.0, -3.5);
+    earRight.scale.set(0.8,0.8,0.8);
+    earRight.rotation.y = Math.PI/16.0;
   }
 
   { // eyes
     const geom = new THREE.ConeGeometry(1, 1, 3);
-    const mat = new THREE.MeshToonMaterial( { color: 0x39ff14 } );
+    const mat = new THREE.MeshToonMaterial( { color: 0xF2CF1D } );
     const eye1 = new THREE.Mesh(geom, mat)
     const eye1_1 = new THREE.Mesh(geom, mat)
     const eye2 = new THREE.Mesh(geom, mat)
@@ -61,8 +62,8 @@ export function generateTriangleCat () {
 
   {
     // body
-    const geom = new THREE.ConeGeometry(4, 8, 12);
-    const mat = new THREE.MeshNormalMaterial( { color: 0x11ffee } );
+    const geom = new THREE.ConeGeometry(4, 8, 6);
+    const mat = new THREE.MeshNormalMaterial({color: 0xF2CF1D , side: THREE.DoubleSide, shininess: 50, flatShading: true } );
     const body = new THREE.Mesh(geom, mat);
     catMesh.add(body)
     

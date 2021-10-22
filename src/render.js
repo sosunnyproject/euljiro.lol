@@ -16,6 +16,7 @@ import { generateShaderTree, generateTree } from './trees.js';
 import { generateMushroom } from './mushrooms.js';
 import { generateGround } from './ground.js';
 import { generateTriangleCat } from './triangleCat.js';
+import turbulenceFragment from './shaders/turbulence.frag.js';
 
 
 const treeParams = {
@@ -554,21 +555,13 @@ function createSceneOne() {
     const intensity = 1;
     const light = new THREE.HemisphereLight(skyColor, groundColor, intensity);
 
-    const spotlight = new THREE.SpotLight(0xffffff, 0.3)
+    const spotlight = new THREE.SpotLight(0xffffff, 0.8)
     spotlight.position.set(-40, 100, -10);
     spotlight.castShadow = true;
+
     sceneOne.add(light);
     sceneOne.add(spotlight)
   }
-   // ground plane
-   const groundMesh = generateGround();
-
-  // torus knot
-  const torusKnotGeom = new THREE.TorusKnotGeometry( 10, 6, 100, 20 );
-  const torusKnotMat = new THREE.MeshPhongMaterial( {color: 0x00d4ff });
-  const torusKnot = new THREE.Mesh( torusKnotGeom, torusKnotMat );
-  torusKnot.position.y = 60;
-  torusKnot.position.x = -40;
 
   // fps control
   const characterGeom = new THREE.BoxGeometry(1, 1, 1);
@@ -581,15 +574,34 @@ function createSceneOne() {
   character1.translateZ(-5);
   character1.translateY(-5);
 
-  const cat = generateTriangleCat();  
-  const axes = new THREE.AxesHelper(20);
-  // The X axis is red. The Y axis is green. The Z axis is blue.
+  {
+    const cat = generateTriangleCat();
+    cat.position.set(10, 0, 10);
+    sceneOne.add(cat)
 
-  sceneOne.add(cat)
+    // floor coming from cat's mouth
+    const groundGeom = new THREE.PlaneGeometry(100, 10, 50, 50)
+    const groundMat = new THREE.MeshStandardMaterial( {color: 0xffa600, side: THREE.DoubleSide, metalness: 1.0, roughness: 0.5, flatShading: true} );
+    // const groundMat = new THREE.MeshPhongMaterial( {color: 0xffa600, side: THREE.DoubleSide, envMaps: sceneGarden.environment} );
+
+    const floor = new THREE.Mesh(groundGeom, groundMat)
+    floor.rotation.x = Math.PI/2;
+    floor.position.set(30, 2, 10)
+
+    sceneOne.add(floor)
+  }
+ 
+  {
+    const spot2 = new THREE.SpotLight(0xffffff, 0.2)
+    spot2.position.set(200, 0, 0);
+    spot2.castShadow = true;
+
+    sceneOne.add(spot2)
+  }
+  const axes = new THREE.AxesHelper(20);  // The X axis is red. The Y axis is green. The Z axis is blue.
+
   sceneOne.add(axes)
-  sceneOne.add(groundMesh);
   sceneOne.add(character1);
-  sceneOne.add(torusKnot);
   sceneOne.add(camControls.getObject() );
 
 }

@@ -349,7 +349,6 @@ function animate() {
       canJump = true;
 
     }
-
   }
 
   prevTime = time;
@@ -401,6 +400,8 @@ function renderDynamicShader() {
 document.addEventListener('keypress', logKey);
 
 function logKey(e) {
+  console.log("camera: ", camera.position)
+
   currentScene.add(camControls.getObject())
 
   switch(e.code) {
@@ -490,7 +491,7 @@ function createSceneGarden() {
     "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/models/cactus.glb",
     onLoad,
     function (xhr) {
-      console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
+      // console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
     },
     function (error) {
       console.log("error?", error)
@@ -501,7 +502,7 @@ function createSceneGarden() {
     "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/models/wee.glb",
     (gltf) => onLoad(gltf, 50),
     function (xhr) {
-      console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
+      // console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
     },
     function (error) {
       console.log("error?", error)

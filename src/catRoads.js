@@ -84,7 +84,7 @@ export function generateTriangleCat () {
 
 export function generateRoads(length = 200) {
   // floor coming from cat's mouth
-  const groundGeom = new THREE.PlaneGeometry(length, 8, 50, 50)
+  const groundGeom = new THREE.PlaneGeometry(length, 10, 50, 50)
   const groundMat = new THREE.MeshStandardMaterial( {color: 0xffa600, side: THREE.DoubleSide, metalness: 1.0, roughness: 0.5, flatShading: true} );
   // const groundMat = new THREE.MeshPhongMaterial( {color: 0xffa600, side: THREE.DoubleSide, envMaps: sceneGarden.environment} );
 

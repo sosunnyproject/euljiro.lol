@@ -1,45 +1,43 @@
 import * as THREE from 'three';
-import { Scene } from 'three';
+import { Scene, Triangle } from 'three';
+import vertexShader from './shaders/vertex.glsl.js'
+import fragmentShader from './shaders/fragment.glsl.js'
+import glowFragment from './shaders/glow.frag.js';
 
 // earCone < faceCone < catMesh
 
-export function generateTriangleCat () {
-  const catMesh = new THREE.Object3D();
+export function generateTriangleCat (posX, posY, posZ) {
   const catFace = new THREE.Object3D();
 
-  const faceGeom = new THREE.ConeGeometry( 5, 6, 8);
-  const faceMat = new THREE.MeshPhongMaterial( {color: 0xbfbcba} );
+  const faceGeom = new THREE.ConeGeometry(5, 4, 8);
+  const faceMat = new THREE.MeshPhongMaterial( {color: 0x9f8f82, transparent: true, opacity: 0.7, wireframe: false } );
   const faceCone = new THREE.Mesh( faceGeom, faceMat );
-  faceCone.scale.set(0.6, 0.6, 0.6)
+  faceCone.scale.set(0.5, 0.5, 0.5)
   faceCone.name = "rotate";
   faceCone.rotation.y = Math.PI/2.0;
 
   { 
     // ears
-    const geom = new THREE.ConeGeometry(3, 4, 3);
-    const mat = new THREE.MeshPhongMaterial( { color: 0xf28c0f });
+    const geom = new THREE.ConeGeometry(3, 2, 3);
+    const mat = new THREE.MeshPhongMaterial( { color: 0xf5d49f, transparent: true, opacity: 0.7 });
     const earLeft = new THREE.Mesh(geom, mat);
     faceCone.add(earLeft)
 
-    earLeft.position.set(-5.25, -1.0, -3.5);
+    earLeft.position.set(-4.75, -1.0, -3.2);
     earLeft.rotation.y = -Math.PI/16.0;
-    earLeft.scale.set(0.8,0.8,0.8)
-  }
+    earLeft.scale.set(0.4, 0.65, 0.65)
 
-  {
-    const geom = new THREE.ConeGeometry(3, 4, 3);
-    const mat = new THREE.MeshPhongMaterial( { color: 0xf28c0f });
     const earRight = new THREE.Mesh(geom, mat);
     faceCone.add(earRight)
 
-    earRight.position.set(5.25, -1.0, -3.5);
-    earRight.scale.set(0.8,0.8,0.8);
+    earRight.position.set(4.75, -1.0, -3.2);
+    earRight.scale.set(0.4, 0.65, 0.65)
     earRight.rotation.y = Math.PI/16.0;
   }
 
   { // eyes
     const geom = new THREE.ConeGeometry(1, 1, 3);
-    const mat = new THREE.MeshToonMaterial( { color: 0xF2CF1D } );
+    const mat = new THREE.MeshToonMaterial( { color: 0xffffff } );
     const eye1 = new THREE.Mesh(geom, mat)
     const eye1_1 = new THREE.Mesh(geom, mat)
     const eye2 = new THREE.Mesh(geom, mat)
@@ -49,46 +47,79 @@ export function generateTriangleCat () {
     faceCone.add(eye1)
     faceCone.add(eye2)
 
-    eye1.position.set(-2.8, 1.0, -1.0);
+    eye1.position.set(-2.8, 0.7, -1.0);
     eye1.scale.set(0.8, 0.8, 0.8);
     eye1_1.position.set(0, 0, -1.0);
     eye1_1.rotation.y = Math.PI/3;
 
-    eye2.position.set(2.8, 1.0, -1.0);
+    eye2.position.set(2.8, 0.7, -1.0);
     eye2.scale.set(0.8, 0.8, 0.8);
     eye2_1.position.set(0, 0, -1.0);
     eye2_1.rotation.y = Math.PI/3;
-  }
 
-  {
-    // body
-    const geom = new THREE.ConeGeometry(4, 8, 6);
-    const mat = new THREE.MeshNormalMaterial({color: 0xF2CF1D , side: THREE.DoubleSide, shininess: 50, flatShading: true } );
-    const body = new THREE.Mesh(geom, mat);
-    catMesh.add(body)
-    
-    body.position.y = 6.0;
-    body.position.x = -0.5;
+    eye1.rotation.y = -Math.PI/2;
+    eye2.rotation.y = Math.PI/2;
+
+    const point1 = new THREE.PointLight( 0xF2CF1D, 1, 12 );
+    const point2 = new THREE.PointLight( 0xF2CF1D, 1, 12 );
+    point1.intensity = 5.0;
+    point2.intensity = 5.0;
+
+    const spotLight = new THREE.SpotLight( 0xffffff );
+    spotLight.angle = 0.1;
+    spotLight.intensity = 0.2;
+    spotLight.position.x = -Math.PI/6;
+
+    eye1.add(point1);
+    eye2.add(point2);
+    catFace.add(spotLight)
   }
 
   catFace.add(faceCone);
   catFace.rotation.z = -Math.PI/2;
-  catFace.position.y = 10.0;
-  catMesh.receiveShadow = true;
-  catMesh.castShadow = true;
+  catFace.position.set(posX || 0, posY || 0, posZ || 0)
 
-  catMesh.add(catFace)
+  catFace.scale.set(15, 15, 15)
+  catFace.receiveShadow = true;
+  catFace.castShadow = true;
 
-  return catMesh;
+  return catFace;
+  ;
 }
 
-export function generateRoads(length = 200) {
-  // floor coming from cat's mouth
-  const groundGeom = new THREE.PlaneGeometry(length, 10, 50, 50)
-  const groundMat = new THREE.MeshStandardMaterial( {color: 0xffa600, side: THREE.DoubleSide, metalness: 1.0, roughness: 0.5, flatShading: true} );
-  // const groundMat = new THREE.MeshPhongMaterial( {color: 0xffa600, side: THREE.DoubleSide, envMaps: sceneGarden.environment} );
+export function generateTriangleGround() {
 
-  const floor = new THREE.Mesh(groundGeom, groundMat)
+  var coordinatesList = [
+    new THREE.Vector3(200, 0, 0),
+    new THREE.Vector3(0, 400, 0),
+    new THREE.Vector3(-200, 0, 0)
+  ];
+  const triGeom = new THREE.ShapeBufferGeometry(new THREE.Shape(coordinatesList))
+  const triMat = new THREE.MeshPhongMaterial({color: 0x3f3841 , side: THREE.DoubleSide})
+  const triangle = new THREE.Mesh(triGeom, triMat)
 
-  return floor;
+  triangle.rotation.z = Math.PI/2;
+  triangle.rotation.x = Math.PI/2;
+  triangle.position.x = 200;
+
+  triangle.receiveShadow = true;
+
+  return triangle;
 }
+
+export function generateFloorNeons() {
+
+    const point = new THREE.ConeGeometry(6, 6, 3 );
+    const material = new THREE.ShaderMaterial( {
+      uniforms: {
+        u_time: { value: 1.0 },
+        u_resolution: { value: new THREE.Vector2() }
+      },
+      vertexShader: vertexShader,  
+      fragmentShader: glowFragment
+    } )
+
+    const ball = new THREE.Mesh(point, material)
+    ball.position.y = 6.0
+    return ball
+  }

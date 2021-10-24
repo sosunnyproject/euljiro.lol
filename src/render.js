@@ -15,7 +15,7 @@ import { getRandomArbitrary, getRandomInt } from './globalfunctions.js';
 import { generateShaderTree, generateTree } from './trees.js';
 import { generateMushroom } from './mushrooms.js';
 import { generateGround } from './ground.js';
-import { generateTriangleCat, generateRoads } from './catRoads.js';
+import { generateTriangleCat, generateTriangleGround, generateFloorNeons } from './catRoads.js';
 import turbulenceFragment from './shaders/turbulence.frag.js';
 
 
@@ -28,7 +28,7 @@ const treeParams = {
 }
 
 const params = {
-  fov: 50,
+  fov: 40,
   aspect: 2, 
   zNear: 5,
   zFar: 1000
@@ -36,6 +36,7 @@ const params = {
 
 let stats, camera, renderer, camControls, character, character1;
 let currentScene, sceneGarden, sceneOne, sceneTwo, sceneThree;
+let headlight, headlightHelper;
 
 let raycaster;
 
@@ -73,6 +74,7 @@ renderer = new THREE.WebGLRenderer({ canvas });
 renderer.setClearColor(new THREE.Color(0x000, 1.0));
 renderer.setSize(WIDTH, HEIGHT);
 renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
 // orbit controls
 const controls = new OrbitControls( camera, renderer.domElement);
@@ -315,12 +317,13 @@ function animate() {
 
     // const onObject = intersections.length > 0;
 
+    // control speed of movement
     const delta = ( time - prevTime ) / 1000;
 
-    velocity.x -= velocity.x * 10.0 * delta;
-    velocity.z -= velocity.z * 10.0 * delta;
+    velocity.x -= velocity.x * 20.0 * delta;
+    velocity.z -= velocity.z * 20.0 * delta;
 
-    velocity.y -= 9.8 * 100.0 * delta; // 100.0 = mass
+    velocity.y -= 9.8 * 200.0 * delta; // 100.0 = mass
 
     direction.z = Number( moveForward ) - Number( moveBackward );
     direction.x = Number( moveRight ) - Number( moveLeft );
@@ -354,7 +357,6 @@ function animate() {
   prevTime = time;
 
   // fps character position
-  /**
   switch(currentScene.name) {
     case "park":
       character.position.copy(camera.position);
@@ -365,13 +367,12 @@ function animate() {
       break;
     case "one":
       character1.position.copy(camera.position);
-      character1.rotation.copy(camera.rotation);
-      character1.updateMatrix();
-      character1.translateZ(-6);
-      character1.translateY(-1);
+      // character1.rotation.copy(camera.rotation);
+      // character1.updateMatrix();
+      // character1.translateZ(-6);
+      // character1.translateY(-1);
       break;
   }
-   */
 
   stats.update();
 };
@@ -390,10 +391,8 @@ function renderDynamicShader() {
   // mushroomMesh.rotation.y = time * 0.00075;
   // mushroomMesh.material.uniforms.u_time.value = time * 0.01;
 
-  // cat eyes
-  sceneOne.children[2].children[1].children[0].children[2].rotation.y = (time*0.00075);
-  sceneOne.children[2].children[1].children[0].children[3].rotation.y = -(time*0.00075);
-  sceneOne.children[2].children[0].rotation.y = time*0.0005
+  // animate rotation
+  // sceneOne.children[2].children[0].rotation.y = time*0.0005
   renderer.render( currentScene, camera );
 }
 
@@ -542,107 +541,118 @@ function createSceneGarden() {
 
 function createSceneOne() {
   sceneOne = new THREE.Scene();
-  sceneOne.background = new THREE.Color(0xAAAAAA);
+  sceneOne.background = new THREE.Color(0x000000);
   sceneOne.name = "one"
 
+  // sceneOneLightings = 
   {
     const skyColor = 0xB1E1FF;  // light blue
     const groundColor = 0xB97A20;  // brownish orange
-    const intensity = 1;
+    const intensity = 0.25;
     const light = new THREE.HemisphereLight(skyColor, groundColor, intensity);
-
-    const spotlight = new THREE.SpotLight(0xffffff, 0.8)
-    spotlight.position.set(-40, 100, -10);
-    spotlight.castShadow = true;
-
     sceneOne.add(light);
-    sceneOne.add(spotlight)
   }
 
+
+
   // fps control
-  /**
   const characterGeom = new THREE.BoxGeometry(1, 1, 1);
   const characterMat = new THREE.MeshPhongMaterial( {color: 0x001122} );
   character1 = new THREE.Mesh(characterGeom, characterMat);
 
   character1.position.copy(camera.position);
+  character1.receiveShadow = true;
+  character1.castShadow = true;
   character1.rotation.copy(camera.rotation);
   character1.updateMatrix();
   character1.translateZ(-5);
   character1.translateY(-5);
-   */
 
+  // cats
   {
-    const cat = generateTriangleCat();
-    cat.position.set(-100, -2, 0);
+    const cat = generateTriangleCat(-200, 30, 0);
     sceneOne.add(cat)
 
-    const floor = generateRoads();
-    floor.rotation.x = Math.PI/2;
+    // left edge
+    const cat1 = generateTriangleCat(-120, 30, 60);
+    cat1.rotation.y = Math.PI/4.0;
+    sceneOne.add(cat1)
 
-    sceneOne.add(floor)
+    const cat2 = generateTriangleCat(-40, 30, 110);
+    cat2.rotation.y = Math.PI/3.0;
+    sceneOne.add(cat2)
+
+    const cat3 = generateTriangleCat(40, 30, 140);
+    cat3.rotation.y = Math.PI/3.0;
+    sceneOne.add(cat3)
+
+    const cat4 = generateTriangleCat(120, 30, 170);
+    cat4.rotation.y = Math.PI/2.5;
+    sceneOne.add(cat4)
+
+    // left corner
+    const cat5 = generateTriangleCat(200, 30, 180);
+    cat5.rotation.y = Math.PI/1.5;
+    sceneOne.add(cat5)
+  }
+  {
+    // right edge
+    const cat1 = generateTriangleCat(-120, 30, -60);
+    cat1.rotation.y = -Math.PI/4.0;
+    sceneOne.add(cat1)
+
+    const cat2 = generateTriangleCat(-40, 30, -110);
+    cat2.rotation.y = -Math.PI/3.0;
+    sceneOne.add(cat2)
+
+    const cat3 = generateTriangleCat(40, 30, -140);
+    cat3.rotation.y = -Math.PI/3.0;
+    sceneOne.add(cat3)
+
+    const cat4 = generateTriangleCat(120, 30, -170);
+    cat4.rotation.y = -Math.PI/3.0;
+    sceneOne.add(cat4)
+
+    // corner
+    const cat5 = generateTriangleCat(200, 30, -180);
+    cat5.rotation.y = -Math.PI/1.5
+    sceneOne.add(cat5)
+  }
+  {
+    // bottom edge
+    const cat1 = generateTriangleCat(240, 30, 120);
+    cat1.rotation.y = -Math.PI;
+    sceneOne.add(cat1)
+
+    const cat2 = generateTriangleCat(240, 30, 40);
+    cat2.rotation.y = -Math.PI;
+    sceneOne.add(cat2)
+
+    const cat3 = generateTriangleCat(240, 30, -40);
+    cat3.rotation.y = -Math.PI;
+    sceneOne.add(cat3)
+
+    const cat4 = generateTriangleCat(240, 30, -120);
+    cat4.rotation.y = -Math.PI;
+    sceneOne.add(cat4)
   }
 
   {
-    const cat = generateTriangleCat();
-    cat.position.set(-85, -2, 35);
-    cat.rotation.y = Math.PI/10.0;
-    sceneOne.add(cat)
-
-    const floor = generateRoads();
-    floor.rotation.x = Math.PI/2;
-    floor.rotation.z = -Math.PI/8.0;
-
-    sceneOne.add(floor)
+    const ground = generateTriangleGround()
+    sceneOne.add(ground)
   }
 
-  {
-    const cat = generateTriangleCat();
-    cat.position.set(-65, -2, 65);
-    cat.rotation.y = Math.PI/4.0;
-    sceneOne.add(cat)
-
-    const floor = generateRoads();
-    floor.rotation.x = Math.PI/2;
-    floor.rotation.z = -Math.PI/4.0;
-
-    sceneOne.add(floor)
+  for(let i = -180; i < 200; i+= 50) {
+    const ball = generateFloorNeons()
+    ball.position.set(i, 6, 0)
+    sceneOne.add(ball)
   }
 
-  {
-    const floor = generateRoads(150);
-    floor.rotation.x = Math.PI/2;
-    floor.rotation.z = -Math.PI/2.0;
 
-    sceneOne.add(floor)
-  }
-
-  {
-    const floor = generateRoads(200);
-    floor.rotation.x = Math.PI/2;
-    floor.rotation.z = Math.PI/4.0;
-
-    sceneOne.add(floor)
-  }
-  {
-    const floor = generateRoads();
-    floor.rotation.x = Math.PI/2;
-    floor.rotation.z = Math.PI/8.0;
-
-    sceneOne.add(floor)
-  }
- 
-  {
-    const spot2 = new THREE.SpotLight(0xffffff, 0.2)
-    spot2.position.set(200, 0, 0);
-    spot2.castShadow = true;
-
-    sceneOne.add(spot2)
-  }
   const axes = new THREE.AxesHelper(20);  // The X axis is red. The Y axis is green. The Z axis is blue.
 
   sceneOne.add(axes)
-  // sceneOne.add(character1);
+  // sceneOne.add(character1)
   sceneOne.add(camControls.getObject() );
 
 }

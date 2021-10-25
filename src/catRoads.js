@@ -25,23 +25,32 @@ export function generateTriangleCat (posX, posY, posZ) {
 
     earLeft.position.set(-4.75, -1.0, -3.2);
     earLeft.rotation.y = -Math.PI/16.0;
-    earLeft.scale.set(0.4, 0.65, 0.65)
+    earLeft.scale.set(0.5, 0.65, 0.65)
 
     const earRight = new THREE.Mesh(geom, mat);
     faceCone.add(earRight)
 
     earRight.position.set(4.75, -1.0, -3.2);
-    earRight.scale.set(0.4, 0.65, 0.65)
+    earRight.scale.set(0.5, 0.65, 0.65)
     earRight.rotation.y = Math.PI/16.0;
   }
 
   { // eyes
     const geom = new THREE.ConeGeometry(1, 1, 3);
     const mat = new THREE.MeshToonMaterial( { color: 0xffffff } );
-    const eye1 = new THREE.Mesh(geom, mat)
-    const eye1_1 = new THREE.Mesh(geom, mat)
-    const eye2 = new THREE.Mesh(geom, mat)
-    const eye2_1 = new THREE.Mesh(geom, mat)
+    const material = new THREE.ShaderMaterial( {
+      uniforms: {
+        u_time: { value: 1.0 },
+        u_resolution: { value: new THREE.Vector2() }
+      },
+      vertexShader: vertexShader,  
+      fragmentShader: glowFragment
+    } )
+
+    const eye1 = new THREE.Mesh(geom, material)
+    const eye1_1 = new THREE.Mesh(geom, material)
+    const eye2 = new THREE.Mesh(geom, material)
+    const eye2_1 = new THREE.Mesh(geom, material)
     eye1.add(eye1_1)
     eye2.add(eye2_1)
     faceCone.add(eye1)
@@ -60,19 +69,19 @@ export function generateTriangleCat (posX, posY, posZ) {
     eye1.rotation.y = -Math.PI/2;
     eye2.rotation.y = Math.PI/2;
 
-    const point1 = new THREE.PointLight( 0xF2CF1D, 1, 12 );
-    const point2 = new THREE.PointLight( 0xF2CF1D, 1, 12 );
-    point1.intensity = 5.0;
-    point2.intensity = 5.0;
+    // const point1 = new THREE.PointLight( 0xF2CF1D, 1, 12 );
+    // const point2 = new THREE.PointLight( 0xF2CF1D, 1, 12 );
+    // point1.intensity = 5.0;
+    // point2.intensity = 5.0;
 
     const spotLight = new THREE.SpotLight( 0xffffff );
     spotLight.angle = 0.1;
     spotLight.intensity = 0.2;
-    spotLight.position.x = -Math.PI/6;
+    spotLight.position.x = -Math.PI/4;
 
-    eye1.add(point1);
-    eye2.add(point2);
-    catFace.add(spotLight)
+    // eye1.add(point1);
+    // eye2.add(point2);
+    // catFace.add(spotLight)
   }
 
   catFace.add(faceCone);

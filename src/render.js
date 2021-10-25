@@ -18,6 +18,9 @@ import { generateGround } from './ground.js';
 import { generateTriangleCat, generateTriangleGround, generateFloorNeons } from './catRoads.js';
 import turbulenceFragment from './shaders/turbulence.frag.js';
 
+import { generateDistrictGardenObjects } from './renderDistrictGarden.js';
+import { generateDistrictOneObjects } from './renderDistrictOne.js';
+import { generateDistrictTwoObjects } from './renderDistrictTwo.js';
 
 const treeParams = {
   radius: 7,
@@ -35,8 +38,7 @@ const params = {
 }
 
 let stats, camera, renderer, camControls, character, character1;
-let currentScene, sceneGarden, sceneOne, sceneTwo, sceneThree;
-let headlight, headlightHelper;
+let currentScene, districtGarden, districtOne, districtTwo, districtThree;
 
 let raycaster;
 
@@ -52,8 +54,6 @@ const velocity = new THREE.Vector3();
 const direction = new THREE.Vector3();
 const vertex = new THREE.Vector3();
 const color = new THREE.Color();
-
-export let shaderTree;
 
 // const gui = new GUI();
 const WIDTH = window.innerWidth, HEIGHT = window.innerHeight
@@ -357,6 +357,7 @@ function animate() {
   prevTime = time;
 
   // fps character position
+  /**
   switch(currentScene.name) {
     case "park":
       character.position.copy(camera.position);
@@ -367,12 +368,13 @@ function animate() {
       break;
     case "one":
       character1.position.copy(camera.position);
-      // character1.rotation.copy(camera.rotation);
-      // character1.updateMatrix();
-      // character1.translateZ(-6);
-      // character1.translateY(-1);
+      character1.rotation.copy(camera.rotation);
+      character1.updateMatrix();
+      character1.translateZ(-6);
+      character1.translateY(-1);
       break;
   }
+   */
 
   stats.update();
 };
@@ -392,7 +394,9 @@ function renderDynamicShader() {
   // mushroomMesh.material.uniforms.u_time.value = time * 0.01;
 
   // animate rotation
-  // sceneOne.children[2].children[0].rotation.y = time*0.0005
+  // districtOne.children[2].children[0].rotation.y = time*0.0005;
+  // districtOne.children[0].children[0].children[2].material.uniforms.u_time.value = time * 0.01;
+
   renderer.render( currentScene, camera );
 }
 
@@ -406,11 +410,11 @@ function logKey(e) {
   switch(e.code) {
     case 'Digit1':
       console.log("1 pressed")
-      currentScene = sceneGarden
+      currentScene = districtGarden
       break;
     case 'Digit2':
       console.log("2 pressed")
-      currentScene = sceneOne
+      currentScene = districtOne
       break;
   }
 }
@@ -421,9 +425,9 @@ if(!WEBGL.isWebGLAvailable()) {
 	 document.getElementById( 'container' ).appendChild( warning );
 } else {
   initStats();
-  createSceneGarden();
-  createSceneOne()
-  currentScene = sceneOne
+  createDistrictGarden();
+  createDistrictOne()
+  currentScene = districtOne
   currentScene.add(camControls.getObject())
   animate();
 }
@@ -439,49 +443,12 @@ function initStats() {
 }
 
 
-function createSceneGarden() {
+function createDistrictGarden() {
   // create a scene, that will hold all our elements such as objects, cameras and lights.
-  sceneGarden = new THREE.Scene();
-  sceneGarden.background = new THREE.Color(0xAAAAAA);
-  sceneGarden.name = "park"
+  districtGarden = new THREE.Scene();
+  districtGarden.background = new THREE.Color(0xAAAAAA);
+  districtGarden.name = "park"
 
-  shaderTree = generateShaderTree(10, 15, 0)
-
-  // mushrooms
-  const m = generateMushroom()
-
-  // ground plane
-  const groundMesh = generateGround();
-  
-  // tree object
-  for(let i = 0; i < 10; i++){
-    const x = getRandomArbitrary(-200, 200)
-    const tree = generateTree(x, 15, getRandomArbitrary(-100, 100))
-    sceneGarden.add(tree);  
-  }
-
-  // torus knot
-  const torusKnotGeom = new THREE.TorusKnotGeometry( 10, 6, 100, 20 );
-  const torusKnotMat = new THREE.MeshPhongMaterial( {color: 0x00d4ff });
-  const torusKnot = new THREE.Mesh( torusKnotGeom, torusKnotMat );
-  torusKnot.position.y = 60;
-  torusKnot.position.x = -40;
-
-  var axes = new THREE.AxesHelper(20);
-
-  {
-    const skyColor = 0xB1E1FF;  // light blue
-    const groundColor = 0xB97A20;  // brownish orange
-    const intensity = 1;
-    const light = new THREE.HemisphereLight(skyColor, groundColor, intensity);
-
-    const spotlight = new THREE.SpotLight(0xffffff, 0.3)
-    spotlight.position.set(-40, 100, -10);
-    spotlight.castShadow = true;
-    sceneGarden.add(light);
-    sceneGarden.add(spotlight)
-  }
- 
   // 3d model loader
   // https://sbcode.net/threejs/gltf-animation/
 
@@ -514,7 +481,7 @@ function createSceneGarden() {
     gltf.scene.scale.x = 4;
     gltf.scene.scale.y = 4;
     gltf.scene.scale.z = 4;
-    sceneGarden.add(gltf.scene);
+    // districtGarden.add(gltf.scene);
   }
 
   // fps control
@@ -530,129 +497,34 @@ function createSceneGarden() {
   character.translateY(-5);
   */
 
-  sceneGarden.add(shaderTree)
-  sceneGarden.add(m)
-  sceneGarden.add(groundMesh)
-  sceneGarden.add(axes);
-  // sceneGarden.add(character);
-  sceneGarden.add(torusKnot);
-  sceneGarden.add( camControls.getObject() );
+  const objects = generateDistrictGardenObjects()
+  
+  for(let i = 0; i < objects.length; i++){
+    districtGarden.add(objects[i])
+  }
+
 }
 
-function createSceneOne() {
-  sceneOne = new THREE.Scene();
-  sceneOne.background = new THREE.Color(0x000000);
-  sceneOne.name = "one"
+function createDistrictOne() {
+  districtOne = new THREE.Scene();
+  districtOne.background = new THREE.Color(0x000000);
+  districtOne.name = "one"
 
-  // sceneOneLightings = 
-  {
-    const skyColor = 0xB1E1FF;  // light blue
-    const groundColor = 0xB97A20;  // brownish orange
-    const intensity = 0.25;
-    const light = new THREE.HemisphereLight(skyColor, groundColor, intensity);
-    sceneOne.add(light);
+  const objects = generateDistrictOneObjects()
+  console.log(objects)
+
+  for(let i = 0; i < objects.length; i++){
+    districtOne.add(objects[i])
   }
 
+  districtOne.add(camControls.getObject() );
+}
 
+function createDistrictTwo() {
+  const objects = generateDistrictTwoObjects()
+  // console.log(objects)
 
-  // fps control
-  const characterGeom = new THREE.BoxGeometry(1, 1, 1);
-  const characterMat = new THREE.MeshPhongMaterial( {color: 0x001122} );
-  character1 = new THREE.Mesh(characterGeom, characterMat);
-
-  character1.position.copy(camera.position);
-  character1.receiveShadow = true;
-  character1.castShadow = true;
-  character1.rotation.copy(camera.rotation);
-  character1.updateMatrix();
-  character1.translateZ(-5);
-  character1.translateY(-5);
-
-  // cats
-  {
-    const cat = generateTriangleCat(-200, 30, 0);
-    sceneOne.add(cat)
-
-    // left edge
-    const cat1 = generateTriangleCat(-120, 30, 60);
-    cat1.rotation.y = Math.PI/4.0;
-    sceneOne.add(cat1)
-
-    const cat2 = generateTriangleCat(-40, 30, 110);
-    cat2.rotation.y = Math.PI/3.0;
-    sceneOne.add(cat2)
-
-    const cat3 = generateTriangleCat(40, 30, 140);
-    cat3.rotation.y = Math.PI/3.0;
-    sceneOne.add(cat3)
-
-    const cat4 = generateTriangleCat(120, 30, 170);
-    cat4.rotation.y = Math.PI/2.5;
-    sceneOne.add(cat4)
-
-    // left corner
-    const cat5 = generateTriangleCat(200, 30, 180);
-    cat5.rotation.y = Math.PI/1.5;
-    sceneOne.add(cat5)
-  }
-  {
-    // right edge
-    const cat1 = generateTriangleCat(-120, 30, -60);
-    cat1.rotation.y = -Math.PI/4.0;
-    sceneOne.add(cat1)
-
-    const cat2 = generateTriangleCat(-40, 30, -110);
-    cat2.rotation.y = -Math.PI/3.0;
-    sceneOne.add(cat2)
-
-    const cat3 = generateTriangleCat(40, 30, -140);
-    cat3.rotation.y = -Math.PI/3.0;
-    sceneOne.add(cat3)
-
-    const cat4 = generateTriangleCat(120, 30, -170);
-    cat4.rotation.y = -Math.PI/3.0;
-    sceneOne.add(cat4)
-
-    // corner
-    const cat5 = generateTriangleCat(200, 30, -180);
-    cat5.rotation.y = -Math.PI/1.5
-    sceneOne.add(cat5)
-  }
-  {
-    // bottom edge
-    const cat1 = generateTriangleCat(240, 30, 120);
-    cat1.rotation.y = -Math.PI;
-    sceneOne.add(cat1)
-
-    const cat2 = generateTriangleCat(240, 30, 40);
-    cat2.rotation.y = -Math.PI;
-    sceneOne.add(cat2)
-
-    const cat3 = generateTriangleCat(240, 30, -40);
-    cat3.rotation.y = -Math.PI;
-    sceneOne.add(cat3)
-
-    const cat4 = generateTriangleCat(240, 30, -120);
-    cat4.rotation.y = -Math.PI;
-    sceneOne.add(cat4)
-  }
-
-  {
-    const ground = generateTriangleGround()
-    sceneOne.add(ground)
-  }
-
-  for(let i = -180; i < 200; i+= 50) {
-    const ball = generateFloorNeons()
-    ball.position.set(i, 6, 0)
-    sceneOne.add(ball)
-  }
-
-
-  const axes = new THREE.AxesHelper(20);  // The X axis is red. The Y axis is green. The Z axis is blue.
-
-  sceneOne.add(axes)
-  // sceneOne.add(character1)
-  sceneOne.add(camControls.getObject() );
-
+  // for(let i = 0; i < objects.length; i++){
+  //   districtOne.add(objects[i])
+  // }
 }

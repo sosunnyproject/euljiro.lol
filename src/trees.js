@@ -57,7 +57,7 @@ function draw(position) {
  
   const grassColors = ["rgb(227, 101, 91)", "rgb(220, 214, 247)", "rgb(217, 237, 146)", "rgb(181,228,140)", "rgb(153,217,140)", "rgb(118,200,147)", "rgb(82,182,154)", "rgb(52,160,164)"]
   const grassInd = getRandomInt(0, grassColors.length)
-  const grassGeometry = new THREE.DodecahedronGeometry(data.radius, data.detail)
+  const grassGeometry = new THREE.CylinderGeometry(data.radius, data.radius, 100, 32)
   const grassMaterial = new THREE.MeshPhongMaterial( { color: grassColors[grassInd] } );
   const grassShader = new THREE.ShaderMaterial( {
     uniforms: {

@@ -11,16 +11,10 @@ import Stats from 'three/examples/jsm/libs/stats.module';
 import { WEBGL } from 'three/examples/jsm/WebGL';
 import { io } from "socket.io-client";
 
-import { getRandomArbitrary, getRandomInt } from './globalfunctions.js';
-import { generateShaderTree, generateTree } from './trees.js';
-import { generateMushroom } from './mushrooms.js';
-import { generateGround } from './ground.js';
-import { generateTriangleCat, generateTriangleGround, generateFloorNeons } from './catRoads.js';
-import turbulenceFragment from './shaders/turbulence.frag.js';
-
 import { generateDistrictGardenObjects } from './renderDistrictGarden.js';
 import { generateDistrictOneObjects } from './renderDistrictOne.js';
 import { generateDistrictTwoObjects } from './renderDistrictTwo.js';
+import { generateDistrictThreeObjects } from './renderDistrictThree.js';
 
 const treeParams = {
   radius: 7,
@@ -31,7 +25,7 @@ const treeParams = {
 }
 
 const params = {
-  fov: 40,
+  fov: 20,
   aspect: 2, 
   zNear: 5,
   zFar: 1000
@@ -302,7 +296,7 @@ function animate() {
     xboxAxesPressed(gamepad);
   }
 
-  renderDynamicShader();
+  render();
 
   requestAnimationFrame( animate );
 
@@ -320,8 +314,8 @@ function animate() {
     // control speed of movement
     const delta = ( time - prevTime ) / 1000;
 
-    velocity.x -= velocity.x * 20.0 * delta;
-    velocity.z -= velocity.z * 20.0 * delta;
+    velocity.x -= velocity.x * 40.0 * delta;
+    velocity.z -= velocity.z * 40.0 * delta;
 
     velocity.y -= 9.8 * 200.0 * delta; // 100.0 = mass
 
@@ -380,7 +374,7 @@ function animate() {
 };
 
 // including animation loop
-function renderDynamicShader() {
+function render() {
 
   const time = performance.now();
 
@@ -393,9 +387,16 @@ function renderDynamicShader() {
   // mushroomMesh.rotation.y = time * 0.00075;
   // mushroomMesh.material.uniforms.u_time.value = time * 0.01;
 
-  // animate rotation
+  // districtOne animate rotation
   // districtOne.children[2].children[0].rotation.y = time*0.0005;
-  // districtOne.children[0].children[0].children[2].material.uniforms.u_time.value = time * 0.01;
+  districtOne.children[0].children[0].children[1].material.uniforms.u_time.value = time * 0.01;
+  districtOne.children[1].children[0].children[1].material.uniforms.u_time.value = time * 0.008;
+  // districtOne.children[2].children[0].children[2].material.uniforms.u_time.value = time * 0.012;
+  // districtOne.children[3].children[0].children[2].material.uniforms.u_time.value = time * 0.014;
+
+  const canvas = renderer.domElement;
+  camera.aspect = canvas.clientWidth / canvas.clientHeight;
+  camera.updateProjectionMatrix();
 
   renderer.render( currentScene, camera );
 }
@@ -403,18 +404,26 @@ function renderDynamicShader() {
 document.addEventListener('keypress', logKey);
 
 function logKey(e) {
-  console.log("camera: ", camera.position)
+  // console.log("camera: ", camera.position)
 
   currentScene.add(camControls.getObject())
 
   switch(e.code) {
     case 'Digit1':
       console.log("1 pressed")
-      currentScene = districtGarden
+      currentScene = districtOne;
       break;
     case 'Digit2':
       console.log("2 pressed")
-      currentScene = districtOne
+      currentScene = districtTwo ;
+      break;
+    case 'Digit3':
+      console.log("3 pressed")
+      currentScene = districtThree;
+      break;
+    case 'Digit0':
+      console.log("0 pressed")
+      currentScene = districtGarden;
       break;
   }
 }
@@ -426,8 +435,10 @@ if(!WEBGL.isWebGLAvailable()) {
 } else {
   initStats();
   createDistrictGarden();
-  createDistrictOne()
-  currentScene = districtOne
+  createDistrictOne();
+  createDistrictTwo();
+  createDistrictThree();
+  currentScene = districtOne;
   currentScene.add(camControls.getObject())
   animate();
 }
@@ -527,4 +538,15 @@ function createDistrictTwo() {
   // for(let i = 0; i < objects.length; i++){
   //   districtOne.add(objects[i])
   // }
+}
+
+function createDistrictThree() {
+  districtThree = new THREE.Scene();
+  districtThree.background = new THREE.Color(0xffffff);
+
+  const objects = generateDistrictThreeObjects();
+
+  for(let i = 0; i < objects.length; i++){
+    districtThree.add(objects[i]);
+  }
 }

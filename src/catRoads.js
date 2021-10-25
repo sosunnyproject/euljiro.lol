@@ -3,37 +3,19 @@ import { Scene, Triangle } from 'three';
 import vertexShader from './shaders/vertex.glsl.js'
 import fragmentShader from './shaders/fragment.glsl.js'
 import glowFragment from './shaders/glow.frag.js';
+import glowGroundFragment from './shaders/glowBottom.frag.js';
 
 // earCone < faceCone < catMesh
 
 export function generateTriangleCat (posX, posY, posZ) {
   const catFace = new THREE.Object3D();
 
-  const faceGeom = new THREE.ConeGeometry(5, 4, 8);
-  const faceMat = new THREE.MeshPhongMaterial( {color: 0x9f8f82, transparent: true, opacity: 0.7, wireframe: false } );
+  const faceGeom = new THREE.ConeGeometry(5, 4, 9, 15);
+  const faceMat = new THREE.MeshPhongMaterial( {color: 0x9f8f82, transparent: true, opacity: 0.2 , wireframe: false } );
   const faceCone = new THREE.Mesh( faceGeom, faceMat );
   faceCone.scale.set(0.5, 0.5, 0.5)
   faceCone.name = "rotate";
   faceCone.rotation.y = Math.PI/2.0;
-
-  { 
-    // ears
-    const geom = new THREE.ConeGeometry(3, 2, 3);
-    const mat = new THREE.MeshPhongMaterial( { color: 0xf5d49f, transparent: true, opacity: 0.7 });
-    const earLeft = new THREE.Mesh(geom, mat);
-    faceCone.add(earLeft)
-
-    earLeft.position.set(-4.75, -1.0, -3.2);
-    earLeft.rotation.y = -Math.PI/16.0;
-    earLeft.scale.set(0.5, 0.65, 0.65)
-
-    const earRight = new THREE.Mesh(geom, mat);
-    faceCone.add(earRight)
-
-    earRight.position.set(4.75, -1.0, -3.2);
-    earRight.scale.set(0.5, 0.65, 0.65)
-    earRight.rotation.y = Math.PI/16.0;
-  }
 
   { // eyes
     const geom = new THREE.ConeGeometry(1, 1, 3);
@@ -83,6 +65,80 @@ export function generateTriangleCat (posX, posY, posZ) {
     // eye2.add(point2);
     // catFace.add(spotLight)
   }
+  
+  {
+    // bevel ears
+    const length = 12, width = 8;
+    const x = -5, y = 0;
+    const shape = new THREE.Shape();
+    shape.moveTo( -5, 0);
+    shape.lineTo( 0, 10);
+    shape.lineTo( 5, 0 );
+    shape.lineTo( -5, 0 );
+
+    const extrudeSettings = {
+      steps: 1,
+      depth: 1,
+      bevelEnabled: true,
+      bevelThickness: 6,
+      bevelSize: 6,
+      bevelOffset: -4,
+      bevelSegments: 6
+    };
+
+    const geometry = new THREE.ExtrudeGeometry( shape, extrudeSettings );
+    const material = new THREE.MeshBasicMaterial( { color: 0xf5d49f, transparent: true, opacity: 0.25 } );
+    const earRight = new THREE.Mesh( geometry, material ) ;
+    earRight.rotation.x = Math.PI/2.0;
+    earRight.rotation.z = -Math.PI/10.0;
+    earRight.scale.set(0.2, 0.2, 0.2)
+    earRight.position.set(4.25, -1.4, -4.5);
+
+    const earLeft = new THREE.Mesh( geometry, material ) ;
+    earLeft.rotation.x = Math.PI/2.0;
+    earLeft.rotation.z = Math.PI/10.0;
+    earLeft.scale.set(0.2, 0.2, 0.2)
+    earLeft.position.set(-4.25, -1.4, -4.5);
+
+    faceCone.add(earRight)
+    faceCone.add(earLeft)
+  }
+
+  /*
+  { 
+    // ears
+    const geom = new THREE.ConeGeometry(3, 2, 3, 6);
+    const mat = new THREE.MeshPhongMaterial( { color: 0xf5d49f, transparent: true, opacity: 0.7, wireframe: false });
+    const earLeft = new THREE.Mesh(geom, mat);
+    faceCone.add(earLeft)
+
+    earLeft.position.set(-4.75, -1.0, -3.2);
+    earLeft.rotation.y = -Math.PI/16.0;
+    earLeft.scale.set(0.53, 0.65, 0.65)
+
+    const earRight = new THREE.Mesh(geom, mat);
+    faceCone.add(earRight)
+
+    earRight.position.set(4.75, -1.0, -3.2);
+    earRight.scale.set(0.53, 0.65, 0.65)
+    earRight.rotation.y = Math.PI/16.0;
+  }
+  */
+
+  /*
+  {
+    // nose
+    const geom = new THREE.ConeGeometry(1, 2, 3);
+    const mat = new THREE.MeshPhongMaterial( { color: 0xf5d49f, transparent: true, opacity: 0.7, wireframe: false });
+    const nose = new THREE.Mesh(geom, mat);
+    nose.rotation.y = Math.PI;
+    nose.scale.set(0.5, 0.5, 0.5)
+    
+    faceCone.add(nose)
+
+    nose.position.y = 3.0;
+  }
+  */
 
   catFace.add(faceCone);
   catFace.rotation.z = -Math.PI/2;
@@ -116,16 +172,17 @@ export function generateTriangleGround() {
   return triangle;
 }
 
-export function generateFloorNeons() {
+export function generateFloorNeons(colorVector, size) {
 
-    const point = new THREE.ConeGeometry(6, 6, 3 );
+    const point = new THREE.ConeGeometry(size, size+0.25, 3 );
     const material = new THREE.ShaderMaterial( {
       uniforms: {
         u_time: { value: 1.0 },
-        u_resolution: { value: new THREE.Vector2() }
+        u_resolution: { value: new THREE.Vector2() },
+        u_color: { value: colorVector }
       },
       vertexShader: vertexShader,  
-      fragmentShader: glowFragment
+      fragmentShader: glowGroundFragment
     } )
 
     const ball = new THREE.Mesh(point, material)

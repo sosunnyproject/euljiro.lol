@@ -1,8 +1,5 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js';
-import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader.js';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls.js';
 
 import { getRandomArbitrary, getRandomInt } from './globalfunctions.js';
@@ -12,7 +9,7 @@ import { generateTriangleCat, generateTriangleGround, generateFloorNeons } from 
 
 export function generateDistrictOneObjects() {
 
- let districtOneChildren = []
+ let arr = []
 
  // cats
  {
@@ -35,7 +32,7 @@ export function generateDistrictOneObjects() {
    const cat5 = generateTriangleCat(200, 30, 180);
    cat5.rotation.y = Math.PI/1.5;
 
-   districtOneChildren.push(cat, cat1, cat2, cat3, cat4, cat5)
+   arr.push(cat, cat1, cat2, cat3, cat4, cat5)
  }
  {
    // right edge
@@ -55,29 +52,29 @@ export function generateDistrictOneObjects() {
    const cat5 = generateTriangleCat(200, 30, -180);
    cat5.rotation.y = -Math.PI/1.5
 
-   districtOneChildren.push(cat1, cat2, cat3, cat4, cat5)
+   arr.push(cat1, cat2, cat3, cat4, cat5)
  }
  {
    // bottom edge
-   const cat1 = generateTriangleCat(240, 30, 120);
+   const cat1 = generateTriangleCat(240, 30, 135);
    cat1.rotation.y = -Math.PI;
 
-   const cat2 = generateTriangleCat(240, 30, 40);
+   const cat2 = generateTriangleCat(240, 30, 50);
    cat2.rotation.y = -Math.PI;
 
    const cat3 = generateTriangleCat(240, 30, -40);
    cat3.rotation.y = -Math.PI;
 
-   const cat4 = generateTriangleCat(240, 30, -120);
+   const cat4 = generateTriangleCat(240, 30, -130);
    cat4.rotation.y = -Math.PI;
 
-   districtOneChildren.push(cat1, cat2, cat3, cat4)
+   arr.push(cat1, cat2, cat3, cat4)
  }
 
  {
    const ground = generateTriangleGround()
 
-   districtOneChildren.push(ground)
+   arr.push(ground)
  }
 
  {
@@ -86,19 +83,57 @@ export function generateDistrictOneObjects() {
   const intensity = 0.25;
   const light = new THREE.HemisphereLight(skyColor, groundColor, intensity);
   
-  districtOneChildren.push(light)
+  arr.push(light)
 }
 
- for(let i = -180; i < 200; i+= 50) {
-   const ball = generateFloorNeons()
-   ball.position.set(i, 6, 0)
+ for(let x = -180; x < 200; x += 20) {
+   const ball = generateFloorNeons(new THREE.Vector3(0.92, 0.747, 0.178), 1.5)
+   ball.rotation.y = Math.PI/2.0;
+   ball.position.set(x, 1.5, 0)
    
-   districtOneChildren.push(ball)
+   arr.push(ball)
  }
+
+ for(let z = -100; z < 110; z+= 10) {
+  const ball = generateFloorNeons(new THREE.Vector3(0.92, 0.884, 0.45), 1.5)
+  ball.rotation.y += Math.PI;
+  ball.position.set(0, 1.5, z)
+
+  arr.push(ball)
+}
+let tempX = 200;
+for(let z = -180; z < 65; z+= 5) {
+  const ball = generateFloorNeons(new THREE.Vector3(0.375, 0.304, 0.193), 1.5)
+  ball.rotation.y += Math.PI;
+  ball.position.set(tempX, 1, z)
+
+  arr.push(ball)
+  tempX -= 5.5;
+}
+
+let tempX1 = 200;
+for(let z = 180; z > -65; z -= 5) {
+  const ball = generateFloorNeons(new THREE.Vector3(0.375, 0.304, 0.073), 1.5)
+  ball.rotation.y += Math.PI;
+  ball.position.set(tempX1, 1, z)
+
+  arr.push(ball)
+  tempX1 -= 5.5;
+}
+
+let tempZ = 200;
+// for(let x = -180; x < 80; x+= 22) {
+//   const ball = generateFloorNeons(new THREE.Vector3(0.375,0.268,0.058), 1.5)
+//   ball.rotation.y += Math.PI;
+//   ball.position.set(tempX, 3, z)
+
+//   arr.push(ball)
+//   tempX -= 22;
+// }
 
  const axes = new THREE.AxesHelper(20);  // The X axis is red. The Y axis is green. The Z axis is blue.
 
- districtOneChildren.push(axes)
+ arr.push(axes)
 
- return districtOneChildren;
+ return arr;
 }

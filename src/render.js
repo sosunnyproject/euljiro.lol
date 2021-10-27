@@ -389,8 +389,8 @@ function render() {
 
   // districtOne animate rotation
   // districtOne.children[2].children[0].rotation.y = time*0.0005;
-  districtOne.children[0].children[0].children[1].material.uniforms.u_time.value = time * 0.01;
-  districtOne.children[1].children[0].children[1].material.uniforms.u_time.value = time * 0.008;
+  // districtOne.children[0].children[0].children[1].material.uniforms.u_time.value = time * 0.01;
+  // districtOne.children[1].children[0].children[1].material.uniforms.u_time.value = time * 0.008;
   // districtOne.children[2].children[0].children[2].material.uniforms.u_time.value = time * 0.012;
   // districtOne.children[3].children[0].children[2].material.uniforms.u_time.value = time * 0.014;
 

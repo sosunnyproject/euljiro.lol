@@ -10,12 +10,35 @@ import glowGroundFragment from './shaders/glowBottom.frag.js';
 export function generateTriangleCat (posX, posY, posZ) {
   const catFace = new THREE.Object3D();
 
-  const faceGeom = new THREE.ConeGeometry(5, 4, 9, 15);
+  const faceGeom = new THREE.ConeGeometry(5, 4, 12, 15);
+  const faceTorusGeom = new THREE.TorusGeometry(2.5, 1.5, 20, 12);
   const faceMat = new THREE.MeshPhongMaterial( {color: 0x9f8f82, transparent: true, opacity: 0.2 , wireframe: false } );
-  const faceCone = new THREE.Mesh( faceGeom, faceMat );
+  const face = new THREE.Mesh( faceGeom, faceMat );
+  // face.rotation.x = Math.PI/2.;
+
+  {
+    const position = faceGeom.attributes.position;
+    const vec = new THREE.Vector3();
+    const newVectors = []
+    for(let i = 0, n = position.count; i < n; i++){
+      vec.fromBufferAttribute(position, i);
+      let value = pn.noise(vec.x / 2, vec.y / 2, 0);
+      vec.z = value * 10;
+  
+      newVectors.push(vec.x)
+      newVectors.push(vec.y)
+      newVectors.push(vec.z)
+    }
+    groundGeometry.setAttribute('position',  new THREE.Float32BufferAttribute( newVectors, 3 ) );
+  
+  }
+
+  const faceCone = new THREE.Object3D();
   faceCone.scale.set(0.5, 0.5, 0.5)
   faceCone.name = "rotate";
   faceCone.rotation.y = Math.PI/2.0;
+
+  faceCone.add(face);
 
   { // eyes
     const geom = new THREE.ConeGeometry(1, 1, 3);
@@ -100,10 +123,25 @@ export function generateTriangleCat (posX, posY, posZ) {
     earLeft.scale.set(0.2, 0.2, 0.2)
     earLeft.position.set(-4.25, -1.4, -4.5);
 
+    // faceCone.add(earRight)
+    // faceCone.add(earLeft)
+  }
+
+  // cone ears
+  {
+    const geom = new THREE.TorusGeometry(1,0.8, 40, 3);
+    const mat = new THREE.MeshPhongMaterial( { color: 0xf5d49f, transparent: true, opacity: 0.75 } );
+    const earRight = new THREE.Mesh(geom, mat);
+    earRight.rotation.set(Math.PI/2, 0.0, -Math.PI/3.5);
+    earRight.position.set(4.25, -1.4, -4.5)
+
+    const earLeft = new THREE.Mesh(geom, mat);
+    earLeft.rotation.set(Math.PI/2, 0.0, Math.PI/1.5);
+    earLeft.position.set(-4.25, -1.4, -4.5)
+
     faceCone.add(earRight)
     faceCone.add(earLeft)
   }
-
   /*
   { 
     // ears

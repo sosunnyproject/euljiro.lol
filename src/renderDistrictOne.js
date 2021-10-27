@@ -6,6 +6,7 @@ import { getRandomArbitrary, getRandomInt } from './globalfunctions.js';
 import { generateMushroom } from './mushrooms.js';
 import { generateGround } from './ground.js';
 import { generateTriangleCat, generateTriangleGround, generateFloorNeons } from './catRoads.js';
+import { generateTrafficCone } from './TrafficCone.js';
 
 export function generateDistrictOneObjects() {
 
@@ -80,14 +81,14 @@ export function generateDistrictOneObjects() {
  {
   const skyColor = 0xB1E1FF;  // light blue
   const groundColor = 0xB97A20;  // brownish orange
-  const intensity = 0.25;
+  const intensity = 1.5;
   const light = new THREE.HemisphereLight(skyColor, groundColor, intensity);
   
   arr.push(light)
 }
 
  for(let x = -180; x < 200; x += 20) {
-   const ball = generateFloorNeons(new THREE.Vector3(0.92, 0.747, 0.178), 1.5)
+   const ball = generateFloorNeons(new THREE.Vector3(242/255, 227/255, 19/255), 1.5)
    ball.rotation.y = Math.PI/2.0;
    ball.position.set(x, 1.5, 0)
    
@@ -95,7 +96,7 @@ export function generateDistrictOneObjects() {
  }
 
  for(let z = -100; z < 110; z+= 10) {
-  const ball = generateFloorNeons(new THREE.Vector3(0.92, 0.884, 0.45), 1.5)
+  const ball = generateFloorNeons(new THREE.Vector3(100/255, 34/255, 242/255), 1.5)
   ball.rotation.y += Math.PI;
   ball.position.set(0, 1.5, z)
 
@@ -103,7 +104,7 @@ export function generateDistrictOneObjects() {
 }
 let tempX = 200;
 for(let z = -180; z < 65; z+= 5) {
-  const ball = generateFloorNeons(new THREE.Vector3(0.375, 0.304, 0.193), 1.5)
+  const ball = generateFloorNeons(new THREE.Vector3(0, 241/255, 255/255), 1.5)
   ball.rotation.y += Math.PI;
   ball.position.set(tempX, 1, z)
 
@@ -113,7 +114,7 @@ for(let z = -180; z < 65; z+= 5) {
 
 let tempX1 = 200;
 for(let z = 180; z > -65; z -= 5) {
-  const ball = generateFloorNeons(new THREE.Vector3(0.375, 0.304, 0.073), 1.5)
+  const ball = generateFloorNeons(new THREE.Vector3(239/255, 71/255, 111/255), 1.5)
   ball.rotation.y += Math.PI;
   ball.position.set(tempX1, 1, z)
 
@@ -134,6 +135,9 @@ let tempZ = 200;
  const axes = new THREE.AxesHelper(20);  // The X axis is red. The Y axis is green. The Z axis is blue.
 
  arr.push(axes)
+
+ const cone = generateTrafficCone()
+ arr.push(cone);
 
  return arr;
 }

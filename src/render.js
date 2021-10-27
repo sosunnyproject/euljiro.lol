@@ -531,12 +531,17 @@ function createDistrictOne() {
   const districtOneModels = [
     "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/models/pink_cone.glb",
     "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/models/purple_cone.glb",
-
+    "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/models/blue_cone.glb",
+    "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/models/pink_cone2.glb",    "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/models/pink_cone2.glb",
+    "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/models/robot_face.glb"
   ]
 
   const modelsPosition = [
     [30, 10, 20],
-    [30, 10, -50]
+    [30, 10, -50],
+    [-30, 10, -80],
+    [-30, 10, 80],
+    [0, 0, 0]
   ]
   
   const gltfLoader = new GLTFLoader();

@@ -1,9 +1,10 @@
 import * as THREE from 'three';
 import { Scene, Triangle } from 'three';
-import vertexShader from './shaders/vertex.glsl.js'
-import fragmentShader from './shaders/fragment.glsl.js'
-import glowFragment from './shaders/glow.frag.js';
-import glowGroundFragment from './shaders/glowBottom.frag.js';
+import vertexShader from '../shaders/vertex.glsl.js'
+import fragmentShader from '../shaders/fragment.glsl.js'
+import glowFragment from '../shaders/glow.frag.js';
+import glowGroundFragment from '../shaders/glowBottom.frag.js';
+import Perlin from '../../libs/perlin.js';
 
 // earCone < faceCone < catMesh
 
@@ -15,6 +16,9 @@ export function generateTriangleCat (posX, posY, posZ) {
   const faceMat = new THREE.MeshPhongMaterial( {color: 0x9f8f82, transparent: true, opacity: 0.2 , wireframe: false } );
   const face = new THREE.Mesh( faceGeom, faceMat );
   // face.rotation.x = Math.PI/2.;
+
+  let date = new Date();
+  let pn = new Perlin('rnd' + date.getTime());
 
   {
     const position = faceGeom.attributes.position;
@@ -29,7 +33,7 @@ export function generateTriangleCat (posX, posY, posZ) {
       newVectors.push(vec.y)
       newVectors.push(vec.z)
     }
-    groundGeometry.setAttribute('position',  new THREE.Float32BufferAttribute( newVectors, 3 ) );
+    // faceGeom.setAttribute('position',  new THREE.Float32BufferAttribute( newVectors, 3 ) );
   
   }
 
@@ -114,13 +118,13 @@ export function generateTriangleCat (posX, posY, posZ) {
     const earRight = new THREE.Mesh( geometry, material ) ;
     earRight.rotation.x = Math.PI/2.0;
     earRight.rotation.z = -Math.PI/10.0;
-    earRight.scale.set(0.2, 0.2, 0.2)
+    earRight.scale.set(0.1, 0.1, 0.1)
     earRight.position.set(4.25, -1.4, -4.5);
 
     const earLeft = new THREE.Mesh( geometry, material ) ;
     earLeft.rotation.x = Math.PI/2.0;
     earLeft.rotation.z = Math.PI/10.0;
-    earLeft.scale.set(0.2, 0.2, 0.2)
+    earLeft.scale.set(0.1, 0.1, 0.1)
     earLeft.position.set(-4.25, -1.4, -4.5);
 
     // faceCone.add(earRight)

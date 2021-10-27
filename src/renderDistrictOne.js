@@ -5,8 +5,9 @@ import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockCont
 import { getRandomArbitrary, getRandomInt } from './globalfunctions.js';
 import { generateMushroom } from './mushrooms.js';
 import { generateGround } from './ground.js';
-import { generateTriangleCat, generateTriangleGround, generateFloorNeons } from './catRoads.js';
-import { generateTrafficCone } from './TrafficCone.js';
+import { generateTrafficCone } from './models/TrafficCone.js';
+import { generateTriangleCat, generateTriangleGround, generateFloorNeons } from './models/catRoads.js';
+import { generateBirdBot } from './models/birdBot.js';
 
 export function generateDistrictOneObjects() {
 
@@ -122,15 +123,15 @@ for(let z = 180; z > -65; z -= 5) {
   tempX1 -= 5.5;
 }
 
-let tempZ = 200;
-// for(let x = -180; x < 80; x+= 22) {
-//   const ball = generateFloorNeons(new THREE.Vector3(0.375,0.268,0.058), 1.5)
-//   ball.rotation.y += Math.PI;
-//   ball.position.set(tempX, 3, z)
+// cctv bird
+{
+  const bird = generateBirdBot();
 
-//   arr.push(ball)
-//   tempX -= 22;
-// }
+  bird.scale.set(8.0, 8.0, 8.0);
+  bird.position.y = 13.0;
+
+  arr.push(bird);
+}
 
  const axes = new THREE.AxesHelper(20);  // The X axis is red. The Y axis is green. The Z axis is blue.
 

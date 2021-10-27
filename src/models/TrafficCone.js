@@ -1,8 +1,8 @@
 import * as THREE from 'three';
-import vertexShader from './shaders/vertex.glsl.js'
-import fragmentShader from './shaders/fragment.glsl.js'
-import glowFragment from './shaders/glow.frag.js';
-import glowGroundFragment from './shaders/glowBottom.frag.js';
+import vertexShader from '../shaders/vertex.glsl.js'
+import fragmentShader from '../shaders/fragment.glsl.js'
+import glowFragment from '../shaders/glow.frag.js';
+import glowGroundFragment from '../shaders/glowBottom.frag.js';
 
 export function generateTrafficCone() {
 

@@ -492,7 +492,7 @@ function createDistrictGarden() {
     gltf.scene.scale.x = 4;
     gltf.scene.scale.y = 4;
     gltf.scene.scale.z = 4;
-    // districtGarden.add(gltf.scene);
+    districtGarden.add(gltf.scene);
   }
 
   // fps control

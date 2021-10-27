@@ -34,7 +34,7 @@ export function generateDistrictOneObjects() {
    const cat5 = generateTriangleCat(200, 30, 180);
    cat5.rotation.y = Math.PI/1.5;
 
-   arr.push(cat, cat1, cat2, cat3, cat4, cat5)
+  //  arr.push(cat, cat1, cat2, cat3, cat4, cat5)
  }
  {
    // right edge
@@ -54,7 +54,7 @@ export function generateDistrictOneObjects() {
    const cat5 = generateTriangleCat(200, 30, -180);
    cat5.rotation.y = -Math.PI/1.5
 
-   arr.push(cat1, cat2, cat3, cat4, cat5)
+  //  arr.push(cat1, cat2, cat3, cat4, cat5)
  }
  {
    // bottom edge
@@ -70,7 +70,7 @@ export function generateDistrictOneObjects() {
    const cat4 = generateTriangleCat(240, 30, -130);
    cat4.rotation.y = -Math.PI;
 
-   arr.push(cat1, cat2, cat3, cat4)
+  //  arr.push(cat1, cat2, cat3, cat4)
  }
 
  {
@@ -130,7 +130,7 @@ for(let z = 180; z > -65; z -= 5) {
   bird.scale.set(8.0, 8.0, 8.0);
   bird.position.y = 13.0;
 
-  arr.push(bird);
+  // arr.push(bird);
 }
 
  const axes = new THREE.AxesHelper(20);  // The X axis is red. The Y axis is green. The Z axis is blue.
@@ -138,7 +138,7 @@ for(let z = 180; z > -65; z -= 5) {
  arr.push(axes)
 
  const cone = generateTrafficCone()
- arr.push(cone);
+//  arr.push(cone);
 
  return arr;
 }

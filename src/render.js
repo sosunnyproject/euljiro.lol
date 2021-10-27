@@ -518,7 +518,7 @@ function createDistrictGarden() {
 
 function createDistrictOne() {
   districtOne = new THREE.Scene();
-  districtOne.background = new THREE.Color(0x000000);
+  districtOne.background = new THREE.Color(0x70666f);
   districtOne.name = "one"
 
   const objects = generateDistrictOneObjects()
@@ -529,19 +529,24 @@ function createDistrictOne() {
   }
 
   const districtOneModels = [
-    "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/models/pink_cone.glb",
     "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/models/purple_cone.glb",
     "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/models/blue_cone.glb",
-    "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/models/pink_cone2.glb",    "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/models/pink_cone2.glb",
+    "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/models/pink_cone2.glb",
     "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/models/robot_face.glb"
   ]
 
   const modelsPosition = [
-    [30, 10, 20],
-    [30, 10, -50],
-    [-30, 10, -80],
-    [-30, 10, 80],
-    [0, 0, 0]
+    {px: 30, py: 10, pz: -50},
+    {px: -30, py: 10, pz: -80},
+    {px: -30, py: 10, pz: 80},
+    {px: 0, py: 12, pz: 0},
+  ]
+
+  const modelsScale = [
+    {sx: null, sx: null, sz: null},
+    {sx: null, sx: null, sz: null},
+    {sx: null, sx: null, sz: null},
+    {sx: 8, sy: 8, sz: 4},
   ]
   
   const gltfLoader = new GLTFLoader();
@@ -549,7 +554,7 @@ function createDistrictOne() {
   for (let i = 0; i < districtOneModels.length; i++) {
     gltfLoader.load (
       districtOneModels[i],
-      (gltf) => onLoad(gltf, modelsPosition[i][0], modelsPosition[i][1], modelsPosition[i][2]),
+      (gltf) => onLoad(gltf, modelsPosition[i], modelsScale[i]),
       function (xhr) {
         // console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
       },
@@ -559,13 +564,20 @@ function createDistrictOne() {
     )
   }
 
-  function onLoad(gltf, px, py, pz, rx, ry, rz) {
+  function onLoad(gltf, position, scale, rotation ) {
+    const {px, py, pz} = position;
     gltf.scene.position.set(px, py, pz);
-    gltf.scene.rotation.set(rx || 0, ry || 0, rz || 0);
+
+    const {sx, sy, sz} = scale;
+    console.log(scale)
+    gltf.scene.scale.set(sx || 4, sy || 4, sz || 2);
+
+    if(rotation){
+      const {rx, ry, rz} = rotation;
+      gltf.scene.rotation.set(rx || 0, ry || 0, rz || 0);
+    }
     gltf.scene.rotation.y = Math.PI/2;
-    gltf.scene.scale.x = 4;
-    gltf.scene.scale.y = 4;
-    gltf.scene.scale.z = 2;
+
     districtOne.add(gltf.scene);
   }
 
@@ -573,12 +585,60 @@ function createDistrictOne() {
 }
 
 function createDistrictTwo() {
-  const objects = generateDistrictTwoObjects()
-  // console.log(objects)
+  districtTwo = new THREE.Scene();
+  districtTwo.background = new THREE.Color(0xffffff);
 
-  // for(let i = 0; i < objects.length; i++){
-  //   districtOne.add(objects[i])
-  // }
+  const districtTwoModels = [
+    "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/models/districtTwo/bear.glb",
+    "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/models/districtTwo/fork.glb",
+    "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/models/districtTwo/tape.glb",
+  ]
+
+  const modelsPosition = [
+    {px: 30, py: 10, pz: -50},
+    {px: -30, py: 10, pz: -80},
+    {px: -30, py: 10, pz: 80},
+    {px: 0, py: 12, pz: 0},
+  ]
+
+  const modelsScale = [
+    {sx: null, sx: null, sz: null},
+    {sx: null, sx: null, sz: null},
+    {sx: null, sx: null, sz: null},
+    {sx: 8, sy: 8, sz: 4},
+  ]
+  
+  const gltfLoader = new GLTFLoader();
+
+  for (let i = 0; i < districtTwoModels.length; i++) {
+    gltfLoader.load (
+      districtTwoModels[i],
+      (gltf) => onLoad(gltf, modelsPosition[i], modelsScale[i]),
+      function (xhr) {
+        // console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
+      },
+      function (error) {
+        console.log("error?", error)
+      }
+    )
+  }
+
+  function onLoad(gltf, position, scale, rotation ) {
+    const {px, py, pz} = position;
+    gltf.scene.position.set(px, py, pz);
+
+    const {sx, sy, sz} = scale;
+    console.log(scale)
+    gltf.scene.scale.set(sx || 4, sy || 4, sz || 2);
+
+    if(rotation){
+      const {rx, ry, rz} = rotation;
+      gltf.scene.rotation.set(rx || 0, ry || 0, rz || 0);
+    }
+    gltf.scene.rotation.y = Math.PI/2;
+
+    districtTwo.add(gltf.scene);
+  }
 }
 
 function createDistrictThree() {

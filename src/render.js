@@ -15,6 +15,7 @@ import { generateDistrictGardenObjects } from './renderDistrictGarden.js';
 import { generateDistrictOneObjects } from './renderDistrictOne.js';
 import { generateDistrictTwoObjects } from './renderDistrictTwo.js';
 import { generateDistrictThreeObjects } from './renderDistrictThree.js';
+import { generateLsystemTree } from './models/lsystemTree.js';
 
 const treeParams = {
   radius: 7,
@@ -48,6 +49,7 @@ const velocity = new THREE.Vector3();
 const direction = new THREE.Vector3();
 const vertex = new THREE.Vector3();
 const color = new THREE.Color();
+const gltfLoader = new GLTFLoader();
 
 // const gui = new GUI();
 const WIDTH = window.innerWidth, HEIGHT = window.innerHeight
@@ -435,10 +437,10 @@ if(!WEBGL.isWebGLAvailable()) {
 } else {
   initStats();
   createDistrictGarden();
-  createDistrictOne();
-  createDistrictTwo();
-  createDistrictThree();
-  currentScene = districtOne;
+  // createDistrictOne();
+  // createDistrictTwo();
+  // createDistrictThree();
+  currentScene = districtGarden;
   currentScene.add(camControls.getObject())
   animate();
 }
@@ -460,40 +462,25 @@ function createDistrictGarden() {
   districtGarden.background = new THREE.Color(0xAAAAAA);
   districtGarden.name = "park"
 
-  // 3d model loader
-  // https://sbcode.net/threejs/gltf-animation/
+  const lsystemTree = generateLsystemTree();
 
-  const gltfLoader = new GLTFLoader();
-  gltfLoader.load (
-    "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/models/cactus.glb",
-    onLoad,
-    function (xhr) {
-      // console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
-    },
-    function (error) {
-      console.log("error?", error)
-    }
-  )
+  // districtGarden.add(lsystemTree);
+
+  {
+    const geom1 = new THREE.BoxGeometry( 40, 20, 4 );
+    const mat1 = new THREE.MeshBasicMaterial( {color: 0xff1100} );
+    const cube1 = new THREE.Mesh(geom1, mat1);
+    cube1.position.z = -50;
+    districtGarden.add(cube1)
   
-  gltfLoader.load (
-    "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/models/wee.glb",
-    (gltf) => onLoad(gltf, 50),
-    function (xhr) {
-      // console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
-    },
-    function (error) {
-      console.log("error?", error)
-    }
-  )
-
-  function onLoad(gltf, x, y) {
-    gltf.scene.position.y = y || 30;
-    gltf.scene.position.x = x || -50;
-    gltf.scene.scale.x = 4;
-    gltf.scene.scale.y = 4;
-    gltf.scene.scale.z = 4;
-    districtGarden.add(gltf.scene);
+    const g2 = new THREE.BoxGeometry( 20, 40, 4 );
+    const m2 = new THREE.MeshBasicMaterial( {color: 0x001100} );
+    const cube2 = new THREE.Mesh(g2, m2);
+    cube1.add(cube2);
+    console.log(cube2.position)
+    
   }
+
 
   // fps control
   /** 
@@ -528,11 +515,13 @@ function createDistrictOne() {
     districtOne.add(objects[i])
   }
 
+  // https://sbcode.net/threejs/gltf-animation/
   const districtOneModels = [
     "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/models/purple_cone.glb",
     "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/models/blue_cone.glb",
     "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/models/pink_cone2.glb",
-    "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/models/robot_face.glb"
+    "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/models/robot_face.glb",
+    "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/models/wee.glb"
   ]
 
   const modelsPosition = [
@@ -540,17 +529,17 @@ function createDistrictOne() {
     {px: -30, py: 10, pz: -80},
     {px: -30, py: 10, pz: 80},
     {px: 0, py: 12, pz: 0},
+    {px: -80, py: 10, pz: 0}
   ]
 
   const modelsScale = [
-    {sx: null, sx: null, sz: null},
-    {sx: null, sx: null, sz: null},
-    {sx: null, sx: null, sz: null},
+    {sx: null, sy: null, sz: null},
+    {sx: null, sy: null, sz: null},
+    {sx: null, sy: null, sz: null},
     {sx: 8, sy: 8, sz: 4},
+    {sx: null, sy: null, sz: null}
   ]
   
-  const gltfLoader = new GLTFLoader();
-
   for (let i = 0; i < districtOneModels.length; i++) {
     gltfLoader.load (
       districtOneModels[i],
@@ -587,6 +576,22 @@ function createDistrictOne() {
 function createDistrictTwo() {
   districtTwo = new THREE.Scene();
   districtTwo.background = new THREE.Color(0xffffff);
+  {
+    const skyColor = 0xB1E1FF;  // light blue
+    const groundColor = 0xB97A20;  // brownish orange
+    const intensity = 1;
+    const light = new THREE.HemisphereLight(skyColor, groundColor, intensity);
+    
+    districtTwo.add(light)
+   }
+  {
+    const geometry = new THREE.CircleGeometry( 100, 50 );
+    const material = new THREE.MeshPhongMaterial( {color: 0x879ead} );
+    const plane = new THREE.Mesh( geometry, material );
+    plane.rotation.x = -Math.PI/2;
+  
+    districtTwo.add(plane)
+  }
 
   const districtTwoModels = [
     "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/models/districtTwo/bear.glb",
@@ -596,7 +601,7 @@ function createDistrictTwo() {
 
   const modelsPosition = [
     {px: 30, py: 10, pz: -50},
-    {px: -30, py: 10, pz: -80},
+    {px: 30, py: 6, pz: -30},
     {px: -30, py: 10, pz: 80},
     {px: 0, py: 12, pz: 0},
   ]
@@ -608,7 +613,6 @@ function createDistrictTwo() {
     {sx: 8, sy: 8, sz: 4},
   ]
   
-  const gltfLoader = new GLTFLoader();
 
   for (let i = 0; i < districtTwoModels.length; i++) {
     gltfLoader.load (

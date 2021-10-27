@@ -528,6 +528,42 @@ function createDistrictOne() {
     districtOne.add(objects[i])
   }
 
+  const districtOneModels = [
+    "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/models/pink_cone.glb",
+    "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/models/purple_cone.glb",
+
+  ]
+
+  const modelsPosition = [
+    [30, 10, 20],
+    [30, 10, -50]
+  ]
+  
+  const gltfLoader = new GLTFLoader();
+
+  for (let i = 0; i < districtOneModels.length; i++) {
+    gltfLoader.load (
+      districtOneModels[i],
+      (gltf) => onLoad(gltf, modelsPosition[i][0], modelsPosition[i][1], modelsPosition[i][2]),
+      function (xhr) {
+        // console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
+      },
+      function (error) {
+        console.log("error?", error)
+      }
+    )
+  }
+
+  function onLoad(gltf, px, py, pz, rx, ry, rz) {
+    gltf.scene.position.set(px, py, pz);
+    gltf.scene.rotation.set(rx || 0, ry || 0, rz || 0);
+    gltf.scene.rotation.y = Math.PI/2;
+    gltf.scene.scale.x = 4;
+    gltf.scene.scale.y = 4;
+    gltf.scene.scale.z = 2;
+    districtOne.add(gltf.scene);
+  }
+
   districtOne.add(camControls.getObject() );
 }
 

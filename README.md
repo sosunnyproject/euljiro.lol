@@ -22,3 +22,8 @@
 - monstermash.zone
 - [notion roadmap](https://www.notion.so/sunny1103/d4dd8d11ba9d4ed09f1ba3d9a713e725?v=4594b4884381414193af44e3856d3fed)
 - [multiple scenes tutoria](https://threejsfundamentals.org/threejs/lessons/threejs-multiple-scenes.html)
+
+# Lsystem
+- https://gregtatum.com/interactive/2015/growth-incremental-additions/
+- https://github.com/FrancescoGradi/L-System-Trees
+- https://codepen.io/mikkamikka/pen/ceKpI?editors=0010

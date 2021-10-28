@@ -15,7 +15,7 @@ import { generateDistrictGardenObjects } from './renderDistrictGarden.js';
 import { generateDistrictOneObjects } from './renderDistrictOne.js';
 import { generateDistrictTwoObjects } from './renderDistrictTwo.js';
 import { generateDistrictThreeObjects } from './renderDistrictThree.js';
-import { generateLsystemTree } from './models/lsystemTree.js';
+import { generateLsystemTree } from './lsystem/wrapper.js';
 
 const treeParams = {
   radius: 7,
@@ -437,9 +437,9 @@ if(!WEBGL.isWebGLAvailable()) {
 } else {
   initStats();
   createDistrictGarden();
-  // createDistrictOne();
-  // createDistrictTwo();
-  // createDistrictThree();
+  createDistrictOne();
+  createDistrictTwo();
+  createDistrictThree();
   currentScene = districtGarden;
   currentScene.add(camControls.getObject())
   animate();
@@ -463,8 +463,9 @@ function createDistrictGarden() {
   districtGarden.name = "park"
 
   const lsystemTree = generateLsystemTree();
-
-  // districtGarden.add(lsystemTree);
+  lsystemTree.position.set(30, 10, -30)
+  console.log(lsystemTree);
+  districtGarden.add(lsystemTree);
 
   {
     const geom1 = new THREE.BoxGeometry( 40, 20, 4 );

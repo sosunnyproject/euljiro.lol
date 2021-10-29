@@ -3,6 +3,7 @@ import vertexShader from './shaders/vertex.glsl.js'
 import waterSampleFragment from './shaders/water.frag.js'
 import { getRandomArbitrary, getRandomInt } from './globalfunctions.js';
 import { shaderTree } from './render.js';
+import cloudsFragment from './shaders/clouds.frag.js';
 
 export function generateTree(xpos, ypos, zpos) {
 
@@ -65,7 +66,7 @@ function draw(position) {
       u_resolution: { value: new THREE.Vector2() }
     },
     vertexShader: vertexShader,  
-    fragmentShader: waterSampleFragment
+    fragmentShader: cloudsFragment
   } );  
   const grass = new THREE.Mesh( grassGeometry, grassShader );
   const grassMesh = updateGeometry(grass, grassGeometry, position)

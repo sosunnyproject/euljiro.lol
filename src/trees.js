@@ -3,6 +3,7 @@ import vertexShader from './shaders/vertex.glsl.js'
 import waterSampleFragment from './shaders/water.frag.js'
 import { getRandomArbitrary, getRandomInt } from './globalfunctions.js';
 import { shaderTree } from './render.js';
+import cloudsFragment from './shaders/clouds.frag.js';
 
 export function generateTree(xpos, ypos, zpos) {
 
@@ -42,18 +43,18 @@ const data = {
 export function generateShaderTree(xpos, ypos, zpos, gui) {
   const position = {x: xpos, y: ypos + 30, z: zpos}
   if(gui){
-    const folder = gui.addFolder('ShaderTree-Dodecahedron');
-    folder.add(data, 'radius', 1, 40).onChange(() => draw(position));
-    folder.add(data, 'detail', 0, 5).step(1).onChange(() => draw(position))
+    // const folder = gui.addFolder('ShaderTree-Dodecahedron');
+    // folder.add(data, 'radius', 1, 40).onChange(() => drawShaderMesh(position));
+    // folder.add(data, 'detail', 0, 5).step(1).onChange(() => drawShaderMesh(position))
     // folder.add(data, 'x', 1, 40).onChange(() => draw(position));
     // folder.add(data, 'y', 0, 5).step(1).onChange(() => draw(position))  
   }
  
-  const output = draw(position)
+  const output = drawShaderMesh(position)
   return output;
 }
 
-function draw(position) { 
+function drawShaderMesh(position) { 
  
   const grassColors = ["rgb(227, 101, 91)", "rgb(220, 214, 247)", "rgb(217, 237, 146)", "rgb(181,228,140)", "rgb(153,217,140)", "rgb(118,200,147)", "rgb(82,182,154)", "rgb(52,160,164)"]
   const grassInd = getRandomInt(0, grassColors.length)
@@ -65,10 +66,10 @@ function draw(position) {
       u_resolution: { value: new THREE.Vector2() }
     },
     vertexShader: vertexShader,  
-    fragmentShader: waterSampleFragment
+    fragmentShader: cloudsFragment
   } );  
-  const grass = new THREE.Mesh( grassGeometry, grassShader );
-  const grassMesh = updateGeometry(grass, grassGeometry, position)
+  const grassMesh = new THREE.Mesh( grassGeometry, grassShader );
+  // const grassMesh = updateGeometry(grass, grassGeometry, position)
  
   //  const trunkColors = [ "rgb(232, 174, 183)", "rgb(115, 72, 48)", "rgb(94, 116, 127)", "rgb(197, 152, 73)", "rgb(156, 179, 128)" ]
   //  const colorIndex = getRandomInt(0, trunkColors.length)

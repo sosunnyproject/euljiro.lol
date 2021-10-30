@@ -7,17 +7,17 @@ uniform vec2 u_resolution;
 uniform float u_time;
 varying vec2 vUv;
 
-float cloudscale = 1.1;
+float cloudscale = 10.1;
 float speed = 0.03;
-float clouddark = 0.5;
+float clouddark = 0.9;
 float cloudlight = 0.3;
-float cloudcover = 0.2;
-float cloudalpha = 8.0;
+float cloudcover = -0.2;
+float cloudalpha = 1.0;
 float skytint = 0.5;
 vec3 skycolour1 = vec3(0.2, 0.4, 0.6);
 vec3 skycolour2 = vec3(0.4, 0.7, 1.0);
 
-mat2 m = mat2( 1.6,  1.2, -1.2,  1.6 );
+mat2 m = mat2( 1.216,  0.728, -0.504,  1.520 );
 
 vec2 hash( vec2 p ) {
 	p = vec2(dot(p,vec2(127.1,311.7)), dot(p,vec2(269.5,183.3)));
@@ -72,7 +72,7 @@ void main( ) {
     uv = p*vec2(vUv.x/vUv.y,1.0);
 	uv *= cloudscale;
     uv -= q - time;
-    weight = 0.7;
+    weight = 0.17;
     for (int i=0; i<8; i++){
 		f += weight*noise( uv );
         uv = m*uv + time;

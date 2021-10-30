@@ -9,7 +9,7 @@ let date = new Date();
 let pn = new Perlin('rnd' + date.getTime());
 
 export function generateGround() {
-  var groundGeometry = new THREE.PlaneGeometry(1000, 1000, 60, 80);
+  var groundGeometry = new THREE.PlaneGeometry(4000, 4000, 60, 80);
   const position = groundGeometry.attributes.position;
   const vec = new THREE.Vector3();
   const newVectors = []

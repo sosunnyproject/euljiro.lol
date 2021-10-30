@@ -10,6 +10,8 @@ import { getRandomArbitrary, getRandomInt } from './globalfunctions.js';
 import { generateShaderTree, generateTree } from './trees.js';
 import { generateMushroom } from './mushrooms.js';
 import { generateGround } from './ground.js';
+import cloudsFragment from './shaders/clouds.frag.js';
+import vertexShader from './shaders/vertex.glsl.js';
 
 export function generateDistrictGardenObjects() {
   const arr = []
@@ -37,6 +39,23 @@ export function generateDistrictGardenObjects() {
   torus2.scale.set(0.6, 0.6, 0.8)
 
   const axes = new THREE.AxesHelper(20);
+
+    // SKYDOME
+  {
+    const skyGeo = new THREE.SphereGeometry( 1000, 32, 32 );
+    const skyMat = new THREE.ShaderMaterial( {
+    uniforms: {
+      u_time: { value: 1.0 },
+      u_resolution: { value: new THREE.Vector2() }
+    },
+      vertexShader: vertexShader,
+      fragmentShader: cloudsFragment,
+      side: THREE.BackSide
+    } );
+
+    const sky = new THREE.Mesh( skyGeo, skyMat );
+    arr.push( sky );
+  }
 
   arr.push(shaderTree, m, groundMesh, torusKnot, torus2, axes)
 

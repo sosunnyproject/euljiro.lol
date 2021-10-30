@@ -28,7 +28,7 @@ const params = {
   fov: 20,
   aspect: 2, 
   zNear: 5,
-  zFar: 1000
+  zFar: 4000
 }
 
 let stats, camera, renderer, camControls, character, character1;

@@ -15,6 +15,8 @@ import { generateDistrictOneObjects } from './renderDistrictOne.js';
 import { generateDistrictTwoObjects } from './renderDistrictTwo.js';
 import { generateDistrictThreeObjects } from './renderDistrictThree.js';
 import { generateLsystemTree } from './lsystem/wrapper.js';
+import coffeeRiverFragment from './shaders/coffee.frag.js';
+import vertexShader from './shaders/vertex.glsl.js';
 
 const treeParams = {
   radius: 7,
@@ -343,6 +345,7 @@ function render() {
   // mushroomMesh.material.uniforms.u_time.value = time * 0.01;
 
   districtGarden.children[0].material.uniforms.u_time.value = time * 0.005;
+  districtTwo.children[0].material.uniforms.u_time.value = time * 0.001;
 
   const canvas = renderer.domElement;
   camera.aspect = canvas.clientWidth / canvas.clientHeight;
@@ -407,7 +410,9 @@ function initStats() {
 function createDistrictGarden() {
   // create a scene, that will hold all our elements such as objects, cameras and lights.
   districtGarden = new THREE.Scene();
-  districtGarden.background = new THREE.Color(0xAAAAAA);
+  districtGarden.background = new THREE.Color().setHSL( 0.6, 0, 1 );
+  districtGarden.fog = new THREE.Fog( districtGarden.background, 1, 5000 );
+  districtGarden.fog.color.copy(new THREE.Color( 0xffffff ))
   districtGarden.name = "park"
 
   const objects = generateDistrictGardenObjects()
@@ -512,7 +517,6 @@ function createDistrictOne() {
     "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/models/blue_cone.glb",
     "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/models/pink_cone2.glb",
     "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/models/robot_face.glb",
-    "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/models/wee.glb"
   ]
 
   const modelsPosition = [
@@ -567,6 +571,23 @@ function createDistrictTwo() {
   districtTwo = new THREE.Scene();
   districtTwo.background = new THREE.Color(0xffffff);
   {
+    const geometry = new THREE.CircleGeometry( 1000, 50 );
+    const material = new THREE.MeshPhongMaterial( {color: 0x879ead} );
+    const coffeeMat = new THREE.ShaderMaterial( {
+      uniforms: {
+        u_time: { value: 1.0 },
+        u_resolution: { value: new THREE.Vector2() }
+      },
+        vertexShader: vertexShader,
+        fragmentShader: coffeeRiverFragment,
+        side: THREE.DoubleSide
+      } );
+    const plane = new THREE.Mesh( geometry, coffeeMat );
+    plane.rotation.x = -Math.PI/2;
+  
+    districtTwo.add(plane)
+  }
+  {
     const skyColor = 0xB1E1FF;  // light blue
     const groundColor = 0xB97A20;  // brownish orange
     const intensity = 1;
@@ -574,19 +595,13 @@ function createDistrictTwo() {
     
     districtTwo.add(light)
    }
-  {
-    const geometry = new THREE.CircleGeometry( 100, 50 );
-    const material = new THREE.MeshPhongMaterial( {color: 0x879ead} );
-    const plane = new THREE.Mesh( geometry, material );
-    plane.rotation.x = -Math.PI/2;
-  
-    districtTwo.add(plane)
-  }
+
 
   const districtTwoModels = [
     "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/models/districtTwo/bear.glb",
     "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/models/districtTwo/fork.glb",
     "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/models/districtTwo/tape.glb",
+    "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/models/wee.glb"
   ]
 
   const modelsPosition = [

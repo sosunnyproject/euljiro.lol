@@ -12,6 +12,8 @@ import { generateMushroom } from './mushrooms.js';
 import { generateGround } from './ground.js';
 import cloudsFragment from './shaders/clouds.frag.js';
 import vertexShader from './shaders/vertex.glsl.js';
+import skyVertex from './shaders/skyVertex.glsl.js';
+import skyFrag from './shaders/skyFrag.glsl.js';
 
 export function generateDistrictGardenObjects() {
   const arr = []
@@ -40,25 +42,35 @@ export function generateDistrictGardenObjects() {
 
   const axes = new THREE.AxesHelper(20);
 
-    // SKYDOME
+  arr.push(shaderTree, m, groundMesh, torusKnot, torus2, axes)
+
+  // env
+  const hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.6 );
+  hemiLight.color.setHSL( 0.6, 1, 0.6 );
+  hemiLight.groundColor.setHSL( 0.095, 1, 0.75 );
+  hemiLight.position.set( 0, 50, 0 );
+  arr.push( hemiLight );
+
+  // SKYDOME
   {
+    const uniforms = {
+      "topColor": { value: new THREE.Color( 0x0077ff ) },
+      "bottomColor": { value: new THREE.Color( 0xffffff ) },
+      "offset": { value: 33 },
+      "exponent": { value: 0.6 }
+    }
     const skyGeo = new THREE.SphereGeometry( 1000, 32, 32 );
     const skyMat = new THREE.ShaderMaterial( {
-    uniforms: {
-      u_time: { value: 1.0 },
-      u_resolution: { value: new THREE.Vector2() }
-    },
-      vertexShader: vertexShader,
-      fragmentShader: cloudsFragment,
+      uniforms: uniforms,
+      vertexShader: skyVertex,
+      fragmentShader: skyFrag,
       side: THREE.BackSide
     } );
-
+    uniforms[ "topColor" ].value.copy( hemiLight.color );
     const sky = new THREE.Mesh( skyGeo, skyMat );
     arr.push( sky );
   }
-
-  arr.push(shaderTree, m, groundMesh, torusKnot, torus2, axes)
-
+  
   // tree object
   for(let i = 0; i < 40; i++){
    const x = getRandomArbitrary(-200, 200)

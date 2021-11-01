@@ -2,7 +2,6 @@ import * as THREE from 'three';
 import vertexShader from './shaders/vertex.glsl.js'
 import waterSampleFragment from './shaders/water.frag.js'
 import { getRandomArbitrary, getRandomInt } from './globalfunctions.js';
-import { shaderTree } from './render.js';
 import cloudsFragment from './shaders/clouds.frag.js';
 
 export function generateTree(xpos, ypos, zpos) {

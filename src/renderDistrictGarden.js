@@ -91,5 +91,56 @@ export function generateDistrictGardenObjects() {
    arr.push(light, spotlight)
  }
 
+ // test math rose
+{
+  const collection = new THREE.Object3D()
+  const n = 4;
+  const d = 9;
+  const k = n / d;
+  const angle = 0.5;
+
+  // lathe
+  const points = [];
+  for ( let i = 0; i < 10; i ++ ) {
+    points.push( new THREE.Vector2( Math.sin( i * 0.2 ) * 5 + 5, ( i - 5 ) * 2 ) );
+  }
+
+
+  // heart shape
+  const x = 0, y = 0;
+  const heartShape = new THREE.Shape();
+
+  heartShape.moveTo( x + 5, y + 5 );
+  heartShape.bezierCurveTo( x + 5, y + 5, x + 4, y, x, y );
+  heartShape.bezierCurveTo( x - 6, y, x - 6, y + 7,x - 6, y + 7 );
+  heartShape.bezierCurveTo( x - 6, y + 11, x - 3, y + 15.4, x + 5, y + 19 );
+  heartShape.bezierCurveTo( x + 12, y + 15.4, x + 16, y + 11, x + 16, y + 7 );
+  heartShape.bezierCurveTo( x + 16, y + 7, x + 16, y, x + 10, y );
+  heartShape.bezierCurveTo( x + 7, y, x + 5, y + 5, x + 5, y + 5 );
+
+  const heartGeom = new THREE.ShapeGeometry( heartShape );
+
+  for(let i = 0; i < Math.PI * 2.0 * d; i += angle) {
+    let r = 30 * Math.cos(k * i)
+    let x = r * Math.cos(i)
+    let y = r * Math.sin(i)
+
+
+    // const lathe = new THREE.LatheGeometry( points );
+    // var cubeGeom = new THREE.BoxGeometry(2, 2, 2);
+    var cubeMat = new THREE.MeshPhongMaterial({ color: 0x7209b7 })
+    var mesh = new THREE.Mesh(heartGeom, cubeMat);
+    // mesh.rotation.x = -Math.PI/2
+    mesh.position.set(x, y, 0)
+    mesh.scale.set(0.5, 0.5, 0.5)
+    collection.add(mesh)
+  }
+  console.log(collection)
+  collection.position.set(70, 20, 20)
+  collection.rotation.y = Math.PI/2.0
+
+  arr.push(collection)
+}
+
  return arr;
 }

@@ -421,9 +421,13 @@ function createDistrictGarden() {
     districtGarden.add(objects[i])
   }
 
-  const lsystemTree = generateLsystemTree();
+  const lsystemTree = generateLsystemTree("ffBAf>A", "^fB++fB<<fvB", "f<f>B>f--AvA", 5, 2.0, 0.05);
   lsystemTree.position.set(30, 10, -30)
   districtGarden.add(lsystemTree);
+
+  const lsystemTree1 = generateLsystemTree("ffAf>B", "^fB++fAvvB", "f<B+f--vA", 5, 1.2, 0.05);
+  lsystemTree1.position.set(-60, 10, 60)
+  districtGarden.add(lsystemTree1);
 
   // https://github.com/mrdoob/three.js/issues/1364
   {

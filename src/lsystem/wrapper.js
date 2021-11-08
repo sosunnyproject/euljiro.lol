@@ -14,18 +14,18 @@ var season = 4;
 var barkTexture = 3;
 
 
-export function generateLsystemTree() {
+export function generateLsystemTree(axiom, rule1, rule2, iter, branchRad, radiusRed) {
     // Geometria composta dell'albero
     // setting
-    var axiom = "ffBAf>A";
-    var rule1 = "^fB++fB<<fvB";
-    var rule2  = "f<f>B>f--AvA";
-    var iterations = 5;
+    var axiom = axiom // "ffBAf>A";
+    var rule1 = rule1 // "^fB++fB<<fvB";
+    var rule2  = rule2 // "f<f>B>f--AvA";
+    var iterations = iter; // 5
 
     var angle = 30;
     var lengthReductionFactor = 0.005;
-    var branchRadius = 2;
-    var radiusReductionFactor = 0.05;
+    var branchRadius = branchRad;
+    var radiusReductionFactor = radiusRed // 0.05;
     var branchLength = 6;
 
     let j = 0;

@@ -14,6 +14,8 @@ import cloudsFragment from './shaders/clouds.frag.js';
 import vertexShader from './shaders/vertex.glsl.js';
 import skyVertex from './shaders/skyVertex.glsl.js';
 import skyFrag from './shaders/skyFrag.glsl.js';
+import { FlowerPetals } from './models/flowerPetals.js';
+import { generateLsystemTree } from './lsystem/wrapper.js';
 
 export function generateDistrictGardenObjects() {
   const arr = []
@@ -47,7 +49,7 @@ export function generateDistrictGardenObjects() {
   // env
   const hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.6 );
   hemiLight.color.setHSL( 0.6, 1, 0.6 );
-  hemiLight.groundColor.setHSL( 0.095, 1, 0.75 );
+  hemiLight.groundColor.setHSL( 0.095, 1, 0.35 );
   hemiLight.position.set( 0, 50, 0 );
   arr.push( hemiLight );
 
@@ -91,56 +93,28 @@ export function generateDistrictGardenObjects() {
    arr.push(light, spotlight)
  }
 
- // test math rose
-{
-  const collection = new THREE.Object3D()
-  const n = 4;
-  const d = 9;
-  const k = n / d;
-  const angle = 0.5;
+  {
+    // lsystem trees
+    
+  const lsystemTree = generateLsystemTree("ffBAf>A", "^fB++fB<<fvB", "f<f>B>f--AvA", 5, 2.0, 0.05);
+  lsystemTree.position.set(30, 10, -30)
 
-  // lathe
-  const points = [];
-  for ( let i = 0; i < 10; i ++ ) {
-    points.push( new THREE.Vector2( Math.sin( i * 0.2 ) * 5 + 5, ( i - 5 ) * 2 ) );
+  const lsystemTree1 = generateLsystemTree("ffAf>B", "^fB++fAvvB", "f<B+f--vA", 5, 1.2, 0.05);
+  lsystemTree1.position.set(-60, 10, 60)
+
+  arr.push(lsystemTree, lsystemTree1)
   }
 
+  // math rose   
+  const flower1 = new FlowerPetals(4, 12)
+  flower1.position.set(70, 20, 20)
 
-  // heart shape
-  const x = 0, y = 0;
-  const heartShape = new THREE.Shape();
+  arr.push(flower1)
 
-  heartShape.moveTo( x + 5, y + 5 );
-  heartShape.bezierCurveTo( x + 5, y + 5, x + 4, y, x, y );
-  heartShape.bezierCurveTo( x - 6, y, x - 6, y + 7,x - 6, y + 7 );
-  heartShape.bezierCurveTo( x - 6, y + 11, x - 3, y + 15.4, x + 5, y + 19 );
-  heartShape.bezierCurveTo( x + 12, y + 15.4, x + 16, y + 11, x + 16, y + 7 );
-  heartShape.bezierCurveTo( x + 16, y + 7, x + 16, y, x + 10, y );
-  heartShape.bezierCurveTo( x + 7, y, x + 5, y + 5, x + 5, y + 5 );
+  const flower2 = new FlowerPetals(6.5, 7.4)
+  // flower2.position.set(70, 20, -20)
 
-  const heartGeom = new THREE.ShapeGeometry( heartShape );
-
-  for(let i = 0; i < Math.PI * 2.0 * d; i += angle) {
-    let r = 30 * Math.cos(k * i)
-    let x = r * Math.cos(i)
-    let y = r * Math.sin(i)
-
-
-    // const lathe = new THREE.LatheGeometry( points );
-    // var cubeGeom = new THREE.BoxGeometry(2, 2, 2);
-    var cubeMat = new THREE.MeshPhongMaterial({ color: 0x7209b7 })
-    var mesh = new THREE.Mesh(heartGeom, cubeMat);
-    // mesh.rotation.x = -Math.PI/2
-    mesh.position.set(x, y, 0)
-    mesh.scale.set(0.5, 0.5, 0.5)
-    collection.add(mesh)
-  }
-  console.log(collection)
-  collection.position.set(70, 20, 20)
-  collection.rotation.y = Math.PI/2.0
-
-  arr.push(collection)
-}
+  arr.push(flower2)
 
  return arr;
 }

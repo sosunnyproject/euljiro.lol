@@ -14,9 +14,9 @@ import { generateDistrictGardenObjects } from './renderDistrictGarden.js';
 import { generateDistrictOneObjects } from './renderDistrictOne.js';
 import { generateDistrictTwoObjects } from './renderDistrictTwo.js';
 import { generateDistrictThreeObjects } from './renderDistrictThree.js';
-import { generateLsystemTree } from './lsystem/wrapper.js';
 import coffeeRiverFragment from './shaders/coffee.frag.js';
 import vertexShader from './shaders/vertex.glsl.js';
+import { FlowerPetals } from './models/flowerPetals.js';
 
 const treeParams = {
   radius: 7,
@@ -45,6 +45,7 @@ let moveLeft = false;
 let moveRight = false;
 let canJump = false;
 
+let petalN = 4, petalD = 9;
 let prevTime = performance.now();
 const velocity = new THREE.Vector3();
 const direction = new THREE.Vector3();
@@ -253,6 +254,8 @@ function animate() {
     xboxAxesPressed(gamepad);
   }
 
+  currentScene.add(camControls.getObject())
+
   render();
 
   requestAnimationFrame( animate );
@@ -307,26 +310,6 @@ function animate() {
 
   prevTime = time;
 
-  // fps character position
-  /**
-  switch(currentScene.name) {
-    case "park":
-      character.position.copy(camera.position);
-      character.rotation.copy(camera.rotation);
-      character.updateMatrix();
-      character.translateZ(-6);
-      character.translateY(-1);
-      break;
-    case "one":
-      character1.position.copy(camera.position);
-      character1.rotation.copy(camera.rotation);
-      character1.updateMatrix();
-      character1.translateZ(-6);
-      character1.translateY(-1);
-      break;
-  }
-   */
-
   stats.update();
 };
 
@@ -351,6 +334,23 @@ function render() {
   camera.aspect = canvas.clientWidth / canvas.clientHeight;
   camera.updateProjectionMatrix();
 
+  let flowerObj;
+  // district Garden
+  if(currentScene.name === "D_GARDEN" ) {
+    const lastItem = districtGarden.children.length - 2
+    flowerObj = districtGarden.children[lastItem]
+    flowerObj.clear()
+    flowerObj = new FlowerPetals(petalN, petalD, 0.8)
+  
+    petalN = Math.abs(Math.cos(time/100000)*3) + 1
+    petalD = Math.abs(Math.sin(time/100000)*9) + 1
+
+    flowerObj.position.set(70, 20, -20)
+
+    districtGarden.add(flowerObj)
+  }
+ 
+  renderer.autoClear = true;
   renderer.render( currentScene, camera );
 }
 
@@ -358,8 +358,6 @@ document.addEventListener('keypress', logKey);
 
 function logKey(e) {
   // console.log("camera: ", camera.position)
-
-  currentScene.add(camControls.getObject())
 
   switch(e.code) {
     case 'Digit1':
@@ -413,101 +411,20 @@ function createDistrictGarden() {
   districtGarden.background = new THREE.Color().setHSL( 0.6, 0, 1 );
   districtGarden.fog = new THREE.Fog( districtGarden.background, 1, 5000 );
   districtGarden.fog.color.copy(new THREE.Color( 0xffffff ))
-  districtGarden.name = "park"
-
+  districtGarden.name = "D_GARDEN"
+  
   const objects = generateDistrictGardenObjects()
   
   for(let i = 0; i < objects.length; i++){
     districtGarden.add(objects[i])
   }
 
-  const lsystemTree = generateLsystemTree("ffBAf>A", "^fB++fB<<fvB", "f<f>B>f--AvA", 5, 2.0, 0.05);
-  lsystemTree.position.set(30, 10, -30)
-  districtGarden.add(lsystemTree);
-
-  const lsystemTree1 = generateLsystemTree("ffAf>B", "^fB++fAvvB", "f<B+f--vA", 5, 1.2, 0.05);
-  lsystemTree1.position.set(-60, 10, 60)
-  districtGarden.add(lsystemTree1);
-
-  // https://github.com/mrdoob/three.js/issues/1364
-  {
-    let totalMesh = new THREE.Object3D()
-    
-    let prev;
-    const theta1 = Math.PI/3;
-    const theta2 = -Math.PI/4;
-
-    const geom1 = new THREE.BoxGeometry( 10, 10, 4 );
-    const mat1 = new THREE.MeshBasicMaterial( {color: 0xDF57BC} ); //pink
-    const origin = new THREE.Mesh(geom1, mat1);
-
-    origin.geometry.applyMatrix4( new THREE.Matrix4().makeTranslation( 0, 1.0, 0 ) );
-
-    console.log("init", origin)
-    // districtGarden.add(origin);
-
-    prev = origin;
-
-    // const g2 = new THREE.BoxGeometry( 10, 10, 4 );
-    // const m2 = new THREE.MeshBasicMaterial( {color: 0xff0000} );
-    // const cube2 = new THREE.Mesh(g2, m2);
-    // g2.rotateX(Math.PI/3)
-
-    // cube2.geometry.translate(prev.position.x, prev.position.y + 10, prev.position.z)
-    // districtGarden.add(cube2);
-
-    // const g2_1 = new THREE.BoxGeometry( 10, 10, 4 );
-    // const cube2_1 = new THREE.Mesh(g2_1, m2);
-    // g2_1.rotateX(-Math.PI/3)
-
-    // cube2_1.geometry.translate(prev.position.x, prev.position.y + 10, prev.position.z)
-    // cube2_1.updateMatrix();
-    // districtGarden.add(cube2_1);
-
-    // prev = cube2
-
-    recursiveBranch(prev, 10)
-
-    function recursiveBranch(prevGeom, branchSize) {
-      const size = branchSize * 0.7;
-      console.log(prevGeom.name)
-
-      if(size > 1) {
-        const g = new THREE.BoxGeometry( 5, 5, 4 );
-        const m = new THREE.MeshPhongMaterial( {color: 0x0000ff} );
-        const cube = new THREE.Mesh(g, m);
-        cube.name = size;
-        g.rotateX(theta1)
-
-        cube.geometry.translate(prevGeom.position.x, prevGeom.position.y + size*3.0, prevGeom.position.z)
-        // districtGarden.add(cube);
-        recursiveBranch(cube, size)
-      }
-
-    }
-
-  }
-
-
-  // fps control
-  /** 
-  let characterGeom = new THREE.BoxGeometry(1, 1, 1);
-  let characterMat = new THREE.MeshPhongMaterial( {color: 0x001122} );
-  character = new THREE.Mesh(characterGeom, characterMat);
-
-  character.position.copy(camera.position);
-  character.rotation.copy(camera.rotation);
-  character.updateMatrix();
-  character.translateZ(-5);
-  character.translateY(-5);
-  */
-
 }
 
 function createDistrictOne() {
   districtOne = new THREE.Scene();
   districtOne.background = new THREE.Color(0x70666f);
-  districtOne.name = "one"
+  districtOne.name = "D_ONE"
 
   const objects = generateDistrictOneObjects()
 
@@ -574,6 +491,8 @@ function createDistrictOne() {
 function createDistrictTwo() {
   districtTwo = new THREE.Scene();
   districtTwo.background = new THREE.Color(0xffffff);
+  districtOne.name = "D_TWO"
+
   {
     const geometry = new THREE.CircleGeometry( 1000, 50 );
     const material = new THREE.MeshPhongMaterial( {color: 0x879ead} );

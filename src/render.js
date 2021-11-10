@@ -4,6 +4,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js';
 import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { DRACOLoader } from 'three/examples/jsm/loaders/dracoloader';
 import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls.js';
 
 import { GUI } from 'three/examples/jsm/libs/dat.gui.module';
@@ -17,6 +18,8 @@ import { generateDistrictThreeObjects } from './renderDistrictThree.js';
 import coffeeRiverFragment from './shaders/coffee.frag.js';
 import vertexShader from './shaders/vertex.glsl.js';
 import { FlowerPetals } from './models/flowerPetals.js';
+import { Loader } from 'three';
+import { statSync } from 'fs';
 
 const treeParams = {
   radius: 7,
@@ -52,6 +55,11 @@ const direction = new THREE.Vector3();
 const vertex = new THREE.Vector3();
 const color = new THREE.Color();
 const gltfLoader = new GLTFLoader();
+// provide dracoLoader instance to decode compressed mesh data
+const dracoLoader = new DRACOLoader();
+dracoLoader.setDecoderPath('three/examples/js/libs/draco');
+gltfLoader.setDRACOLoader(dracoLoader);
+let mixer = null;
 
 // const gui = new GUI();
 const WIDTH = window.innerWidth, HEIGHT = window.innerHeight
@@ -81,9 +89,9 @@ controls.enableDamping = true;
 controls.update();
 
 // position and point the camera to the center of the scene
-camera.position.x = 100;
-camera.position.y = 10;
-camera.position.z = 10;
+camera.position.x = 1000;
+camera.position.y = 3;
+camera.position.z = 0;
 camera.lookAt(new THREE.Vector3(0, 0, 0));
 
 camControls = new PointerLockControls(camera, document.body);
@@ -272,7 +280,7 @@ function animate() {
     // const onObject = intersections.length > 0;
 
     // control speed of movement
-    const delta = ( time - prevTime ) / 1000;
+    const delta = ( time - prevTime ) / 500;
 
     velocity.x -= velocity.x * 40.0 * delta;
     velocity.z -= velocity.z * 40.0 * delta;
@@ -310,7 +318,6 @@ function animate() {
 
   prevTime = time;
 
-  stats.update();
 };
 
 // including animation loop
@@ -327,8 +334,8 @@ function render() {
   // mushroomMesh.rotation.y = time * 0.00075;
   // mushroomMesh.material.uniforms.u_time.value = time * 0.01;
 
-  districtGarden.children[0].material.uniforms.u_time.value = time * 0.005;
-  districtTwo.children[0].material.uniforms.u_time.value = time * 0.001;
+  // districtGarden.children[0].material.uniforms.u_time.value = time * 0.005;
+  // districtTwo.children[0].material.uniforms.u_time.value = time * 0.001;
 
   const canvas = renderer.domElement;
   camera.aspect = canvas.clientWidth / canvas.clientHeight;
@@ -349,9 +356,16 @@ function render() {
 
     districtGarden.add(flowerObj)
   }
- 
+
+  var delta = clock.getDelta();
+  if(currentScene.name === "D_TWO") {
+    if(mixer) {
+      mixer.update(delta);
+    }  
+  }
   renderer.autoClear = true;
   renderer.render( currentScene, camera );
+  stats.update()
 }
 
 document.addEventListener('keypress', logKey);
@@ -491,7 +505,7 @@ function createDistrictOne() {
 function createDistrictTwo() {
   districtTwo = new THREE.Scene();
   districtTwo.background = new THREE.Color(0xffffff);
-  districtOne.name = "D_TWO"
+  districtTwo.name = "D_TWO"
 
   {
     const geometry = new THREE.CircleGeometry( 1000, 50 );
@@ -524,8 +538,40 @@ function createDistrictTwo() {
     "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/models/districtTwo/bear.glb",
     "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/models/districtTwo/fork.glb",
     "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/models/districtTwo/tape.glb",
-    "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/models/wee.glb"
+    "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/models/wee.glb",
+    // "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/models/purpleSung.glb",
   ]
+
+
+  gltfLoader.load(
+    "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/models/purpleSung.glb",
+    function (gltf) {
+      gltf.scene.position.set(80, 0, -50);
+      gltf.scene.scale.set(16, 16, 16);
+
+      gltf.animations;
+      mixer = new THREE.AnimationMixer(gltf.scene);
+      var action = mixer.clipAction(gltf.animations[0])
+      action.play(); 
+
+      // gltf.animations.forEach( (clip) => {
+      //   mixer.clipAction(clip).play()
+      // })
+
+      gltf.scene;
+      gltf.scenes;
+      gltf.cameras;
+      gltf.aseet;
+
+      districtTwo.add(gltf.scene);
+    },
+    function (xhr) {
+      console.log( (xhr.loaded / xhr.total * 100) + '% purple sunglasses loaded' );
+    },
+    function (err) {
+      console.log("err: ", err)
+    }
+  )
 
   const modelsPosition = [
     {px: 30, py: 10, pz: -50},

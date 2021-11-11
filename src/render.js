@@ -505,6 +505,9 @@ function createDistrictTwo() {
   ]
 
   const districtTwoAnim = [
+    "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/models/mm_project_2.glb",
+    "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/models/mm_project_3.glb",
+    "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/models/districtTwo/coffee1.glb",
     "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/models/districtTwo/purpleSung.glb",
     "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/models/districtTwo/orange.glb",
     "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/models/districtTwo/green.glb",
@@ -528,8 +531,8 @@ function createDistrictTwo() {
 
   function onLoadAnimation(model, order) {
     console.log(model)
-    const randX = -150 * order // getRandomArbitrary(-100 * i, 500);
-    const randZ = 200 * order // getRandomArbitrary(-500, 500)
+    const randX = -50 * order // getRandomArbitrary(-100 * i, 500);
+    const randZ = 100 * order // getRandomArbitrary(-500, 500)
     model.scene.position.set(randX, 40, randZ);
     model.scene.rotation.y = Math.PI/2.0;
     model.scene.scale.set(25, 25, 25);

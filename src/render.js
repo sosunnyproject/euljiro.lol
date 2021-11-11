@@ -20,6 +20,9 @@ import { Loader } from 'three';
 import { statSync } from 'fs';
 import { getRandomArbitrary } from './utils.js';
 
+// import model urls
+import { districtTwoAnim, districtTwoModels } from './models/glbConstants.js';
+
 let stats, camera, renderer, pointerControls, character, character1;
 let currentScene, districtGarden, districtOne, districtTwo, districtThree;
 
@@ -496,32 +499,18 @@ function createDistrictTwo() {
     districtTwo.add(light)
    }
 
-
-  const districtTwoModels = [
-    "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/models/districtTwo/bear.glb",
-    "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/models/districtTwo/fork.glb",
-    "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/models/districtTwo/tape.glb",
-    "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/models/districtTwo/wee.glb",
-  ]
-
-  const districtTwoAnim = [
-    "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/models/mm_project_2.glb",
-    "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/models/mm_project_3.glb",
-    "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/models/districtTwo/coffee1.glb",
-    "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/models/districtTwo/purpleSung.glb",
-    "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/models/districtTwo/orange.glb",
-    "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/models/districtTwo/green.glb",
-    "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/models/districtTwo/weed2.glb",
-    "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/models/districtTwo/spa.glb",
-  ]
-
   for (let i = 0; i < districtTwoAnim.length; i++) {
+    const currModel = districtTwoAnim[i]
+
     gltfLoader.load (
-      districtTwoAnim[i],
-      (gltf) => onLoadAnimation(gltf, i),
+      currModel.url,
+      (gltf) => onLoadAnimation(gltf, currModel),
 
       function (xhr) {
-        console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
+        if( (xhr.loaded/xhr.total * 100) >= 100.0 ) {
+          console.log(xhr.loaded/xhr.total * 100)
+        }
+        // console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
       },
       function (err) {
         console.log("err: ", err)
@@ -529,11 +518,10 @@ function createDistrictTwo() {
     )
   }
 
-  function onLoadAnimation(model, order) {
-    console.log(model)
-    const randX = -50 * order // getRandomArbitrary(-100 * i, 500);
-    const randZ = 100 * order // getRandomArbitrary(-500, 500)
-    model.scene.position.set(randX, 40, randZ);
+  function onLoadAnimation(model, data) {
+    console.log("load animated models: ", data)
+    const { posX, posY, posZ } = data
+    model.scene.position.set(posX, posY, posZ);
     model.scene.rotation.y = Math.PI/2.0;
     model.scene.scale.set(25, 25, 25);
     model.animations;

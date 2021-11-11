@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import vertexShader from './shaders/vertex.glsl.js'
-import fragmentShader from './shaders/fragment.glsl.js'
+import vertexShader from '../shaders/vertex.glsl.js'
+import fragmentShader from '../shaders/fragment.glsl.js'
 
 export function generateMushroom() {
 	const mushroom = new THREE.Object3D()

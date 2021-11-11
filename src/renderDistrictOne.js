@@ -1,10 +1,5 @@
 import * as THREE from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls.js';
-
 import { getRandomArbitrary, getRandomInt } from './utils.js';
-import { generateMushroom } from './mushrooms.js';
-import { generateGround } from './ground.js';
 import { generateTrafficCone } from './models/TrafficCone.js';
 import { generateTriangleCat, generateTriangleGround, generateFloorNeons } from './models/catRoads.js';
 import { generateBirdBot } from './models/birdBot.js';

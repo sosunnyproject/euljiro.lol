@@ -1,9 +1,9 @@
 // https://threejsfundamentals.org/threejs/lessons/threejs-cameras.html
 import * as THREE from 'three';
-import Perlin from '../libs/perlin.js';
-import vertexShader from './shaders/vertex.glsl.js'
-import cnFragment from './shaders/cellularNoise.frag.js';
-import turbulenceFragment from './shaders/turbulence.frag.js';
+import Perlin from '../../libs/perlin';
+import vertexShader from '../shaders/vertex.glsl.js'
+import cnFragment from '../shaders/cellularNoise.frag.js';
+import turbulenceFragment from '../shaders/turbulence.frag.js';
 
 let date = new Date();
 let pn = new Perlin('rnd' + date.getTime());

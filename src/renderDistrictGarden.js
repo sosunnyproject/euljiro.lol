@@ -8,8 +8,8 @@ import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockCont
 
 import { getRandomArbitrary, getRandomInt } from './utils.js';
 import { generateShaderTree, generateTree } from './models/trees.js';
-import { generateMushroom } from './mushrooms.js';
-import { generateGround } from './ground.js';
+import { generateMushroom } from './models/mushrooms.js';
+import { generateGround } from './models/ground.js';
 import cloudsFragment from './shaders/clouds.frag.js';
 import vertexShader from './shaders/vertex.glsl.js';
 import skyVertex from './shaders/skyVertex.glsl.js';

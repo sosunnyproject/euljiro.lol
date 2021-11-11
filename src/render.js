@@ -1,9 +1,8 @@
 // https://threejsfundamentals.org/threejs/lessons/threejs-cameras.html
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js';
-import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { DRACOLoader } from 'three/examples/jsm/loaders/dracoloader';
 import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls.js';
 
 import { GUI } from 'three/examples/jsm/libs/dat.gui.module';
@@ -17,33 +16,12 @@ import { generateDistrictThreeObjects } from './renderDistrictThree.js';
 import coffeeRiverFragment from './shaders/coffee.frag.js';
 import vertexShader from './shaders/vertex.glsl.js';
 import { FlowerPetals } from './models/flowerPetals.js';
+import { Loader } from 'three';
+import { statSync } from 'fs';
+import { getRandomArbitrary } from './utils.js';
 
-const treeParams = {
-  radius: 7,
-  detail: 5,
-  xpos: 20,
-  ypos: 11,
-  color: '#00ff00'
-}
-
-const params = {
-  fov: 20,
-  aspect: 2, 
-  zNear: 5,
-  zFar: 4000
-}
-
-let stats, camera, renderer, camControls, character, character1;
+let stats, camera, renderer, pointerControls, character, character1;
 let currentScene, districtGarden, districtOne, districtTwo, districtThree;
-
-let raycaster;
-
-let gamepadConnected = false;
-let moveForward = false;
-let moveBackward = false;
-let moveLeft = false;
-let moveRight = false;
-let canJump = false;
 
 let petalN = 4, petalD = 9;
 let prevTime = performance.now();
@@ -52,12 +30,30 @@ const direction = new THREE.Vector3();
 const vertex = new THREE.Vector3();
 const color = new THREE.Color();
 const gltfLoader = new GLTFLoader();
+// provide dracoLoader instance to decode compressed mesh data
+const dracoLoader = new DRACOLoader();
+dracoLoader.setDecoderPath('three/examples/js/libs/draco');
+gltfLoader.setDRACOLoader(dracoLoader);
+let mixers = [];
 
-// const gui = new GUI();
-const WIDTH = window.innerWidth, HEIGHT = window.innerHeight
 var clock = new THREE.Clock();
 
-// create a camera, which defines where we're looking at.
+// Canvas
+const canvas = document.querySelector('#c');
+const WIDTH = window.innerWidth, HEIGHT = window.innerHeight
+renderer = new THREE.WebGLRenderer({ canvas });
+renderer.setClearColor(new THREE.Color(0x000, 1.0));
+renderer.setSize(WIDTH, HEIGHT);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+// Camera
+const params = {
+  fov: 20,
+  aspect: 2, 
+  zNear: 5,
+  zFar: 4000
+}
 function makeCamera() {
   const { fov, aspect, zNear, zFar} = params;  // the canvas default
   return new THREE.PerspectiveCamera(fov, aspect, zNear, zFar);
@@ -65,34 +61,49 @@ function makeCamera() {
 camera = makeCamera();
 // camera.position.set(-100, 100, 0) //.multiplyScalar(1);
 // camera.lookAt(0, 0, 0);
+camera.position.x = 300;
+camera.position.y = 3;
+camera.position.z = 0;
+camera.lookAt(new THREE.Vector3(0, 0, 0));
 
-// create a render and set the size
-const canvas = document.querySelector('#c');
-renderer = new THREE.WebGLRenderer({ canvas });
-renderer.setClearColor(new THREE.Color(0x000, 1.0));
-renderer.setSize(WIDTH, HEIGHT);
-renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+// Camera GUI Input
+// const gui = new GUI();
+// const guiBox = gui.addFolder('guiBox');
+// guiBox.add(params, 'fov', 1, 100).onChange(makeCamera)
+// guiBox.add(params, 'aspect', 1, 20).onChange(makeCamera)
+// guiBox.add(params, 'zNear', 0.1, 1).onChange(makeCamera)
+// guiBox.add(params, 'zFar', 500, 2000).onChange(makeCamera)
 
-// orbit controls
+
+// Orbit Controls
 const controls = new OrbitControls( camera, renderer.domElement);
 controls.enableZoom = true;
 controls.enableDamping = true;
 controls.update();
 
-// position and point the camera to the center of the scene
-camera.position.x = 100;
-camera.position.y = 10;
-camera.position.z = 10;
-camera.lookAt(new THREE.Vector3(0, 0, 0));
-
-camControls = new PointerLockControls(camera, document.body);
-const instructions = document.getElementById( 'c' );
+// Pointer Lock Controls & Instructions
+pointerControls = new PointerLockControls(camera, document.body);
+const instructions = document.getElementById( 'instructions' );
+const blocker = document.getElementById( 'blocker' );
 
 instructions.addEventListener( 'click', function () {
-  camControls.lock();
+  pointerControls.lock();
+} );
+pointerControls.addEventListener( 'lock', function () {
+
+  instructions.style.display = 'none';
+  blocker.style.display = 'none';
+
 } );
 
+pointerControls.addEventListener( 'unlock', function () {
+
+  blocker.style.display = 'block';
+  instructions.style.display = '';
+
+} );
+
+// Key Controls
 const onKeyDown = function ( event ) {
 
   switch ( event.code ) {
@@ -121,9 +132,7 @@ const onKeyDown = function ( event ) {
       if ( canJump === true ) velocity.y += 350;
       canJump = false;
       break;
-
   }
-
 };
 
 const onKeyUp = function ( event ) {
@@ -149,10 +158,11 @@ const onKeyUp = function ( event ) {
     case 'KeyD':
       moveRight = false;
       break;
-
   }
-
 };
+
+document.addEventListener( 'keydown', onKeyDown );
+document.addEventListener( 'keyup', onKeyUp );
 
 // orientation
 // document.addEventListener('DOMContentLoaded', addListenMouse, false); 
@@ -164,8 +174,15 @@ const onKeyUp = function ( event ) {
 //   })
 // }
 
-document.addEventListener( 'keydown', onKeyDown );
-document.addEventListener( 'keyup', onKeyUp );
+// GamePad Interaction
+let gamepadConnected = false;
+let moveForward = false;
+let moveBackward = false;
+let moveLeft = false;
+let moveRight = false;
+let canJump = false;
+let raycaster;
+
 window.addEventListener("gamepadconnected", function(e) {
   console.log("Gamepad connected at index %d: %s. %d buttons, %d axes.",
     e.gamepad.index, e.gamepad.id,
@@ -174,14 +191,6 @@ window.addEventListener("gamepadconnected", function(e) {
 });
 raycaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, - 1, 0 ), 0, 10 );
 
-// camera gui
-// const guiBox = gui.addFolder('guiBox');
-// guiBox.add(params, 'fov', 1, 100).onChange(makeCamera)
-// guiBox.add(params, 'aspect', 1, 20).onChange(makeCamera)
-// guiBox.add(params, 'zNear', 0.1, 1).onChange(makeCamera)
-// guiBox.add(params, 'zFar', 500, 2000).onChange(makeCamera)
-
-// gamepad
 function xboxKeyPressed (gamepad) {
   const buttons = gamepad.buttons;
 
@@ -245,7 +254,7 @@ function xboxAxesPressed(gamepad) {
   prevAxisY = movementY;
 }
 
-function animate() {
+function tick() {
 
   //gamepad
   if (gamepadConnected) {
@@ -254,63 +263,11 @@ function animate() {
     xboxAxesPressed(gamepad);
   }
 
-  currentScene.add(camControls.getObject())
-
   render();
 
-  requestAnimationFrame( animate );
+  requestAnimationFrame( tick );
 
-  const time = performance.now();
-
-  if ( camControls.isLocked === true ) {
-
-    raycaster.ray.origin.copy( camControls.getObject().position );
-    raycaster.ray.origin.y -= 10;
-
-    // const intersections = raycaster.intersectObjects( objects, false );
-
-    // const onObject = intersections.length > 0;
-
-    // control speed of movement
-    const delta = ( time - prevTime ) / 1000;
-
-    velocity.x -= velocity.x * 40.0 * delta;
-    velocity.z -= velocity.z * 40.0 * delta;
-
-    velocity.y -= 9.8 * 200.0 * delta; // 100.0 = mass
-
-    direction.z = Number( moveForward ) - Number( moveBackward );
-    direction.x = Number( moveRight ) - Number( moveLeft );
-    direction.normalize(); // this ensures consistent movements in all directions
-
-    if ( moveForward || moveBackward ) velocity.z -= direction.z * 400.0 * delta;
-    if ( moveLeft || moveRight ) velocity.x -= direction.x * 400.0 * delta;
-
-    // if ( onObject === true ) {
-
-    //   velocity.y = Math.max( 0, velocity.y );
-    //   canJump = true;
-
-    // }
-
-    camControls.moveRight( - velocity.x * delta );
-    camControls.moveForward( - velocity.z * delta );
-
-    camControls.getObject().position.y += ( velocity.y * delta ); // new behavior
-
-    if ( camControls.getObject().position.y < 10 ) {
-
-      velocity.y = 0;
-      camControls.getObject().position.y = 5;
-
-      canJump = true;
-
-    }
-  }
-
-  prevTime = time;
-
-  stats.update();
+  checkPointerControls()
 };
 
 // including animation loop
@@ -327,7 +284,7 @@ function render() {
   // mushroomMesh.rotation.y = time * 0.00075;
   // mushroomMesh.material.uniforms.u_time.value = time * 0.01;
 
-  districtGarden.children[0].material.uniforms.u_time.value = time * 0.005;
+  // districtGarden.children[0].material.uniforms.u_time.value = time * 0.005;
   districtTwo.children[0].material.uniforms.u_time.value = time * 0.001;
 
   const canvas = renderer.domElement;
@@ -349,32 +306,54 @@ function render() {
 
     districtGarden.add(flowerObj)
   }
- 
+
+  var delta = clock.getDelta();
+  if(currentScene.name === "D_TWO") {
+    if(mixers.length > 0) {
+      mixers.forEach(mixer => mixer.update(delta))
+      // mixer.update(delta);
+    }  
+  }
+
   renderer.autoClear = true;
+  renderer.clear();
   renderer.render( currentScene, camera );
+  stats.update()
 }
 
-document.addEventListener('keypress', logKey);
+document.addEventListener('keypress', switchScene);
 
-function logKey(e) {
-  // console.log("camera: ", camera.position)
+function switchScene(e) {
+  pointerControls.getObject().removeFromParent();
 
   switch(e.code) {
+
     case 'Digit1':
       console.log("1 pressed")
-      currentScene = districtOne;
+      districtOne.add(pointerControls.getObject());
+      setTimeout(() => {
+        currentScene = districtOne;
+      }, 1000)
       break;
+
     case 'Digit2':
       console.log("2 pressed")
-      currentScene = districtTwo ;
+      districtTwo.add(pointerControls.getObject());
+      setTimeout(() => {
+        currentScene = districtTwo;
+      }, 1000)
       break;
+
     case 'Digit3':
       console.log("3 pressed")
       currentScene = districtThree;
       break;
     case 'Digit0':
       console.log("0 pressed")
-      currentScene = districtGarden;
+      districtGarden.add(pointerControls.getObject());
+      setTimeout(() => {
+        currentScene = districtGarden;
+      }, 1000)
       break;
   }
 }
@@ -389,9 +368,9 @@ if(!WEBGL.isWebGLAvailable()) {
   createDistrictOne();
   createDistrictTwo();
   createDistrictThree();
-  currentScene = districtGarden;
-  currentScene.add(camControls.getObject())
-  animate();
+  currentScene = districtOne;
+  currentScene.add(pointerControls.getObject())
+  tick();
 }
 
 function initStats() {
@@ -412,13 +391,12 @@ function createDistrictGarden() {
   districtGarden.fog = new THREE.Fog( districtGarden.background, 1, 5000 );
   districtGarden.fog.color.copy(new THREE.Color( 0xffffff ))
   districtGarden.name = "D_GARDEN"
-  
+
   const objects = generateDistrictGardenObjects()
   
   for(let i = 0; i < objects.length; i++){
     districtGarden.add(objects[i])
   }
-
 }
 
 function createDistrictOne() {
@@ -441,18 +419,18 @@ function createDistrictOne() {
   ]
 
   const modelsPosition = [
-    {px: 30, py: 10, pz: -50},
-    {px: -30, py: 10, pz: -80},
-    {px: -30, py: 10, pz: 80},
-    {px: 0, py: 12, pz: 0},
+    {px: 30, py: 20, pz: -50},
+    {px: -30, py: 20, pz: -80},
+    {px: -30, py: 20, pz: 80},
+    {px: -100, py: 30, pz: 0},
     {px: -80, py: 10, pz: 0}
   ]
 
   const modelsScale = [
-    {sx: null, sy: null, sz: null},
-    {sx: null, sy: null, sz: null},
-    {sx: null, sy: null, sz: null},
-    {sx: 8, sy: 8, sz: 4},
+    {sx: 10, sy: 10, sz: 10},
+    {sx: 10, sy: 10, sz: 10},
+    {sx: 10, sy: 10, sz: 10},
+    {sx: 20, sy: 20, sz: 20},
     {sx: null, sy: null, sz: null}
   ]
   
@@ -485,13 +463,12 @@ function createDistrictOne() {
     districtOne.add(gltf.scene);
   }
 
-  districtOne.add(camControls.getObject() );
 }
 
 function createDistrictTwo() {
   districtTwo = new THREE.Scene();
   districtTwo.background = new THREE.Color(0xffffff);
-  districtOne.name = "D_TWO"
+  districtTwo.name = "D_TWO"
 
   {
     const geometry = new THREE.CircleGeometry( 1000, 50 );
@@ -524,8 +501,53 @@ function createDistrictTwo() {
     "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/models/districtTwo/bear.glb",
     "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/models/districtTwo/fork.glb",
     "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/models/districtTwo/tape.glb",
-    "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/models/wee.glb"
+    "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/models/districtTwo/wee.glb",
   ]
+
+  const districtTwoAnim = [
+    "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/models/districtTwo/purpleSung.glb",
+    "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/models/districtTwo/orange.glb",
+    "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/models/districtTwo/green.glb",
+    "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/models/districtTwo/weed2.glb",
+    "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/models/districtTwo/spa.glb",
+  ]
+
+  for (let i = 0; i < districtTwoAnim.length; i++) {
+    gltfLoader.load (
+      districtTwoAnim[i],
+      (gltf) => onLoadAnimation(gltf, i),
+
+      function (xhr) {
+        console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
+      },
+      function (err) {
+        console.log("err: ", err)
+      }
+    )
+  }
+
+  function onLoadAnimation(model, order) {
+    console.log(model)
+    const randX = -150 * order // getRandomArbitrary(-100 * i, 500);
+    const randZ = 200 * order // getRandomArbitrary(-500, 500)
+    model.scene.position.set(randX, 40, randZ);
+    model.scene.rotation.y = Math.PI/2.0;
+    model.scene.scale.set(25, 25, 25);
+    model.animations;
+
+    let mixer = new THREE.AnimationMixer(model.scene);
+    mixers.push(mixer)
+
+    var action = mixer.clipAction(model.animations[0])
+    action.play(); 
+
+    model.scene;
+    model.scenes;
+    model.cameras;
+    model.aseet;
+
+    districtTwo.add(model.scene);
+  }
 
   const modelsPosition = [
     {px: 30, py: 10, pz: -50},
@@ -535,9 +557,9 @@ function createDistrictTwo() {
   ]
 
   const modelsScale = [
-    {sx: null, sx: null, sz: null},
-    {sx: null, sx: null, sz: null},
-    {sx: null, sx: null, sz: null},
+    {sx: 10, sy: 10, sz: 10},
+    {sx: 10, sy: 10, sz: 10},
+    {sx: 10, sy: 10, sz: 10},
     {sx: 8, sy: 8, sz: 4},
   ]
   
@@ -560,7 +582,7 @@ function createDistrictTwo() {
     gltf.scene.position.set(px, py, pz);
 
     const {sx, sy, sz} = scale;
-    gltf.scene.scale.set(sx || 4, sy || 4, sz || 2);
+    gltf.scene.scale.set(sx || 4, sy || 4, sz || 4);
 
     if(rotation){
       const {rx, ry, rz} = rotation;
@@ -581,4 +603,56 @@ function createDistrictThree() {
   for(let i = 0; i < objects.length; i++){
     districtThree.add(objects[i]);
   }
+}
+
+function checkPointerControls() {
+  const time = performance.now();
+
+  if ( pointerControls.isLocked === true ) {
+
+    raycaster.ray.origin.copy( pointerControls.getObject().position );
+    raycaster.ray.origin.y -= 10;
+
+    // const intersections = raycaster.intersectObjects( objects, false );
+
+    // const onObject = intersections.length > 0;
+
+    // control speed of movement
+    const delta = ( time - prevTime ) / 1000;
+
+    velocity.x -= velocity.x * 10.0 * delta;
+    velocity.z -= velocity.z * 10.0 * delta;
+
+    velocity.y -= 9.8 * 100.0 * delta;
+
+    direction.z = Number( moveForward ) - Number( moveBackward );
+    direction.x = Number( moveRight ) - Number( moveLeft );
+    direction.normalize(); // this ensures consistent movements in all directions
+
+    if ( moveForward || moveBackward ) velocity.z -= direction.z * 400.0 * delta;
+    if ( moveLeft || moveRight ) velocity.x -= direction.x * 400.0 * delta;
+
+    // if ( onObject === true ) {
+
+    //   velocity.y = Math.max( 0, velocity.y );
+    //   canJump = true;
+
+    // }
+
+    pointerControls.moveRight( - velocity.x * delta );
+    pointerControls.moveForward( - velocity.z * delta );
+
+    pointerControls.getObject().position.y += ( velocity.y * delta ); // new behavior
+
+    if ( pointerControls.getObject().position.y < 10 ) {
+
+      velocity.y = 0;
+      pointerControls.getObject().position.y = 5;
+
+      canJump = true;
+
+    }
+  }
+
+  prevTime = time;
 }

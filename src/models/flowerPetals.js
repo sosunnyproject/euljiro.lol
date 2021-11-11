@@ -38,7 +38,7 @@ export function FlowerPetals(numerator, denominator, angleGap) {
     flower.add(mesh)
   }
 
-  flower.scale.set(0.2, 0.2, 0.2)
+  flower.scale.set(2, 2, 2)
   flower.rotation.y = Math.PI/2.0
 
 

@@ -6,8 +6,8 @@ import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls.js';
 
-import { getRandomArbitrary, getRandomInt } from './globalfunctions.js';
-import { generateShaderTree, generateTree } from './trees.js';
+import { getRandomArbitrary, getRandomInt } from './utils.js';
+import { generateShaderTree, generateTree } from './models/trees.js';
 import { generateMushroom } from './mushrooms.js';
 import { generateGround } from './ground.js';
 import cloudsFragment from './shaders/clouds.frag.js';
@@ -16,11 +16,12 @@ import skyVertex from './shaders/skyVertex.glsl.js';
 import skyFrag from './shaders/skyFrag.glsl.js';
 import { FlowerPetals } from './models/flowerPetals.js';
 import { generateLsystemTree } from './lsystem/wrapper.js';
+import { floorPowerOfTwo } from 'three/src/math/mathutils';
 
 export function generateDistrictGardenObjects() {
   const arr = []
 
-  const shaderTree = generateShaderTree(10, -2, 0)
+  // const shaderTree = generateShaderTree(10, -2, 0)
 
   // mushrooms
   const m = generateMushroom()
@@ -44,7 +45,7 @@ export function generateDistrictGardenObjects() {
 
   const axes = new THREE.AxesHelper(20);
 
-  arr.push(shaderTree, m, groundMesh, torusKnot, torus2, axes)
+  arr.push(m, groundMesh, torusKnot, torus2, axes)
 
   // env
   const hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.6 );
@@ -77,7 +78,7 @@ export function generateDistrictGardenObjects() {
   for(let i = 0; i < 40; i++){
    const x = getRandomArbitrary(-200, 200)
    const tree = generateTree(x, 15, getRandomArbitrary(-100, 100))
-   arr.push(tree);  
+  //  arr.push(tree);  
   }
 
  {
@@ -96,19 +97,23 @@ export function generateDistrictGardenObjects() {
   {
     // lsystem trees
     
-  const lsystemTree = generateLsystemTree("ffBAf>A", "^fB++fB<<fvB", "f<f>B>f--AvA", 5, 2.0, 0.05);
-  lsystemTree.position.set(30, 10, -30)
+  const lsystemTree = generateLsystemTree("ffBAf>A", "^fB++fB<<fvB", "f<f>B>f--AvA", 5, 0.08, 2.0);
+  lsystemTree.position.set(30, 0, -60)
 
-  const lsystemTree1 = generateLsystemTree("ffAf>B", "^fB++fAvvB", "f<B+f--vA", 5, 1.2, 0.05);
-  lsystemTree1.position.set(-60, 10, 60)
+  const lsystemTree1 = generateLsystemTree("ffAf>B", "^fB++fAvvB", "f<B+f--vA", 5, 0.05, 1.5);
+  lsystemTree1.position.set(-60, 0, 60)
 
-  arr.push(lsystemTree, lsystemTree1)
+  // const lsystemTree2 = generateLsystemTree("ffBAf>A", "^ffAvvfB+fv--B", "f<A>B<f--A+B", 4, 0.1, 1.8);
+  const lsystemTree2 =lsystemTree.clone()
+  lsystemTree2.position.set(0, 0, 0);
+  lsystemTree2.scale.set(5, 5, 5);
+
+  arr.push(lsystemTree, lsystemTree1, lsystemTree2)
   }
 
   // math rose   
   const flower1 = new FlowerPetals(4, 12)
   flower1.position.set(70, 20, 20)
-
   arr.push(flower1)
 
   const flower2 = new FlowerPetals(6.5, 7.4)

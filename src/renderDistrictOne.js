@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls.js';
 
-import { getRandomArbitrary, getRandomInt } from './globalfunctions.js';
+import { getRandomArbitrary, getRandomInt } from './utils.js';
 import { generateMushroom } from './mushrooms.js';
 import { generateGround } from './ground.js';
 import { generateTrafficCone } from './models/TrafficCone.js';

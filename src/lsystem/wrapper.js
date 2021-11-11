@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 // import { ruleOne, ruleTwo, branchInsert } from "./app.js";
 import { toRadians, toDegrees } from './utils.js';
+import { getRandomArbitrary, getRandomInt } from '../utils.js';
 
 const mixers = [];
 const clock = new THREE.Clock();
@@ -14,7 +15,7 @@ var season = 4;
 var barkTexture = 3;
 
 
-export function generateLsystemTree(axiom, rule1, rule2, iter, branchRad, radiusRed) {
+export function generateLsystemTree(axiom, rule1, rule2, iter, radiusRed, branchRad, branchRadiusThreshold) {
     // Geometria composta dell'albero
     // setting
     var axiom = axiom // "ffBAf>A";
@@ -107,31 +108,36 @@ export function generateLsystemTree(axiom, rule1, rule2, iter, branchRad, radius
     }
 
     function branchInsert(branchLength, branchRadius, topTargetPoint, theta, rho, phi) {
+        const grassColors = ["rgb(227, 101, 91)", "rgb(220, 214, 247)", "rgb(217, 237, 146)", "rgb(181,228,140)", "rgb(153,217,140)", "rgb(118,200,147)", "rgb(82,182,154)", "rgb(52,160,164)"]
+        const grassInd = getRandomInt(0, grassColors.length)
 
-        if (branchLength < 0 || branchRadius < 0)
+        if (branchLength < 0 || branchRadius < -1)
             return topTargetPoint;
       
         // var branch = new THREE.CylinderGeometry(branchRadius * (1 - radiusReductionFactor), branchRadius, branchLength, 9);
         // var branch = new THREE.BoxGeometry(branchRadius, branchRadius, branchRadius)
         var branchCylinder = new THREE.CylinderGeometry(branchRadius * (1 - radiusReductionFactor), branchRadius - 0.1, branchLength, 9);
-        var branchCube = new THREE.BoxGeometry(branchRadius+0.5, branchRadius+0.5, branchRadius+0.5)
+        var grassCube = new THREE.BoxGeometry(branchRadius+1.5, branchRadius+1.5, branchRadius+1.5)
+        // var grassSphere = new THREE.SphereBufferGeometry(branchRadius+1.5, 24, 24)
+        let petalGeom = new THREE.SphereBufferGeometry(branchRadius+1.5, 20, 20, Math.PI / 3.0, Math.PI / 3.0);
 
         var greenMat = new THREE.MeshPhongMaterial({color: 0x31E981})
         var pinkMat = new THREE.MeshPhongMaterial({color: 0xC0B9DD})
+        var randomMat = new THREE.MeshPhongMaterial({ color: grassColors[grassInd] })
         // Calcolo il top e il bottom point del cilindro e guardo dove sono dopo la rotazione
         var newTopPoint = new THREE.Vector3(0.0, branchLength / 3, 0);
         var bottomPoint = new THREE.Vector3(0.0, - branchLength / 2, 0);
       
         var branchMesh;
-        if(branchRadius < 1.0) {
-            branchMesh = new THREE.Mesh(branchCube, greenMat);
+        if(branchRadius < (branchRadiusThreshold || 0.1)) {
+            branchMesh = new THREE.Mesh(petalGeom, randomMat);
 
         } else {
             branchMesh = new THREE.Mesh(branchCylinder, pinkMat);
         }
  
       
-        branchMesh.autoUpdate = false;
+        // branchMesh.autoUpdate = false;
       
         // Eseguo la rotazione
         branchMesh.rotateX(toRadians(theta));

@@ -38,6 +38,7 @@ const dracoLoader = new DRACOLoader();
 dracoLoader.setDecoderPath('three/examples/js/libs/draco');
 gltfLoader.setDRACOLoader(dracoLoader);
 let mixers = [];
+const DISTRICT_NAMES = ["D_GARDEN", "D_ONE", "D_TWO", "D_THREE"]
 
 var clock = new THREE.Clock();
 
@@ -311,12 +312,12 @@ function render() {
   }
 
   var delta = clock.getDelta();
-  if(currentScene.name === "D_TWO") {
+  // if(currentScene.name === "D_TWO") {
     if(mixers.length > 0) {
       mixers.forEach(mixer => mixer.update(delta))
       // mixer.update(delta);
     }  
-  }
+  // }
 
   renderer.autoClear = true;
   renderer.clear();
@@ -345,6 +346,7 @@ function switchScene(e) {
       setTimeout(() => {
         currentScene = districtTwo;
       }, 1000)
+      console.log(districtTwo.children)
       break;
 
     case 'Digit3':
@@ -402,6 +404,43 @@ function createDistrictGarden() {
   }
 }
 
+function onLoadAnimation(model, data, district) {
+  // console.log("load animated models: ", data)
+  const { posX, posY, posZ } = data
+  model.scene.position.set(posX, posY, posZ);
+  model.scene.rotation.y = Math.PI/2.0;
+
+  if(data.scale) {
+    const inputScale = data.scale
+    model.scene.scale.set(inputScale, inputScale, inputScale)
+  } else {
+    model.scene.scale.set(25, 25, 25);
+  }
+
+  if(model.animations.length) {
+    let mixer = new THREE.AnimationMixer(model.scene);
+    mixers.push(mixer)
+
+    var action = mixer.clipAction(model.animations[0])
+    action.play();   
+  }
+
+  switch(district) {
+    case DISTRICT_NAMES[0]:
+      districtGarden.add(model.scene);
+      break;
+    case DISTRICT_NAMES[1]:
+      districtOne.add(model.scene);
+      break;
+    case DISTRICT_NAMES[2]:
+      districtTwo.add(model.scene);
+      break;
+    case DISTRICT_NAMES[3]:
+      districtThree.add(model.scene);
+      break;
+}
+}
+
 function createDistrictOne() {
   districtOne = new THREE.Scene();
   districtOne.background = new THREE.Color(0x70666f);
@@ -417,7 +456,7 @@ function createDistrictOne() {
     const currentModel = DISTRICT_ONE_GLB[i]
     gltfLoader.load (
       currentModel.url,
-      (gltf) => onLoad(gltf, currentModel),
+      (gltf) => onLoadAnimation(gltf, currentModel, DISTRICT_NAMES[1]),
       function (xhr) {
         // console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
       },
@@ -427,19 +466,14 @@ function createDistrictOne() {
     )
   }
 
-  function onLoad(gltf, data) {
-    const {px, py, pz, scale} = data;
-    gltf.scene.position.set(px, py, pz);
-    gltf.scene.scale.set(scale, scale, scale);
+  // function onLoad(gltf, data) {
+  //   const {px, py, pz, scale} = data;
+  //   gltf.scene.position.set(px, py, pz);
+  //   gltf.scene.scale.set(scale, scale, scale);
+  //   gltf.scene.rotation.y = Math.PI/2;
 
-    // if(rotation){
-    //   const {rx, ry, rz} = rotation;
-    //   gltf.scene.rotation.set(rx || 0, ry || 0, rz || 0);
-    // }
-    gltf.scene.rotation.y = Math.PI/2;
-
-    districtOne.add(gltf.scene);
-  }
+  //   districtOne.add(gltf.scene);
+  // }
 
 }
 
@@ -479,7 +513,7 @@ function createDistrictTwo() {
 
     gltfLoader.load (
       currentModel.url,
-      (gltf) => onLoadAnimation(gltf, currentModel),
+      (gltf) => onLoadAnimation(gltf, currentModel, DISTRICT_NAMES[2]),
 
       function (xhr) {
         if( (xhr.loaded/xhr.total * 100) >= 100.0 ) {
@@ -491,24 +525,6 @@ function createDistrictTwo() {
         console.log("err: ", err)
       }
     )
-  }
-
-  function onLoadAnimation(model, data) {
-    console.log("load animated models: ", data)
-    const { posX, posY, posZ } = data
-    model.scene.position.set(posX, posY, posZ);
-    model.scene.rotation.y = Math.PI/2.0;
-    model.scene.scale.set(25, 25, 25);
-
-    if(model.animations.length) {
-      let mixer = new THREE.AnimationMixer(model.scene);
-      mixers.push(mixer)
-  
-      var action = mixer.clipAction(model.animations[0])
-      action.play();   
-    }
-
-    districtTwo.add(model.scene);
   }
 }
 

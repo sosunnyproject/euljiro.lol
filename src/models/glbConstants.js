@@ -1,3 +1,40 @@
+// District One
+
+// https://sbcode.net/threejs/gltf-animation/
+
+const robotFace = {
+  url: "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/assets/robot_face.glb",
+  px: -80, py: 10, pz: 0,
+  scale: 20
+}
+
+const purpleCone = {
+  url: "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/assets/purple_cone.glb",
+  px: 30, py: 20, pz: -50,
+  scale: 10
+}
+
+const blueCone = {
+  url: "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/assets/blue_cone.glb",
+  px: -30, py: 20, pz: -80,
+  scale: 10
+}
+
+const pinkCone = {
+  url: "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/assets/pink_cone2.glb",
+  px: -30, py: 20, pz: 80,
+  scale: 10
+}
+
+export const DISTRICT_ONE_GLB = [
+  robotFace,
+  purpleCone,
+  blueCone,
+  pinkCone
+]
+
+// District Two
+
 const tape = {
   url:  "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/assets/districtTwo/tape.glb",
   posX: -30,
@@ -78,6 +115,6 @@ const orangeSunglass = {
 }
 
 
-export const districtTwoAnim = [ 
+export const DISTRICT_TWO_GLB = [ 
   tape, bear, fork, knife, lion, purpleSunglass, greenSunglass, orangeSunglass, weedRainbow, coffeeSpa, spaSign, coffeeCup
 ]

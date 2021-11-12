@@ -21,7 +21,7 @@ import { statSync } from 'fs';
 import { getRandomArbitrary } from './utils.js';
 
 // import model urls
-import { districtTwoAnim, districtTwoModels } from './models/glbConstants.js';
+import { DISTRICT_TWO_GLB, DISTRICT_ONE_GLB } from './models/glbConstants.js';
 
 let stats, camera, renderer, pointerControls, character, character1;
 let currentScene, districtGarden, districtOne, districtTwo, districtThree;
@@ -412,35 +412,12 @@ function createDistrictOne() {
   for(let i = 0; i < objects.length; i++){
     districtOne.add(objects[i])
   }
-
-  // https://sbcode.net/threejs/gltf-animation/
-  const districtOneModels = [
-    "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/assets/purple_cone.glb",
-    "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/assets/blue_cone.glb",
-    "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/assets/pink_cone2.glb",
-    "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/assets/robot_face.glb",
-  ]
-
-  const modelsPosition = [
-    {px: 30, py: 20, pz: -50},
-    {px: -30, py: 20, pz: -80},
-    {px: -30, py: 20, pz: 80},
-    {px: -100, py: 30, pz: 0},
-    {px: -80, py: 10, pz: 0}
-  ]
-
-  const modelsScale = [
-    {sx: 10, sy: 10, sz: 10},
-    {sx: 10, sy: 10, sz: 10},
-    {sx: 10, sy: 10, sz: 10},
-    {sx: 20, sy: 20, sz: 20},
-    {sx: null, sy: null, sz: null}
-  ]
   
-  for (let i = 0; i < districtOneModels.length; i++) {
+  for (let i = 0; i < DISTRICT_ONE_GLB.length; i++) {
+    const currentModel = DISTRICT_ONE_GLB[i]
     gltfLoader.load (
-      districtOneModels[i],
-      (gltf) => onLoad(gltf, modelsPosition[i], modelsScale[i]),
+      currentModel.url,
+      (gltf) => onLoad(gltf, currentModel),
       function (xhr) {
         // console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
       },
@@ -450,17 +427,15 @@ function createDistrictOne() {
     )
   }
 
-  function onLoad(gltf, position, scale, rotation ) {
-    const {px, py, pz} = position;
+  function onLoad(gltf, data) {
+    const {px, py, pz, scale} = data;
     gltf.scene.position.set(px, py, pz);
+    gltf.scene.scale.set(scale, scale, scale);
 
-    const {sx, sy, sz} = scale;
-    gltf.scene.scale.set(sx || 4, sy || 4, sz || 2);
-
-    if(rotation){
-      const {rx, ry, rz} = rotation;
-      gltf.scene.rotation.set(rx || 0, ry || 0, rz || 0);
-    }
+    // if(rotation){
+    //   const {rx, ry, rz} = rotation;
+    //   gltf.scene.rotation.set(rx || 0, ry || 0, rz || 0);
+    // }
     gltf.scene.rotation.y = Math.PI/2;
 
     districtOne.add(gltf.scene);
@@ -499,12 +474,12 @@ function createDistrictTwo() {
     districtTwo.add(light)
    }
 
-  for (let i = 0; i < districtTwoAnim.length; i++) {
-    const currModel = districtTwoAnim[i]
+  for (let i = 0; i < DISTRICT_TWO_GLB.length; i++) {
+    const currentModel = DISTRICT_TWO_GLB[i]
 
     gltfLoader.load (
-      currModel.url,
-      (gltf) => onLoadAnimation(gltf, currModel),
+      currentModel.url,
+      (gltf) => onLoadAnimation(gltf, currentModel),
 
       function (xhr) {
         if( (xhr.loaded/xhr.total * 100) >= 100.0 ) {
@@ -524,18 +499,14 @@ function createDistrictTwo() {
     model.scene.position.set(posX, posY, posZ);
     model.scene.rotation.y = Math.PI/2.0;
     model.scene.scale.set(25, 25, 25);
-    model.animations;
 
-    let mixer = new THREE.AnimationMixer(model.scene);
-    mixers.push(mixer)
-
-    var action = mixer.clipAction(model.animations[0])
-    action.play(); 
-
-    model.scene;
-    model.scenes;
-    model.cameras;
-    model.aseet;
+    if(model.animations.length) {
+      let mixer = new THREE.AnimationMixer(model.scene);
+      mixers.push(mixer)
+  
+      var action = mixer.clipAction(model.animations[0])
+      action.play();   
+    }
 
     districtTwo.add(model.scene);
   }

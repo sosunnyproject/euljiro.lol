@@ -415,10 +415,10 @@ function createDistrictOne() {
 
   // https://sbcode.net/threejs/gltf-animation/
   const districtOneModels = [
-    "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/models/purple_cone.glb",
-    "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/models/blue_cone.glb",
-    "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/models/pink_cone2.glb",
-    "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/models/robot_face.glb",
+    "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/assets/purple_cone.glb",
+    "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/assets/blue_cone.glb",
+    "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/assets/pink_cone2.glb",
+    "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/assets/robot_face.glb",
   ]
 
   const modelsPosition = [
@@ -538,50 +538,6 @@ function createDistrictTwo() {
     model.aseet;
 
     districtTwo.add(model.scene);
-  }
-
-  const modelsPosition = [
-    {px: 30, py: 10, pz: -50},
-    {px: 30, py: 6, pz: -30},
-    {px: -30, py: 10, pz: 80},
-    {px: 0, py: 12, pz: 0},
-  ]
-
-  const modelsScale = [
-    {sx: 10, sy: 10, sz: 10},
-    {sx: 10, sy: 10, sz: 10},
-    {sx: 10, sy: 10, sz: 10},
-    {sx: 8, sy: 8, sz: 4},
-  ]
-  
-
-  for (let i = 0; i < districtTwoModels.length; i++) {
-    gltfLoader.load (
-      districtTwoModels[i],
-      (gltf) => onLoad(gltf, modelsPosition[i], modelsScale[i]),
-      function (xhr) {
-        // console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
-      },
-      function (error) {
-        console.log("error?", error)
-      }
-    )
-  }
-
-  function onLoad(gltf, position, scale, rotation ) {
-    const {px, py, pz} = position;
-    gltf.scene.position.set(px, py, pz);
-
-    const {sx, sy, sz} = scale;
-    gltf.scene.scale.set(sx || 4, sy || 4, sz || 4);
-
-    if(rotation){
-      const {rx, ry, rz} = rotation;
-      gltf.scene.rotation.set(rx || 0, ry || 0, rz || 0);
-    }
-    gltf.scene.rotation.y = Math.PI/2;
-
-    districtTwo.add(gltf.scene);
   }
 }
 

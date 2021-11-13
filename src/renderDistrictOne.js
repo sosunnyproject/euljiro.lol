@@ -3,70 +3,13 @@ import { getRandomArbitrary, getRandomInt } from './utils.js';
 import { generateTrafficCone } from './models/TrafficCone.js';
 import { generateTriangleCat, generateTriangleGround, generateFloorNeons } from './models/catRoads.js';
 import { generateBirdBot } from './models/birdBot.js';
+import { FontLoader } from 'three/examples/jsm/loaders/FontLoader';
+import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js'
+// import HelveticaSample from 'three/examples/fonts/helvetiker_bold.typeface.json'
 
 export function generateDistrictOneObjects() {
 
  let arr = []
-
- // cats
- {
-   const cat = generateTriangleCat(-200, 30, 0);
-
-   // left edge
-   const cat1 = generateTriangleCat(-120, 30, 60);
-   cat1.rotation.y = Math.PI/4.0;
-
-   const cat2 = generateTriangleCat(-40, 30, 110);
-   cat2.rotation.y = Math.PI/3.0;
-
-   const cat3 = generateTriangleCat(40, 30, 140);
-   cat3.rotation.y = Math.PI/3.0;
-
-   const cat4 = generateTriangleCat(120, 30, 170);
-   cat4.rotation.y = Math.PI/2.5;
-
-   // left corner
-   const cat5 = generateTriangleCat(200, 30, 180);
-   cat5.rotation.y = Math.PI/1.5;
-
-  //  arr.push(cat, cat1, cat2, cat3, cat4, cat5)
- }
- {
-   // right edge
-   const cat1 = generateTriangleCat(-120, 30, -60);
-   cat1.rotation.y = -Math.PI/4.0;
-
-   const cat2 = generateTriangleCat(-40, 30, -110);
-   cat2.rotation.y = -Math.PI/3.0;
-
-   const cat3 = generateTriangleCat(40, 30, -140);
-   cat3.rotation.y = -Math.PI/3.0;
-
-   const cat4 = generateTriangleCat(120, 30, -170);
-   cat4.rotation.y = -Math.PI/3.0;
-
-   // corner
-   const cat5 = generateTriangleCat(200, 30, -180);
-   cat5.rotation.y = -Math.PI/1.5
-
-  //  arr.push(cat1, cat2, cat3, cat4, cat5)
- }
- {
-   // bottom edge
-   const cat1 = generateTriangleCat(240, 30, 135);
-   cat1.rotation.y = -Math.PI;
-
-   const cat2 = generateTriangleCat(240, 30, 50);
-   cat2.rotation.y = -Math.PI;
-
-   const cat3 = generateTriangleCat(240, 30, -40);
-   cat3.rotation.y = -Math.PI;
-
-   const cat4 = generateTriangleCat(240, 30, -130);
-   cat4.rotation.y = -Math.PI;
-
-  //  arr.push(cat1, cat2, cat3, cat4)
- }
 
  {
    const ground = generateTriangleGround()
@@ -118,22 +61,53 @@ for(let z = 180; z > -65; z -= 5) {
   tempX1 -= 5.5;
 }
 
-// cctv bird
-{
-  const bird = generateBirdBot();
-
-  bird.scale.set(8.0, 8.0, 8.0);
-  bird.position.y = 13.0;
-
-  // arr.push(bird);
-}
-
  const axes = new THREE.AxesHelper(20);  // The X axis is red. The Y axis is green. The Z axis is blue.
-
  arr.push(axes)
 
- const cone = generateTrafficCone()
-//  arr.push(cone);
+
+  // Text Geometry
+  const fontLoader = new FontLoader()
+  const HelveticaSample = "https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/fonts/helvetiker_bold.typeface.json"
+
+  fontLoader.load(
+    HelveticaSample,
+    (font) => {
+      console.log("font loaded")
+      const textGeometry = new TextGeometry(
+        'HelloThreeJS',
+        {
+          font: font,
+          size: 10,
+          height: 1,
+          curveSegments: 12, 
+          bevelEnabled: true,
+          bevelThickness: 0.03,
+          bevelSize: 0.02,
+          bevelOffset: 0, 
+          bevelSegments: 5
+        }
+      )
+      const textMaterial = new THREE.MeshBasicMaterial({ color: 0xff1100 })
+      const text = new THREE.Mesh(textGeometry, textMaterial)
+      text.position.set(10, 15, 0)
+      text.scale.set(10, 10, 10)
+      console.log(textGeometry, text)
+      arr.push(text)
+    },
+    // onProgress callback
+    function ( xhr ) {
+      console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
+    }
+  )
+
+  // Particles
+  const particlesGeometry = new THREE.SphereGeometry(5, 32, 32)
+  const particlesMaterial = new THREE.PointsMaterial({
+    size: 0.02,
+    sizeAttenuation: true
+  })
+  const particles = new THREE.Points(particlesGeometry, particlesMaterial)
+  arr.push(particles)
 
  return arr;
 }

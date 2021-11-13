@@ -37,9 +37,45 @@ const bird2 = {
   scale: 30
 }
 const cctv = {
+  name: "cctv",
   url: "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/assets/cctv.glb",
-  posX: -100, posY: 400, posZ: -100,
+  posX: -500, posY: 500, posZ: -300,
+  scale: 20
+}
+const metalPan = {
+  url: "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/assets/districtOne/metalPan.glb",
+  posX: -100, posY: 50, posZ: -100,
   scale: 50
+}
+const metalStick = {
+  url: "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/assets/districtOne/metalStick.glb",
+  posX: -100, posY: 50, posZ: -200,
+  scale: 50
+}
+const ozRobot = {
+  url: "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/assets/districtOne/ozRobot.glb",
+  posX: 100, posY: 10, posZ: -500,
+  scale: 40
+}
+const robotGuide = {
+  url: "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/assets/districtOne/robotGuide.glb",
+  posX: 50, posY: 20, posZ: -50,
+  scale: 5
+}
+const rocket = {
+  url: "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/assets/districtOne/rocket.glb",
+  posX: 100, posY: 10, posZ: -500,
+  scale: 10
+}
+const worker1 = {
+  url: "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/assets/districtOne/worker1.glb",
+  posX: 300, posY: 10, posZ: 400,
+  scale: 30
+}
+const worker2 = {
+  url: "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/assets/districtOne/worker2.glb",
+  posX: 300, posY: 10, posZ: 600,
+  scale: 30
 }
 
 export const DISTRICT_ONE_GLB = [
@@ -47,14 +83,16 @@ export const DISTRICT_ONE_GLB = [
   purpleCone,
   blueCone,
   pinkCone, 
-  bird1, bird2, cctv
+  bird1, bird2, cctv,
+  metalPan, metalStick, ozRobot, rocket,
+  robotGuide, worker1, worker2
 ]
 
 // District Two
 
 const tape = {
   url:  "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/assets/districtTwo/tape.glb",
-  posX: -30,
+  posX: 300,
   posY: 10, 
   posZ: 80
 }
@@ -69,14 +107,14 @@ const bear = {
 const fork = {
   url: "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/assets/districtTwo/fork.glb",
   posX: 30, 
-  posY: 6, 
+  posY: 20, 
   posZ: -30
 }
 const knife = {
   url: "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/assets/districtTwo/knife.glb",
   posX: 30, 
-  posY: 10, 
-  posZ: -20
+  posY: 80, 
+  posZ: -130
 }
 const spaSign = {
  url: "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/assets/districtTwo/spaSign.glb",
@@ -104,7 +142,7 @@ const coffeeSpa = {
  posZ: -300
 }
 const lion = {
-  url: "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/assets/shutterArt/lion.glb",
+  url: "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/assets/districtTwo/lion.glb",
   posX: 100, 
   posY: 20,
   posZ: 500
@@ -131,7 +169,37 @@ const orangeSunglass = {
  posZ: -100
 }
 
+const ipod = {
+  url: "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/assets/districtTwo/ipod.glb",
+  posX: 400,
+  posY: 20, 
+  posZ: 200
+}
+
+const camera = {
+  url: "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/assets/districtTwo/camera.glb",
+  posX: 300,
+  posY: 20, 
+  posZ: 300
+}
+
+const oldPhone = {
+  url: "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/assets/districtTwo/oldPhone.glb",
+  posX: 400,
+  posY: 20, 
+  posZ: 400
+}
+
+const cheese = {
+  url: "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/assets/districtTwo/cheese.glb",
+  posX: -600,
+  posY: 400, 
+  posZ: 0
+}
 
 export const DISTRICT_TWO_GLB = [ 
-  tape, bear, fork, knife, lion, purpleSunglass, greenSunglass, orangeSunglass, weedRainbow, coffeeSpa, spaSign, coffeeCup
+  tape, bear, fork, knife, lion, 
+  purpleSunglass, greenSunglass, orangeSunglass, 
+  weedRainbow, coffeeSpa, spaSign, coffeeCup,
+  camera, cheese, ipod, oldPhone
 ]

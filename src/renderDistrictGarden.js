@@ -17,6 +17,7 @@ import skyFrag from './shaders/skyFrag.glsl.js';
 import { FlowerPetals } from './models/flowerPetals.js';
 import { generateLsystemTree } from './lsystem/wrapper.js';
 import { floorPowerOfTwo } from 'three/src/math/mathutils';
+import AnimatedFlower from './models/AnimatedFlower.js';
 
 export function generateDistrictGardenObjects() {
   const arr = []
@@ -114,12 +115,27 @@ export function generateDistrictGardenObjects() {
   // math rose   
   const flower1 = new FlowerPetals(4, 12)
   flower1.position.set(70, 20, 20)
-  arr.push(flower1)
+  // arr.push(flower1)
 
-  const flower2 = new FlowerPetals(6.5, 7.4)
-  // flower2.position.set(70, 20, -20)
+  
+  const flower3 = new AnimatedFlower({
+    numerator: 4, 
+    denominator: 7
+  })
+  flower3.position.set(100, 100, -200)
+  arr.push(flower3)
+
+  let petalN = 4, petalD = 9;
+  // const flower2 = new FlowerPetals(6.5, 7.4)
+  const flower2 = new AnimatedFlower({
+    numerator: 6.5, 
+    denominator: 7.4,
+    angleGap: 0.8
+  })
+  flower2.position.set(70, 20, -20)
 
   arr.push(flower2)
+
 
  return arr;
 }

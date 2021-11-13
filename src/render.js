@@ -19,6 +19,8 @@ import { FlowerPetals } from './models/flowerPetals.js';
 import { Loader } from 'three';
 import { statSync } from 'fs';
 import { getRandomArbitrary } from './utils.js';
+import { FontLoader } from 'three/examples/jsm/loaders/FontLoader';
+import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js'
 
 // import model urls
 import { DISTRICT_TWO_GLB, DISTRICT_ONE_GLB } from './models/glbConstants.js';
@@ -26,7 +28,8 @@ import { DISTRICT_TWO_GLB, DISTRICT_ONE_GLB } from './models/glbConstants.js';
 let stats, camera, renderer, pointerControls, character, character1;
 let currentScene, districtGarden, districtOne, districtTwo, districtThree;
 
-let petalN = 4, petalD = 9;
+let accSteps = 0;
+let prevDistrictIndex = 1;
 let prevTime = performance.now();
 const velocity = new THREE.Vector3();
 const direction = new THREE.Vector3();
@@ -41,6 +44,7 @@ let mixers = [];
 const DISTRICT_NAMES = ["D_GARDEN", "D_ONE", "D_TWO", "D_THREE"]
 
 var clock = new THREE.Clock();
+// Clock: autoStart, elapsedTime, oldTime, running, startTime
 
 // Canvas
 const canvas = document.querySelector('#c');
@@ -109,6 +113,7 @@ pointerControls.addEventListener( 'unlock', function () {
 
 // Key Controls
 const onKeyDown = function ( event ) {
+  accSteps++;
 
   switch ( event.code ) {
 
@@ -278,6 +283,9 @@ function tick() {
 function render() {
 
   const time = performance.now();
+  if(accSteps > 500) {
+    switchDistrictBySteps()
+  }
 
   // send time data to shaders
   // const mushroomMesh = scene.children[ 1 ].children[0];
@@ -295,23 +303,18 @@ function render() {
   camera.aspect = canvas.clientWidth / canvas.clientHeight;
   camera.updateProjectionMatrix();
 
-  let flowerObj;
-  // district Garden
   if(currentScene.name === "D_GARDEN" ) {
-    const lastItem = districtGarden.children.length - 2
-    flowerObj = districtGarden.children[lastItem]
-    flowerObj.clear()
-    flowerObj = new FlowerPetals(petalN, petalD, 0.8)
-  
-    petalN = Math.abs(Math.cos(time/100000)*3) + 1
-    petalD = Math.abs(Math.sin(time/100000)*9) + 1
 
-    flowerObj.position.set(70, 20, -20)
-
-    districtGarden.add(flowerObj)
+    districtGarden.traverse(obj => {
+      if (typeof obj.tick === 'function') {
+        obj.tick(time);
+      }
+    });
+    
   }
 
   var delta = clock.getDelta();
+
   // if(currentScene.name === "D_TWO") {
     if(mixers.length > 0) {
       mixers.forEach(mixer => mixer.update(delta))
@@ -327,12 +330,43 @@ function render() {
 
 document.addEventListener('keypress', switchScene);
 
-function switchScene(e) {
+function switchDistrictBySteps() {
+
+  switch(currentScene.name) {
+      case DISTRICT_NAMES[0]: // garden
+        const newDistrictIndex = (prevDistrictIndex+1)%4
+        console.log("new Index", newDistrictIndex)
+        switchScene(null, newDistrictIndex)
+        break;
+
+      case DISTRICT_NAMES[1]:
+        prevDistrictIndex = 1;
+        switchScene(null, 0);
+        break;
+
+      case DISTRICT_NAMES[2]:
+        prevDistrictIndex = 2;
+        switchScene(null, 0);
+        break;
+
+      case DISTRICT_NAMES[3]:
+        prevDistrictIndex = 3;
+        switchScene(null, 0);
+        break;
+  }
+
+  accSteps = 0; // set back to default
+}
+
+function switchScene(e, index) {
   pointerControls.getObject().removeFromParent();
 
-  switch(e.code) {
+  const code = e?.code || index;
+
+  switch(code) {
 
     case 'Digit1':
+    case 1:
       console.log("1 pressed")
       districtOne.add(pointerControls.getObject());
       setTimeout(() => {
@@ -341,6 +375,7 @@ function switchScene(e) {
       break;
 
     case 'Digit2':
+    case 2:
       console.log("2 pressed")
       districtTwo.add(pointerControls.getObject());
       setTimeout(() => {
@@ -350,10 +385,13 @@ function switchScene(e) {
       break;
 
     case 'Digit3':
+    case 3:
       console.log("3 pressed")
       currentScene = districtThree;
       break;
+
     case 'Digit0':
+    case 0:
       console.log("0 pressed")
       districtGarden.add(pointerControls.getObject());
       setTimeout(() => {
@@ -410,6 +448,20 @@ function onLoadAnimation(model, data, district) {
   model.scene.position.set(posX, posY, posZ);
   model.scene.rotation.y = Math.PI/2.0;
 
+  if(data.name === "cctv") {
+    console.log("CCTV model")
+
+    // Particles
+    const particlesGeometry = new THREE.SphereGeometry(5, 32, 32)
+    const particlesMaterial = new THREE.PointsMaterial({
+      size: 5,
+      sizeAttenuation: true
+    })
+    const particles = new THREE.Points(particlesGeometry, particlesMaterial)
+    model.scene.rotateX(Math.PI/6.0)
+    model.scene.add(particles)
+  }
+
   if(data.scale) {
     const inputScale = data.scale
     model.scene.scale.set(inputScale, inputScale, inputScale)
@@ -438,7 +490,7 @@ function onLoadAnimation(model, data, district) {
     case DISTRICT_NAMES[3]:
       districtThree.add(model.scene);
       break;
-}
+  }
 }
 
 function createDistrictOne() {
@@ -466,15 +518,45 @@ function createDistrictOne() {
     )
   }
 
-  // function onLoad(gltf, data) {
-  //   const {px, py, pz, scale} = data;
-  //   gltf.scene.position.set(px, py, pz);
-  //   gltf.scene.scale.set(scale, scale, scale);
-  //   gltf.scene.rotation.y = Math.PI/2;
+  // Text Geometry
+  const fontLoader = new FontLoader()
+  const uhbeeFont = "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/assets/fonts/uhbeeRiceRegular.json"
+  const euljiro10years = "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/assets/fonts/bmEuljiro10years.json"
+  const euljiroRegular = "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/assets/fonts/bmEuljiroRegular.json"
 
-  //   districtOne.add(gltf.scene);
-  // }
+  fontLoader.load(
+    uhbeeFont,
+    (font) => {
+      console.log("font loaded")
+      const textGeometry = new TextGeometry(
+        '영아크릴',
+        {
+          font: font,
+          size: 2,
+          height: 1,
+          curveSegments: 12, 
+          bevelEnabled: true,
+          bevelThickness: 0.03,
+          bevelSize: 0.02,
+          bevelOffset: 0, 
+          bevelSegments: 5
+        }
+      )
+      const textMaterial = new THREE.MeshPhongMaterial({ color: 0x89BBFE })
+      const text = new THREE.Mesh(textGeometry, textMaterial)
+      text.position.set(100, 55, 50)
+      text.scale.set(5, 5, 5)
+      text.rotateY(Math.PI/2)
+      text.rotateX(Math.PI/4.0)
 
+      console.log(textGeometry, text)
+      districtOne.add(text)
+    },
+    // onProgress callback
+    function ( xhr ) {
+      console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
+    }
+  )
 }
 
 function createDistrictTwo() {
@@ -517,7 +599,7 @@ function createDistrictTwo() {
 
       function (xhr) {
         if( (xhr.loaded/xhr.total * 100) >= 100.0 ) {
-          console.log(xhr.loaded/xhr.total * 100)
+          console.log("loaded:", xhr.loaded/xhr.total * 100)
         }
         // console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
       },
@@ -531,6 +613,7 @@ function createDistrictTwo() {
 function createDistrictThree() {
   districtThree = new THREE.Scene();
   districtThree.background = new THREE.Color(0xffffff);
+  districtThree.name = "D_THREE"
 
   const objects = generateDistrictThreeObjects();
 

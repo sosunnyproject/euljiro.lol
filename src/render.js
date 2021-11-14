@@ -63,8 +63,9 @@ function loadAssets() {
       (gltf) => {
       model.gltf = gltf;
       count++;
-      let per = Math.floor((count / loadNum) * 100)
-      loadProgress(per);
+      console.log("loaded")
+      // let per = Math.floor((count / loadNum) * 100)
+      // loadProgress(per);
     })
   })
   DISTRICT_TWO_GLB.forEach(model => {
@@ -72,8 +73,9 @@ function loadAssets() {
       (gltf) => {
       model.gltf = gltf;
       count++;
-      let per = Math.floor((count / loadNum) * 100)
-      loadProgress(per);
+      console.log("loaded")
+      // let per = Math.floor((count / loadNum) * 100)
+      // loadProgress(per);
     })
   })
 
@@ -87,13 +89,15 @@ function loadAssets() {
     (font) => {
       window.UHBEE_FONT = font;
       count++;
-      let per = Math.floor((count / loadNum) * 100)
-      loadProgress(per);
+      console.log("loaded")
+      // let per = Math.floor((count / loadNum) * 100)
+      // loadProgress(per);
     }
   )
 }
 
 // Load Progress Bar
+/**
 var leftBar = document.querySelector('.left .bar');
 var rightBar = document.querySelector('.right .bar');
 var per = document.querySelector('.value');
@@ -127,7 +131,7 @@ function stepProgress(value) {
     stepLeftBar.style.transform = "rotate("+degree+"deg)";
   }
 }
-
+ */
 // Canvas
 const canvas = document.querySelector('#c');
 const WIDTH = window.innerWidth, HEIGHT = window.innerHeight
@@ -197,9 +201,9 @@ pointerControls.addEventListener( 'unlock', function () {
 const onKeyDown = function ( event ) {
   accSteps++;
   
-  let per = Math.floor((accSteps / 1000) * 100 )
-  console.log(accSteps, per)
-  stepProgress(per)
+  // let per = Math.floor((accSteps / 1000) * 100 )
+  // console.log(accSteps, per)
+  // stepProgress(per)
 
   switch ( event.code ) {
 

@@ -22,9 +22,8 @@ import { FontLoader } from 'three/examples/jsm/loaders/FontLoader';
 // import model urls
 import { DISTRICT_ONE_GLB, DISTRICT_TWO_GLB } from './models/glbLoader.js';
 import uhbeeFont from "../assets/fonts/uhbeeRiceRegular.json"
-// const uhbeeFont = require("../assets/fonts/uhbeeRiceRegular.json")
-// const euljiro10years = require("../assets/fonts/bmEuljiro10years.json")
-// const euljiroRegular = require("../assets/fonts/bmEuljiroRegular.json")
+import euljiro10years from "../assets/fonts/bmEuljiro10years.json"
+import euljiroRegular from "../assets/fonts/bmEuljiroRegular.json"
 
 let stats, camera, renderer, pointerControls, character, character1;
 let currentScene, districtGarden, districtOne, districtTwo, districtThree;
@@ -34,8 +33,6 @@ let prevDistrictIndex = 1;
 let prevTime = performance.now();
 const velocity = new THREE.Vector3();
 const direction = new THREE.Vector3();
-const vertex = new THREE.Vector3();
-const color = new THREE.Color();
 
 const DISTRICT_NAMES = ["D_GARDEN", "D_ONE", "D_TWO", "D_THREE"]
 
@@ -57,7 +54,6 @@ loadAssets()
 function loadAssets() {
   const loadNum = DISTRICT_TWO_GLB.length + DISTRICT_ONE_GLB.length + 1;
   let count = 0
-  let percentage = (count / loadNum) * 100
   
   DISTRICT_ONE_GLB.forEach(model => {
     gltfLoader.load(model.url, 
@@ -110,7 +106,6 @@ function loadProgress(value) {
   }
 }
 
-/** 
 // Step Counter Bar
 var stepCounter = document.querySelector('#stepCounter')
 var stepLeftBar = stepCounter.querySelector('.left .bar');
@@ -128,7 +123,7 @@ function stepProgress(value) {
     stepLeftBar.style.transform = "rotate("+degree+"deg)";
   }
 }
- */
+
 // Canvas
 const canvas = document.querySelector('#c');
 const WIDTH = window.innerWidth, HEIGHT = window.innerHeight
@@ -198,9 +193,9 @@ pointerControls.addEventListener( 'unlock', function () {
 const onKeyDown = function ( event ) {
   accSteps++;
   
-  // let per = Math.floor((accSteps / 1000) * 100 )
-  // console.log(accSteps, per)
-  // stepProgress(per)
+  let per = Math.floor((accSteps / 1000) * 100 )
+  console.log(accSteps, per)
+  stepProgress(per)
 
   switch ( event.code ) {
 
@@ -453,6 +448,7 @@ function switchDistrictBySteps() {
 
 function switchScene(e, index) {
   pointerControls.getObject().removeFromParent();
+  accSteps = 0;
 
   const code = e?.code || index;
 
@@ -547,16 +543,12 @@ function createDistrictOne() {
   districtOne.background = new THREE.Color(0x000000);
   districtOne.name = "D_ONE"
 
-  console.log("D_ONE before generate objects")
   const objects = generateDistrictOneObjects()
-
-  console.log("D_ONE before looping objects")
   for(let i = 0; i < objects.length; i++){
     districtOne.add(objects[i])
   }
-  console.log("D_ONE after laoding objects", objects)
-
-  for (let i = 0; i < DISTRICT_ONE_GLB.length; i++) {
+  
+   for (let i = 0; i < DISTRICT_ONE_GLB.length; i++) {
     const currentModel = DISTRICT_ONE_GLB[i]
     console.log(currentModel)
     try {

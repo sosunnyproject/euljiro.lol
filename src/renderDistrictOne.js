@@ -1,15 +1,10 @@
 import * as THREE from 'three';
 import { getRandomArbitrary, getRandomInt } from './utils.js';
-import { generateTrafficCone } from './models/TrafficCone.js';
 import { generateTriangleCat, generateTriangleGround, generateFloorNeons } from './models/catRoads.js';
-import { generateBirdBot } from './models/birdBot.js';
-import { generateGround } from './models/ground.js';
 import { FontLoader } from 'three/examples/jsm/loaders/FontLoader';
 import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js'
 // import HelveticaSample from 'three/examples/fonts/helvetiker_bold.typeface.json'
 import gardenImg from '../assets/png/gardenSquare.png'
-import { RectAreaLightHelper } from 'three/examples/jsm/helpers/RectAreaLightHelper.js';
-import { RectAreaLightUniformsLib } from 'three/examples/jsm/lights/RectAreaLightUniformsLib.js';
 
 export function generateDistrictOneObjects() {
 
@@ -98,12 +93,11 @@ for(let z = -1000; z < 1000; z+= 30) {
   // cube
   {
     const loader = new THREE.CubeTextureLoader();
-    const gardenSquareImg = require("../assets/png/gardenSquare.png")
-    
+
     const textureCube = loader.load( [
-      gardenSquareImg, gardenSquareImg,
-      gardenSquareImg, gardenSquareImg,
-      gardenSquareImg, gardenSquareImg
+      gardenImg, gardenImg,
+      gardenImg, gardenImg,
+      gardenImg, gardenImg
     ] );
 
     const geometry = new THREE.BoxGeometry( 100, 100, 100);
@@ -115,6 +109,7 @@ for(let z = -1000; z < 1000; z+= 30) {
   }
 
   {
+    console.log(window.UHBEE_FONT)
     // Text
     const textGeometry = new TextGeometry(
       '영아크릴',

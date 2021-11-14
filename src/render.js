@@ -14,16 +14,17 @@ import { generateDistrictOneObjects } from './renderDistrictOne.js';
 import { generateDistrictTwoObjects } from './renderDistrictTwo.js';
 import { generateDistrictThreeObjects } from './renderDistrictThree.js';
 
-import { FlowerPetals } from './models/flowerPetals.js';
 import { Loader } from 'three';
 import { statSync } from 'fs';
 import { getRandomArbitrary } from './utils.js';
 import { FontLoader } from 'three/examples/jsm/loaders/FontLoader';
-import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js'
 
 // import model urls
 import { DISTRICT_ONE_GLB, DISTRICT_TWO_GLB } from './models/glbLoader.js';
-import CCTV_MODEL from '../assets/cctv.glb'
+import uhbeeFont from "../assets/fonts/uhbeeRiceRegular.json"
+// const uhbeeFont = require("../assets/fonts/uhbeeRiceRegular.json")
+// const euljiro10years = require("../assets/fonts/bmEuljiro10years.json")
+// const euljiroRegular = require("../assets/fonts/bmEuljiroRegular.json")
 
 let stats, camera, renderer, pointerControls, character, character1;
 let currentScene, districtGarden, districtOne, districtTwo, districtThree;
@@ -64,8 +65,8 @@ function loadAssets() {
       model.gltf = gltf;
       count++;
       console.log("loaded")
-      // let per = Math.floor((count / loadNum) * 100)
-      // loadProgress(per);
+      let per = Math.floor((count / loadNum) * 100)
+      loadProgress(per);
     })
   })
   DISTRICT_TWO_GLB.forEach(model => {
@@ -74,30 +75,25 @@ function loadAssets() {
       model.gltf = gltf;
       count++;
       console.log("loaded")
-      // let per = Math.floor((count / loadNum) * 100)
-      // loadProgress(per);
+      let per = Math.floor((count / loadNum) * 100)
+      loadProgress(per);
     })
   })
 
-  // Text Geometry
-  const uhbeeFont = require("../assets/fonts/uhbeeRiceRegular.json")
-  const euljiro10years = require("../assets/fonts/bmEuljiro10years.json")
-  const euljiroRegular = require("../assets/fonts/bmEuljiroRegular.json")
-  
+  // Load Font for TextGeometry
   fontLoader.load(
     uhbeeFont,
     (font) => {
       window.UHBEE_FONT = font;
       count++;
       console.log("loaded")
-      // let per = Math.floor((count / loadNum) * 100)
-      // loadProgress(per);
+      let per = Math.floor((count / loadNum) * 100)
+      loadProgress(per);
     }
   )
 }
 
 // Load Progress Bar
-/**
 var leftBar = document.querySelector('.left .bar');
 var rightBar = document.querySelector('.right .bar');
 var per = document.querySelector('.value');
@@ -114,6 +110,7 @@ function loadProgress(value) {
   }
 }
 
+/** 
 // Step Counter Bar
 var stepCounter = document.querySelector('#stepCounter')
 var stepLeftBar = stepCounter.querySelector('.left .bar');
@@ -550,15 +547,23 @@ function createDistrictOne() {
   districtOne.background = new THREE.Color(0x000000);
   districtOne.name = "D_ONE"
 
+  console.log("D_ONE before generate objects")
   const objects = generateDistrictOneObjects()
 
+  console.log("D_ONE before looping objects")
   for(let i = 0; i < objects.length; i++){
     districtOne.add(objects[i])
   }
+  console.log("D_ONE after laoding objects", objects)
 
   for (let i = 0; i < DISTRICT_ONE_GLB.length; i++) {
     const currentModel = DISTRICT_ONE_GLB[i]
-    onLoadAnimation(currentModel.gltf, currentModel, DISTRICT_NAMES[1])
+    console.log(currentModel)
+    try {
+      onLoadAnimation(currentModel.gltf, currentModel, DISTRICT_NAMES[1])
+    } catch (err) {
+      console.log(err)
+    }
   }
 }
 

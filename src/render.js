@@ -13,8 +13,7 @@ import { generateDistrictGardenObjects } from './renderDistrictGarden.js';
 import { generateDistrictOneObjects } from './renderDistrictOne.js';
 import { generateDistrictTwoObjects } from './renderDistrictTwo.js';
 import { generateDistrictThreeObjects } from './renderDistrictThree.js';
-import coffeeRiverFragment from './shaders/coffee.frag.js';
-import vertexShader from './shaders/vertex.glsl.js';
+
 import { FlowerPetals } from './models/flowerPetals.js';
 import { Loader } from 'three';
 import { statSync } from 'fs';
@@ -23,7 +22,8 @@ import { FontLoader } from 'three/examples/jsm/loaders/FontLoader';
 import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js'
 
 // import model urls
-import { DISTRICT_TWO_GLB, DISTRICT_ONE_GLB } from './models/glbConstants.js';
+import { DISTRICT_ONE_GLB, DISTRICT_TWO_GLB } from './models/glbLoader.js';
+import CCTV_MODEL from '../assets/cctv.glb'
 
 let stats, camera, renderer, pointerControls, character, character1;
 let currentScene, districtGarden, districtOne, districtTwo, districtThree;
@@ -35,16 +35,98 @@ const velocity = new THREE.Vector3();
 const direction = new THREE.Vector3();
 const vertex = new THREE.Vector3();
 const color = new THREE.Color();
-const gltfLoader = new GLTFLoader();
-// provide dracoLoader instance to decode compressed mesh data
+
+const DISTRICT_NAMES = ["D_GARDEN", "D_ONE", "D_TWO", "D_THREE"]
+
+// Clock: autoStart, elapsedTime, oldTime, running, startTime
+var clock = new THREE.Clock();
+
+// Loading Manager for 3d models and animation
+window.mixers = [];
+const loadManager = new THREE.LoadingManager();
+loadManager.onLoad = init;
+const gltfLoader = new GLTFLoader(loadManager);
 const dracoLoader = new DRACOLoader();
 dracoLoader.setDecoderPath('three/examples/js/libs/draco');
 gltfLoader.setDRACOLoader(dracoLoader);
-let mixers = [];
-const DISTRICT_NAMES = ["D_GARDEN", "D_ONE", "D_TWO", "D_THREE"]
 
-var clock = new THREE.Clock();
-// Clock: autoStart, elapsedTime, oldTime, running, startTime
+const fontLoader = new FontLoader(loadManager)
+loadAssets()
+
+function loadAssets() {
+  const loadNum = DISTRICT_TWO_GLB.length + DISTRICT_ONE_GLB.length + 1;
+  let count = 0
+  let percentage = (count / loadNum) * 100
+  
+  DISTRICT_ONE_GLB.forEach(model => {
+    gltfLoader.load(model.url, 
+      (gltf) => {
+      model.gltf = gltf;
+      count++;
+      let per = Math.floor((count / loadNum) * 100)
+      loadProgress(per);
+    })
+  })
+  DISTRICT_TWO_GLB.forEach(model => {
+    gltfLoader.load(model.url, 
+      (gltf) => {
+      model.gltf = gltf;
+      count++;
+      let per = Math.floor((count / loadNum) * 100)
+      loadProgress(per);
+    })
+  })
+
+  // Text Geometry
+  const uhbeeFont = require("../assets/fonts/uhbeeRiceRegular.json")
+  const euljiro10years = require("../assets/fonts/bmEuljiro10years.json")
+  const euljiroRegular = require("../assets/fonts/bmEuljiroRegular.json")
+  
+  fontLoader.load(
+    uhbeeFont,
+    (font) => {
+      window.UHBEE_FONT = font;
+      count++;
+      let per = Math.floor((count / loadNum) * 100)
+      loadProgress(per);
+    }
+  )
+}
+
+// Load Progress Bar
+var leftBar = document.querySelector('.left .bar');
+var rightBar = document.querySelector('.right .bar');
+var per = document.querySelector('.value');
+function loadProgress(value) {
+  per.innerHTML=value +'%';
+  if (value <= 50) {
+    var degree = 18*value/5;
+    rightBar.style.transform = "rotate("+degree+"deg)";
+    leftBar.style.transform = "rotate(0deg)";
+  } else {
+    var degree = 18*(value-50)/5;
+    rightBar.style.transform = "rotate(180deg)";
+    leftBar.style.transform = "rotate("+degree+"deg)";
+  }
+}
+
+// Step Counter Bar
+var stepCounter = document.querySelector('#stepCounter')
+var stepLeftBar = stepCounter.querySelector('.left .bar');
+var stepRightBar = stepCounter.querySelector('.right .bar');
+var stepPer = stepCounter.querySelector('.value');
+function stepProgress(value) {
+  stepPer.innerHTML=value +'%';
+  if (value <= 50) {
+    var degree = 18*value/5;
+    stepRightBar.style.transform = "rotate("+degree+"deg)";
+    stepLeftBar.style.transform = "rotate(0deg)";
+  } else {
+    var degree = 18*(value-50)/5;
+    stepRightBar.style.transform = "rotate(180deg)";
+    stepLeftBar.style.transform = "rotate("+degree+"deg)";
+  }
+}
 
 // Canvas
 const canvas = document.querySelector('#c');
@@ -52,8 +134,8 @@ const WIDTH = window.innerWidth, HEIGHT = window.innerHeight
 renderer = new THREE.WebGLRenderer({ canvas });
 renderer.setClearColor(new THREE.Color(0x000, 1.0));
 renderer.setSize(WIDTH, HEIGHT);
-renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+// renderer.shadowMap.enabled = true;
+// renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
 // Camera
 const params = {
@@ -114,6 +196,10 @@ pointerControls.addEventListener( 'unlock', function () {
 // Key Controls
 const onKeyDown = function ( event ) {
   accSteps++;
+  
+  let per = Math.floor((accSteps / 1000) * 100 )
+  console.log(accSteps, per)
+  stepProgress(per)
 
   switch ( event.code ) {
 
@@ -283,7 +369,7 @@ function tick() {
 function render() {
 
   const time = performance.now();
-  if(accSteps > 500) {
+  if(accSteps > 1000) {
     switchDistrictBySteps()
   }
 
@@ -296,12 +382,18 @@ function render() {
   // mushroomMesh.rotation.y = time * 0.00075;
   // mushroomMesh.material.uniforms.u_time.value = time * 0.01;
 
-  // districtGarden.children[0].material.uniforms.u_time.value = time * 0.005;
-  districtTwo.children[0].material.uniforms.u_time.value = time * 0.001;
-
   const canvas = renderer.domElement;
   camera.aspect = canvas.clientWidth / canvas.clientHeight;
-  camera.updateProjectionMatrix();
+  camera.updateProjectionMatrix(); 
+
+  if(currentScene.name === "D_ONE" && districtOne.children.length > 0) {
+    districtOne.children[0].intensity = Math.abs(Math.sin(time*0.001))
+  }
+  
+  // districtGarden.children[0].material.uniforms.u_time.value = time * 0.005;
+  if(currentScene.name === "D_TWO" && districtTwo.children.length > 0) {
+    districtTwo.children[0].material.uniforms.u_time.value = time * 0.001;
+  }
 
   if(currentScene.name === "D_GARDEN" ) {
 
@@ -316,8 +408,8 @@ function render() {
   var delta = clock.getDelta();
 
   // if(currentScene.name === "D_TWO") {
-    if(mixers.length > 0) {
-      mixers.forEach(mixer => mixer.update(delta))
+    if(window.mixers.length > 0) {
+      window.mixers.forEach(mixer => mixer.update(delta))
       // mixer.update(delta);
     }  
   // }
@@ -381,7 +473,6 @@ function switchScene(e, index) {
       setTimeout(() => {
         currentScene = districtTwo;
       }, 1000)
-      console.log(districtTwo.children)
       break;
 
     case 'Digit3':
@@ -401,19 +492,24 @@ function switchScene(e, index) {
   }
 }
 
+function init() {
 
-if(!WEBGL.isWebGLAvailable()) {
-  const warning = WEBGL.getWebGLErrorMessage();
-	 document.getElementById( 'container' ).appendChild( warning );
-} else {
-  initStats();
-  createDistrictGarden();
-  createDistrictOne();
-  createDistrictTwo();
-  createDistrictThree();
-  currentScene = districtOne;
-  currentScene.add(pointerControls.getObject())
-  tick();
+  if(!WEBGL.isWebGLAvailable()) {
+    const warning = WEBGL.getWebGLErrorMessage();
+    document.getElementById( 'container' ).appendChild( warning );
+  } else {
+    console.log("init")
+    initStats();
+
+    createDistrictGarden();
+    createDistrictOne();
+    createDistrictTwo();
+    createDistrictThree();
+    currentScene = districtOne;
+    currentScene.add(pointerControls.getObject())
+    tick();
+  }
+
 }
 
 function initStats() {
@@ -426,8 +522,9 @@ function initStats() {
   return stats;
 }
 
-
 function createDistrictGarden() {
+  console.log("createDistrictGarden")
+
   // create a scene, that will hold all our elements such as objects, cameras and lights.
   districtGarden = new THREE.Scene();
   districtGarden.background = new THREE.Color().setHSL( 0.6, 0, 1 );
@@ -442,11 +539,62 @@ function createDistrictGarden() {
   }
 }
 
+function createDistrictOne() {
+  console.log("createDistrictOne")
+
+  districtOne = new THREE.Scene();
+  districtOne.background = new THREE.Color(0x000000);
+  districtOne.name = "D_ONE"
+
+  const objects = generateDistrictOneObjects()
+
+  for(let i = 0; i < objects.length; i++){
+    districtOne.add(objects[i])
+  }
+
+  for (let i = 0; i < DISTRICT_ONE_GLB.length; i++) {
+    const currentModel = DISTRICT_ONE_GLB[i]
+    onLoadAnimation(currentModel.gltf, currentModel, DISTRICT_NAMES[1])
+  }
+}
+
+function createDistrictTwo() {
+  console.log("createDistrictTwo")
+
+  districtTwo = new THREE.Scene();
+  districtTwo.background = new THREE.Color(0xffffff);
+  districtTwo.name = "D_TWO"
+
+  const objects = generateDistrictTwoObjects()
+  for(let i = 0; i < objects.length; i++){
+    districtTwo.add(objects[i]);
+  }
+  
+  for (let i = 0; i < DISTRICT_TWO_GLB.length; i++) {
+    const currentModel = DISTRICT_TWO_GLB[i]
+    onLoadAnimation(currentModel.gltf, currentModel, DISTRICT_NAMES[2])
+  }
+
+}
+
+function createDistrictThree() {
+  districtThree = new THREE.Scene();
+  districtThree.background = new THREE.Color(0xffffff);
+  districtThree.name = "D_THREE"
+
+  const objects = generateDistrictThreeObjects();
+
+  for(let i = 0; i < objects.length; i++){
+    districtThree.add(objects[i]);
+  }
+}
+
 function onLoadAnimation(model, data, district) {
   // console.log("load animated models: ", data)
-  const { posX, posY, posZ } = data
+  const { posX, posY, posZ, rx, ry, rz } = data
   model.scene.position.set(posX, posY, posZ);
-  model.scene.rotation.y = Math.PI/2.0;
+  model.scene.rotation.set(rx, ry, rz);
+  model.scene.rotation.y += Math.PI/2.0; // face front
 
   if(data.name === "cctv") {
     console.log("CCTV model")
@@ -471,7 +619,7 @@ function onLoadAnimation(model, data, district) {
 
   if(model.animations.length) {
     let mixer = new THREE.AnimationMixer(model.scene);
-    mixers.push(mixer)
+    window.mixers.push(mixer)
 
     var action = mixer.clipAction(model.animations[0])
     action.play();   
@@ -493,134 +641,6 @@ function onLoadAnimation(model, data, district) {
   }
 }
 
-function createDistrictOne() {
-  districtOne = new THREE.Scene();
-  districtOne.background = new THREE.Color(0x70666f);
-  districtOne.name = "D_ONE"
-
-  const objects = generateDistrictOneObjects()
-
-  for(let i = 0; i < objects.length; i++){
-    districtOne.add(objects[i])
-  }
-  
-  for (let i = 0; i < DISTRICT_ONE_GLB.length; i++) {
-    const currentModel = DISTRICT_ONE_GLB[i]
-    gltfLoader.load (
-      currentModel.url,
-      (gltf) => onLoadAnimation(gltf, currentModel, DISTRICT_NAMES[1]),
-      function (xhr) {
-        // console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
-      },
-      function (error) {
-        console.log("error?", error)
-      }
-    )
-  }
-
-  // Text Geometry
-  const fontLoader = new FontLoader()
-  const uhbeeFont = "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/assets/fonts/uhbeeRiceRegular.json"
-  const euljiro10years = "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/assets/fonts/bmEuljiro10years.json"
-  const euljiroRegular = "https://raw.githubusercontent.com/sosunnyproject/threejs-euljiro/main/assets/fonts/bmEuljiroRegular.json"
-
-  fontLoader.load(
-    uhbeeFont,
-    (font) => {
-      console.log("font loaded")
-      const textGeometry = new TextGeometry(
-        '영아크릴',
-        {
-          font: font,
-          size: 2,
-          height: 1,
-          curveSegments: 12, 
-          bevelEnabled: true,
-          bevelThickness: 0.03,
-          bevelSize: 0.02,
-          bevelOffset: 0, 
-          bevelSegments: 5
-        }
-      )
-      const textMaterial = new THREE.MeshPhongMaterial({ color: 0x89BBFE })
-      const text = new THREE.Mesh(textGeometry, textMaterial)
-      text.position.set(100, 55, 50)
-      text.scale.set(5, 5, 5)
-      text.rotateY(Math.PI/2)
-      text.rotateX(Math.PI/4.0)
-
-      console.log(textGeometry, text)
-      districtOne.add(text)
-    },
-    // onProgress callback
-    function ( xhr ) {
-      console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
-    }
-  )
-}
-
-function createDistrictTwo() {
-  districtTwo = new THREE.Scene();
-  districtTwo.background = new THREE.Color(0xffffff);
-  districtTwo.name = "D_TWO"
-
-  {
-    const geometry = new THREE.CircleGeometry( 1000, 50 );
-    const material = new THREE.MeshPhongMaterial( {color: 0x879ead} );
-    const coffeeMat = new THREE.ShaderMaterial( {
-      uniforms: {
-        u_time: { value: 1.0 },
-        u_resolution: { value: new THREE.Vector2() }
-      },
-        vertexShader: vertexShader,
-        fragmentShader: coffeeRiverFragment,
-        side: THREE.DoubleSide
-      } );
-    const plane = new THREE.Mesh( geometry, coffeeMat );
-    plane.rotation.x = -Math.PI/2;
-  
-    districtTwo.add(plane)
-  }
-  {
-    const skyColor = 0xB1E1FF;  // light blue
-    const groundColor = 0xB97A20;  // brownish orange
-    const intensity = 1;
-    const light = new THREE.HemisphereLight(skyColor, groundColor, intensity);
-    
-    districtTwo.add(light)
-   }
-
-  for (let i = 0; i < DISTRICT_TWO_GLB.length; i++) {
-    const currentModel = DISTRICT_TWO_GLB[i]
-
-    gltfLoader.load (
-      currentModel.url,
-      (gltf) => onLoadAnimation(gltf, currentModel, DISTRICT_NAMES[2]),
-
-      function (xhr) {
-        if( (xhr.loaded/xhr.total * 100) >= 100.0 ) {
-          console.log("loaded:", xhr.loaded/xhr.total * 100)
-        }
-        // console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
-      },
-      function (err) {
-        console.log("err: ", err)
-      }
-    )
-  }
-}
-
-function createDistrictThree() {
-  districtThree = new THREE.Scene();
-  districtThree.background = new THREE.Color(0xffffff);
-  districtThree.name = "D_THREE"
-
-  const objects = generateDistrictThreeObjects();
-
-  for(let i = 0; i < objects.length; i++){
-    districtThree.add(objects[i]);
-  }
-}
 
 function checkPointerControls() {
   const time = performance.now();

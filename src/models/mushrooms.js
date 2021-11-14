@@ -32,7 +32,7 @@ export function generateMushroom() {
  const tubeGeometry = new THREE.TubeGeometry( path, 64, 1, 20, false );
  const tubeMaterial = new THREE.MeshPhongMaterial( { color: 0xffffff } );
  const tubeMesh = new THREE.Mesh( tubeGeometry, tubeMaterial );
- tubeMesh.castShadow = true;
+ // tubeMesh.castShadow = true;
  
  tubeMesh.position.x = lathe.position.x + 40
  tubeMesh.position.y = lathe.position.y - 80

@@ -158,8 +158,8 @@ export function generateLsystemTree(axiom, rule1, rule2, iter, radiusRed, branch
         branchMesh.position.set(topTargetPoint.x - bottomPoint.x, topTargetPoint.y - bottomPoint.y, topTargetPoint.z - bottomPoint.z);
         branchMesh.updateMatrix();
       
-        branchMesh.castShadow = true;
-        branchMesh.receiveShadow = true;
+        // branchMesh.castShadow = true;
+        // branchMesh.receiveShadow = true;
       
         totalMesh.add(branchMesh);
     
@@ -308,8 +308,8 @@ export function generateLsystemTree(axiom, rule1, rule2, iter, radiusRed, branch
         }
     }
 
-    totalMesh.receiveShadow = true;
-    totalMesh.castShadow = true;
+    // totalMesh.receiveShadow = true;
+    // totalMesh.castShadow = true;
 
     return totalMesh;
 }

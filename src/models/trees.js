@@ -16,7 +16,7 @@ export function generateTree(xpos, ypos, zpos) {
  grassMesh.position.x = xpos
  grassMesh.position.y = ypos
  grassMesh.position.z = zpos
- grassMesh.castShadow = true;
+//  grassMesh.castShadow = true;
  tree.add(grassMesh)
 
  const trunkColors = [ "rgb(232, 174, 183)", "rgb(115, 72, 48)", "rgb(94, 116, 127)", "rgb(197, 152, 73)", "rgb(156, 179, 128)" ]
@@ -27,7 +27,7 @@ export function generateTree(xpos, ypos, zpos) {
  trunkMesh.position.x = xpos
  trunkMesh.position.y = ypos - 10
  trunkMesh.position.z = zpos
- trunkMesh.castShadow = true;
+//  trunkMesh.castShadow = true;
  tree.add(trunkMesh);
 
  return tree

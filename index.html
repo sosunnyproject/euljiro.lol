@@ -32,6 +32,85 @@
 				cursor: pointer;
 				color: white;
 			}
+
+			#loadWrapper {
+				display: flex;
+				justify-content: center;
+			}
+
+			/* https://wit.nts-corp.com/2021/04/23/6338 */
+			.circle_progress {
+				position: relative;
+				width: 200px;
+				height: 200px;
+				margin-bottom: 20px;
+			}
+			.circle_progress::after {
+					position: absolute;
+					top: 0;
+					left: 0;
+					right: 0;
+					bottom: 0;
+					border-radius: 50%;
+					border: 20px solid #fff;
+					box-sizing: border-box;
+					content: "";
+			}
+			.left, .right {
+			position: absolute;
+			top: 0;
+			width: 100px;
+			height: 200px;
+			overflow: hidden;
+			z-index: 10;
+			}
+			.bar {
+					position: absolute;
+					top: 0;
+					width: 100px;
+					height: 200px;
+					border: 20px solid  #03c75a;
+					box-sizing: border-box;
+			}
+  
+  .left {
+    left: 0;
+  	}
+		.left .bar {
+					left: 100px;
+					border-top-right-radius: 200px;
+					border-bottom-right-radius: 200px;
+					border-left: 0;
+					transform-origin: center left;
+		}
+  .right {
+    right: 0;
+  }
+		.right .bar {
+					right: 100px;
+					border-top-left-radius: 200px;
+					border-bottom-left-radius: 200px;
+					border-right: 0;
+					transform-origin: center right;
+		}
+
+  .value {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    font-size: 20px;
+    color: #888;
+    line-height: 200px;
+    text-align: center;
+    position: absolute;
+  }
+
+		#stepCounter{
+			position: absolute;
+			top: 0;
+			right: 0;
+			z-index: 10;
+		}
 		</style>
 		<script type="module" src="src/render.js"></script>
 
@@ -40,7 +119,20 @@
 			<div id="stats-output"></div>
 			<div id="container"></div>
 			<div id="blocker">
+				 
 					<div id="instructions">
+							<div id="loadWrapper">
+								<div class="circle_progress"> 
+									<span class="left"> 
+											<span class="bar"></span> 
+									</span> 
+									<span class="right"> 
+											<span class="bar"></span> 
+									</span>
+									<div class="value"></div>
+							</div>
+							</div>
+
 							<p style="font-size:36px">
 									Click to play <br/> 시작하려면 클릭하세요.<br/>
 									ESC를 누르면 다시 마우스를 사용가능.
@@ -49,6 +141,8 @@
 									Move: WASD 혹은 화살표<br/>
 									Jump: SPACE<br/>
 									Look: MOUSE<br/>
+									<h1>1000 걸음 움직이면 자동으로 구역이 바뀜.</h1>
+									<br/>
 									숫자 1 클릭: 1구역 <br/>
 									숫자 2 클릭: 2구역 <br/>
 									숫자 3 클릭: 3구역 <br/>
@@ -56,11 +150,18 @@
 							</p>
 					</div>	
 			</div>
-   <canvas id="c" ></canvas>
-			<div class="split">
-				<!-- camera -->
-					<div id="view1" tabindex="1"></div>
-					<div id="view2" tabindex="2"></div>
+			<div id="stepCounter">
+					<div class="circle_progress"> 
+						<span class="left"> 
+								<span class="bar"></span> 
+						</span> 
+						<span class="right"> 
+								<span class="bar"></span> 
+						</span>
+						<div class="value"></div>
+				</div>
 			</div>
+
+   <canvas id="c" ></canvas>
   </body>
 </html>

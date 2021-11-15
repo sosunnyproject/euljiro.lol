@@ -109,7 +109,6 @@ for(let z = -1000; z < 1000; z+= 30) {
   }
 
   {
-    console.log(window.UHBEE_FONT)
     // Text
     const textGeometry = new TextGeometry(
       '영아크릴',
@@ -132,7 +131,6 @@ for(let z = -1000; z < 1000; z+= 30) {
     text.rotateY(Math.PI/2)
     text.rotateX(Math.PI/4.0)
 
-    console.log(textGeometry, text)
     arr.push(text)
   }
 

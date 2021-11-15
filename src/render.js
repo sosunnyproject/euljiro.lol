@@ -111,6 +111,7 @@ var stepCounter = document.querySelector('#stepCounter')
 var stepLeftBar = stepCounter.querySelector('.left .bar');
 var stepRightBar = stepCounter.querySelector('.right .bar');
 var stepPer = stepCounter.querySelector('.value');
+
 function stepProgress(value) {
   stepPer.innerHTML=value +'%';
   if (value <= 50) {
@@ -194,7 +195,6 @@ const onKeyDown = function ( event ) {
   accSteps++;
   
   let per = Math.floor((accSteps / 1000) * 100 )
-  console.log(accSteps, per)
   stepProgress(per)
 
   switch ( event.code ) {
@@ -443,13 +443,18 @@ function switchDistrictBySteps() {
         break;
   }
 
-  accSteps = 0; // set back to default
+}
+
+function initSteps() {
+  // Init Steps
+  console.log("Init steps")
+  accSteps = 0;
+  stepProgress(0);
 }
 
 function switchScene(e, index) {
   pointerControls.getObject().removeFromParent();
-  accSteps = 0;
-
+  
   const code = e?.code || index;
 
   switch(code) {
@@ -461,6 +466,7 @@ function switchScene(e, index) {
       setTimeout(() => {
         currentScene = districtOne;
       }, 1000)
+      initSteps()
       break;
 
     case 'Digit2':
@@ -470,12 +476,14 @@ function switchScene(e, index) {
       setTimeout(() => {
         currentScene = districtTwo;
       }, 1000)
+      initSteps()
       break;
 
     case 'Digit3':
     case 3:
       console.log("3 pressed")
       currentScene = districtThree;
+      initSteps()
       break;
 
     case 'Digit0':
@@ -485,6 +493,7 @@ function switchScene(e, index) {
       setTimeout(() => {
         currentScene = districtGarden;
       }, 1000)
+      initSteps()
       break;
   }
 }
@@ -550,7 +559,6 @@ function createDistrictOne() {
   
    for (let i = 0; i < DISTRICT_ONE_GLB.length; i++) {
     const currentModel = DISTRICT_ONE_GLB[i]
-    console.log(currentModel)
     try {
       onLoadAnimation(currentModel.gltf, currentModel, DISTRICT_NAMES[1])
     } catch (err) {
@@ -598,7 +606,6 @@ function onLoadAnimation(model, data, district) {
   model.scene.rotation.y += Math.PI/2.0; // face front
 
   if(data.name === "cctv") {
-    console.log("CCTV model")
 
     // Particles
     const particlesGeometry = new THREE.SphereGeometry(5, 32, 32)

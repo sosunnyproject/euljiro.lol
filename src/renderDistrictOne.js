@@ -90,23 +90,25 @@ for(let z = -1000; z < 1000; z+= 30) {
   const particles = new THREE.Points(particlesGeometry, particlesMaterial)
   arr.push(particles)
 
-  // cube
+  // plane with texture
   {
-    const loader = new THREE.CubeTextureLoader();
-
-    const textureCube = loader.load( [
-      gardenImg, gardenImg,
-      gardenImg, gardenImg,
-      gardenImg, gardenImg
-    ] );
-
-    const geometry = new THREE.BoxGeometry( 100, 100, 100);
-    const material = new THREE.MeshBasicMaterial( { color: 0xffffff, envMap: textureCube } )
-    const cube = new THREE.Mesh( geometry, material );
-    cube.position.x -= 1000
-    arr.push(cube)
-
+    var material = new THREE.MeshBasicMaterial();
+    var loader = new THREE.TextureLoader();
+    loader.load(gardenImg, 
+      function ( texture ) {    
+          // The texture has loaded, so assign it to your material object. In the 
+          // next render cycle, this material update will be shown on the plane 
+          // geometry
+          material.map = texture;
+          material.needsUpdate = true;
+    })
+    var geometry = new THREE.PlaneGeometry(900, 900, 32 );
+    var mesh = new THREE.Mesh( geometry, material );
+    mesh.rotateY(Math.PI/2)
+    mesh.position.set(-1000, 500, 0)
+    // arr.push(mesh)
   }
+  
 
   {
     // Text
@@ -132,6 +134,25 @@ for(let z = -1000; z < 1000; z+= 30) {
     text.rotateX(Math.PI/4.0)
 
     arr.push(text)
+  }
+
+  
+  // cube
+  {
+    const loader = new THREE.CubeTextureLoader();
+  
+    const textureCube = loader.load( [
+      gardenImg, gardenImg,
+      gardenImg, gardenImg,
+      gardenImg, gardenImg
+    ] );
+
+    const geometry = new THREE.BoxGeometry( 800, 800, 800);
+    const material = new THREE.MeshBasicMaterial( { color: 0xffffff, envMap: textureCube } )
+    const cube = new THREE.Mesh( geometry, material );
+    cube.position.set(-1600, 300, 0)
+    cube.rotation.set(Math.PI/4, 0, Math.PI/6)
+    arr.push(cube)
   }
 
  return arr;

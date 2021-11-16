@@ -149,7 +149,7 @@ camera = makeCamera();
 // camera.position.set(-100, 100, 0) //.multiplyScalar(1);
 // camera.lookAt(0, 0, 0);
 camera.position.x = 300;
-camera.position.y = 3;
+camera.position.y = 1;
 camera.position.z = 0;
 camera.lookAt(new THREE.Vector3(0, 0, 0));
 
@@ -280,31 +280,55 @@ window.addEventListener("gamepadconnected", function(e) {
     e.gamepad.buttons.length, e.gamepad.axes.length);
   gamepadConnected = true; 
 });
+window.addEventListener("gamepaddisconnected", function(e) {
+  console.log("Gamepad DISconnected")
+  gamepadConnected = false;
+})
+
 raycaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, - 1, 0 ), 0, 10 );
 
 function xboxKeyPressed (gamepad) {
+  if(!gamepad) {
+    console.log("ERROR: XBOX CONNECTION LOST")
+    return
+  }
+
+  
+  let per = Math.floor((accSteps / 1000) * 100 )
+  stepProgress(per)
+
   const buttons = gamepad.buttons;
+
+  if(buttons[1].touched) {  // B button
+    if(!pointerControls.isLocked) {
+      pointerControls.lock();
+    }
+  }
 
   if(buttons[12].touched) {  // up
     moveForward = true;
+    accSteps++;
   } 
   if(!buttons[12].touched) {
     moveForward = false;
   }
   if(buttons[15].touched) {
     moveRight = true;
+    accSteps++;
   }
   if(!buttons[15].touched){
     moveRight = false;
   }
   if(buttons[13].touched) {
     moveBackward = true;
+    accSteps++;
   }
   if(!buttons[13].touched){
     moveBackward = false;
   }
   if(buttons[14].touched) {
     moveLeft = true;
+    accSteps++;
   }
   if(!buttons[14].touched){
     moveLeft = false;
@@ -350,9 +374,20 @@ function tick() {
   //gamepad
   if (gamepadConnected) {
     const gamepad = navigator.getGamepads()[0];
-    xboxKeyPressed(gamepad);
-    xboxAxesPressed(gamepad);
-  }
+    
+    if(!gamepad) {
+      console.log("ERROR: XBOX CONNECTION LOST") 
+      return;
+
+    } else {
+      try {
+        xboxKeyPressed(gamepad);
+        xboxAxesPressed(gamepad);
+      } catch (err) {
+        console.log("XBOX ERROR: ", err)
+      }  
+    }
+  } 
 
   render();
 
@@ -384,6 +419,10 @@ function render() {
 
   if(currentScene.name === "D_ONE" && districtOne.children.length > 0) {
     districtOne.children[0].intensity = Math.abs(Math.sin(time*0.001))
+    const cubeIdx = districtOne.children.length - 1
+    console.log(districtOne.children)
+    // districtOne.children[cubeIdx].rotateY(time*0.0005)
+    // districtOne.children[cubeIdx].rotateZ(time*0.0005)
   }
   
   // districtGarden.children[0].material.uniforms.u_time.value = time * 0.005;
@@ -550,13 +589,11 @@ function createDistrictOne() {
 
   districtOne = new THREE.Scene();
   districtOne.background = new THREE.Color(0x000000);
-  districtOne.name = "D_ONE"
-
-  const objects = generateDistrictOneObjects()
-  for(let i = 0; i < objects.length; i++){
-    districtOne.add(objects[i])
-  }
   
+  const alphaFog= new THREE.Color().setHSL( 0.6, 0, 0.1 );
+  districtOne.name = "D_ONE"
+  districtOne.fog = new THREE.Fog( alphaFog, 900, 1200 );
+
    for (let i = 0; i < DISTRICT_ONE_GLB.length; i++) {
     const currentModel = DISTRICT_ONE_GLB[i]
     try {
@@ -565,6 +602,12 @@ function createDistrictOne() {
       console.log(err)
     }
   }
+
+  const objects = generateDistrictOneObjects()
+  for(let i = 0; i < objects.length; i++){
+    districtOne.add(objects[i])
+  }
+  
 }
 
 function createDistrictTwo() {
@@ -601,9 +644,11 @@ function createDistrictThree() {
 function onLoadAnimation(model, data, district) {
   // console.log("load animated models: ", data)
   const { posX, posY, posZ, rx, ry, rz } = data
-  model.scene.position.set(posX, posY, posZ);
-  model.scene.rotation.set(rx, ry, rz);
-  model.scene.rotation.y += Math.PI/2.0; // face front
+  if(model){
+    model.scene.position.set(posX, posY, posZ);
+    model.scene.rotation.set(rx, ry, rz);
+    model.scene.rotation.y = Math.PI/2.0; // face front  
+  }
 
   if(data.name === "cctv") {
 

@@ -9,27 +9,19 @@ import { GUI } from 'three/examples/jsm/libs/dat.gui.module';
 import Stats from 'three/examples/jsm/libs/stats.module';
 import { WEBGL } from 'three/examples/jsm/WebGL';
 
-import { generateDistrictGardenObjects } from './renderDistrictGarden.js';
-import { generateDistrictOneObjects } from './renderDistrictOne.js';
-import { generateDistrictTwoObjects } from './renderDistrictTwo.js';
-import { generateDistrictThreeObjects } from './renderDistrictThree.js';
-
 import { Loader } from 'three';
 import { statSync } from 'fs';
 import { getRandomArbitrary } from './utils.js';
 import { FontLoader } from 'three/examples/jsm/loaders/FontLoader';
 
 // import model urls
-import { DISTRICT_ONE_GLB, DISTRICT_TWO_GLB } from './models/glbLoader.js';
+import { DISTRICT_ONE_GLB, DISTRICT_TWO_GLB, MONUMENTS_GLB } from './models/glbLoader.js';
 import uhbeeFont from "../assets/fonts/uhbeeRiceRegular.json"
 import euljiro10years from "../assets/fonts/bmEuljiro10years.json"
 import euljiroRegular from "../assets/fonts/bmEuljiroRegular.json"
-import { generateTerrain } from './models/Terrain.js';
 import { generateGround } from './models/ground.js';
 
 let stats, camera, renderer, pointerControls, character, character1;
-let currentScene, districtGarden, districtOne, districtTwo, districtThree;
-let sceneOneTerrain;
 
 let accSteps = 0;
 let prevDistrictIndex = 1;
@@ -37,7 +29,10 @@ let prevTime = performance.now();
 const velocity = new THREE.Vector3();
 const direction = new THREE.Vector3();
 
-const DISTRICT_NAMES = ["D_GARDEN", "D_ONE", "D_TWO", "D_THREE"]
+const ZONE_NAMES = ["GARDEN", "ONE", "TWO", "THREE"]
+
+window.ZONE = "ONE"
+let dynamicLoaded = false, zoneChanged = false;
 
 // Clock: autoStart, elapsedTime, oldTime, running, startTime
 var clock = new THREE.Clock();
@@ -55,9 +50,20 @@ const fontLoader = new FontLoader(loadManager)
 loadAssets()
 
 function loadAssets() {
-  const loadNum = DISTRICT_TWO_GLB.length + DISTRICT_ONE_GLB.length + 1;
+  const loadNum = MONUMENTS_GLB.length + DISTRICT_TWO_GLB.length + DISTRICT_ONE_GLB.length;
   let count = 0
   
+  MONUMENTS_GLB.forEach(model => {
+   gltfLoader.load(model.url,
+    (gltf) => {
+     model.gltf = gltf;
+     count++;
+     console.log("loaded")
+     let per = Math.floor((count / loadNum) * 100)
+     loadProgress(per);
+   })
+  })
+
   DISTRICT_ONE_GLB.forEach(model => {
     gltfLoader.load(model.url, 
       (gltf) => {
@@ -68,6 +74,7 @@ function loadAssets() {
       loadProgress(per);
     })
   })
+
   DISTRICT_TWO_GLB.forEach(model => {
     gltfLoader.load(model.url, 
       (gltf) => {
@@ -151,9 +158,9 @@ function makeCamera() {
 camera = makeCamera();
 // camera.position.set(-100, 100, 0) //.multiplyScalar(1);
 // camera.lookAt(0, 0, 0);
-camera.position.x = 800;
+camera.position.x = 1000;
 camera.position.y = 1;
-camera.position.z = 0;
+camera.position.z = -1000;
 camera.lookAt(new THREE.Vector3(0, 0, 0));
 
 // Camera GUI Input
@@ -164,6 +171,16 @@ camera.lookAt(new THREE.Vector3(0, 0, 0));
 // guiBox.add(params, 'zNear', 0.1, 1).onChange(makeCamera)
 // guiBox.add(params, 'zFar', 500, 2000).onChange(makeCamera)
 
+// Scene
+const mainScene = new THREE.Scene()
+mainScene.background = new THREE.Color(0xffffff);
+
+// Light
+const skyColor = 0xB1E1FF;  // light blue
+const groundColor = 0xB97A20;  // brownish orange
+const intensity = 1;
+const light = new THREE.HemisphereLight(skyColor, groundColor, intensity);
+mainScene.add(light)
 
 // Orbit Controls
 const controls = new OrbitControls( camera, renderer.domElement);
@@ -188,8 +205,8 @@ pointerControls.addEventListener( 'lock', function () {
 
 pointerControls.addEventListener( 'unlock', function () {
 
-  blocker.style.display = 'block';
-  instructions.style.display = '';
+  // blocker.style.display = 'block';
+  // instructions.style.display = '';
 
 } );
 
@@ -374,6 +391,10 @@ function xboxAxesPressed(gamepad) {
 
 function tick() {
 
+  // camera position check
+  let currentPos = pointerControls.getObject().position  
+  checkCameraPosition(currentPos)
+
   //gamepad
   if (gamepadConnected) {
     const gamepad = navigator.getGamepads()[0];
@@ -399,55 +420,57 @@ function tick() {
   checkPointerControls()
 };
 
+window.addEventListener('click', function () {
+  console.log(mainScene.children)
+})
+
+function checkCameraPosition(currentPos)  {
+ // console.log(currentPos)
+
+ // zone 1
+ if(currentPos.x > 600 && currentPos.x < 850) {
+  if(currentPos.z < -600 && currentPos.z > -850) {
+    window.ZONE = "ONE"
+    loadZones()
+  }
+}
+
+ // zone 2
+ if(currentPos.x < -600 && currentPos.x > -850) {
+   if(currentPos.z < -600 && currentPos.z > -850) {
+     window.ZONE = "TWO"
+     loadZones()
+   }
+ } 
+}
+function loadZones() {
+  dynamicLoaded = false;
+
+  switch(window.ZONE) {
+    case "ONE":
+      if(!dynamicLoaded) loadZoneOne()
+      break;
+    case "TWO":
+      if(!dynamicLoaded) loadZoneTwo()
+      break;
+    // case "THREE":
+    //   if(!dynamicLoaded) loadZoneTHREE()
+    //   break;
+  } 
+}
+
 // including animation loop
 function render() {
 
   const time = performance.now();
   if(accSteps > 1000) {
-    switchDistrictBySteps()
+    initSteps()
+    // switchDistrictBySteps()
   }
-
-  // send time data to shaders
-  // const mushroomMesh = scene.children[ 1 ].children[0];
-  // if(shaderTree !== undefined) {
-  //   shaderTree.rotation.y = time * 0.00075;
-  //   shaderTree.material.uniforms.u_time.value = time * 0.00075;  
-  // }
-  // mushroomMesh.rotation.y = time * 0.00075;
-  // mushroomMesh.material.uniforms.u_time.value = time * 0.01;
 
   const canvas = renderer.domElement;
   camera.aspect = canvas.clientWidth / canvas.clientHeight;
-  camera.updateProjectionMatrix(); 
-
-  if(currentScene.name === "D_ONE" && districtOne.children.length > 0) {
-    // districtOne.children[0].intensity = Math.abs(Math.sin(time*0.001))
-    // sceneOneTerrain.rotateY(Math.sin(time*0.00002)) 
-    // sceneOneTerrain.rotateX(Math.sin(time*0.00002)) 
-    // sceneOneTerrain.rotateZ(Math.sin(time*0.00002)) 
-
-    districtOne.traverse(obj => {
-      if (typeof obj.tick === 'function') {
-        obj.tick(time*0.0001);
-      }
-    });
-  
-  }
-  
-  // districtGarden.children[0].material.uniforms.u_time.value = time * 0.005;
-  if(currentScene.name === "D_TWO" && districtTwo.children.length > 0) {
-    districtTwo.children[0].material.uniforms.u_time.value = time * 0.001;
-  }
-
-  if(currentScene.name === "D_GARDEN" ) {
-
-    districtGarden.traverse(obj => {
-      if (typeof obj.tick === 'function') {
-        obj.tick(time);
-      }
-    });
-    
-  }
+  camera.updateProjectionMatrix();     
 
   var delta = clock.getDelta();
 
@@ -460,37 +483,8 @@ function render() {
 
   renderer.autoClear = true;
   renderer.clear();
-  renderer.render( currentScene, camera );
+  renderer.render( mainScene, camera );
   stats.update()
-}
-
-document.addEventListener('keypress', switchScene);
-
-function switchDistrictBySteps() {
-
-  switch(currentScene.name) {
-      case DISTRICT_NAMES[0]: // garden
-        const newDistrictIndex = (prevDistrictIndex+1)%4
-        console.log("new Index", newDistrictIndex)
-        switchScene(null, newDistrictIndex)
-        break;
-
-      case DISTRICT_NAMES[1]:
-        prevDistrictIndex = 1;
-        switchScene(null, 0);
-        break;
-
-      case DISTRICT_NAMES[2]:
-        prevDistrictIndex = 2;
-        switchScene(null, 0);
-        break;
-
-      case DISTRICT_NAMES[3]:
-        prevDistrictIndex = 3;
-        switchScene(null, 0);
-        break;
-  }
-
 }
 
 function initSteps() {
@@ -498,52 +492,6 @@ function initSteps() {
   console.log("Init steps")
   accSteps = 0;
   stepProgress(0);
-}
-
-function switchScene(e, index) {
-  pointerControls.getObject().removeFromParent();
-  
-  const code = e?.code || index;
-
-  switch(code) {
-
-    case 'Digit1':
-    case 1:
-      console.log("1 pressed")
-      districtOne.add(pointerControls.getObject());
-      setTimeout(() => {
-        currentScene = districtOne;
-      }, 1000)
-      initSteps()
-      break;
-
-    case 'Digit2':
-    case 2:
-      console.log("2 pressed")
-      districtTwo.add(pointerControls.getObject());
-      setTimeout(() => {
-        currentScene = districtTwo;
-      }, 1000)
-      initSteps()
-      break;
-
-    case 'Digit3':
-    case 3:
-      console.log("3 pressed")
-      currentScene = districtThree;
-      initSteps()
-      break;
-
-    case 'Digit0':
-    case 0:
-      console.log("0 pressed")
-      districtGarden.add(pointerControls.getObject());
-      setTimeout(() => {
-        currentScene = districtGarden;
-      }, 1000)
-      initSteps()
-      break;
-  }
 }
 
 function init() {
@@ -554,16 +502,9 @@ function init() {
   } else {
     console.log("init")
     initStats();
-
-    createDistrictGarden();
-    createDistrictOne();
-    createDistrictTwo();
-    createDistrictThree();
-    currentScene = districtOne;
-    currentScene.add(pointerControls.getObject())
+    main()
     tick();
   }
-
 }
 
 function initStats() {
@@ -576,137 +517,89 @@ function initStats() {
   return stats;
 }
 
-function createDistrictGarden() {
-  console.log("createDistrictGarden")
+function main() {
+  // Object
+ const geometry = new THREE.BoxGeometry(50, 50, 50)
+ const material = new THREE.MeshBasicMaterial({ color: 0xff0000 })
+ const mesh = new THREE.Mesh(geometry, material)
 
-  // create a scene, that will hold all our elements such as objects, cameras and lights.
-  districtGarden = new THREE.Scene();
-  districtGarden.background = new THREE.Color().setHSL( 0.6, 0, 1 );
-  districtGarden.fog = new THREE.Fog( districtGarden.background, 1, 5000 );
-  districtGarden.fog.color.copy(new THREE.Color( 0xffffff ))
-  districtGarden.name = "D_GARDEN"
+ mainScene.add(mesh)
 
-  const objects = generateDistrictGardenObjects()
-  
-  for(let i = 0; i < objects.length; i++){
-    districtGarden.add(objects[i])
-  }
+ // grounds
+ const ground1 = generateGround();
+ ground1.position.set(750, -10, -750)
+ mainScene.add(ground1);
+
+ const ground2 = generateGround();
+ ground2.position.set(-750, -10, -750)
+ mainScene.add(ground2)
+
+ const ground3 = generateGround();
+ ground3.position.set(0, -10, 750)
+ mainScene.add(ground3)
+
+ for (let i = 0; i < MONUMENTS_GLB.length; i++) {
+   const monuments = MONUMENTS_GLB[i]
+   try {
+     onLoadAnimation(monuments.gltf, monuments)
+   } catch (err) {
+     console.log(err)
+   }
+ }
 }
 
-function createDistrictOne() {
-  console.log("createDistrictOne")
-
-  districtOne = new THREE.Scene();
-  districtOne.background = new THREE.Color(0x000000);
-  
-  const alphaFog= new THREE.Color().setHSL( 0.2, 0, 0.1 );
-  districtOne.name = "D_ONE"
-  districtOne.fog = new THREE.Fog( alphaFog, 1400, 1800 );
-
-
-  sceneOneTerrain = generateGround(900, 900, 10, 60, THREE.DoubleSide)
-  sceneOneTerrain.rotateY(Math.PI/6.0)
-  sceneOneTerrain.position.set(-1400, 150, 0)
-  districtOne.add(sceneOneTerrain)
-
-  const objects = generateDistrictOneObjects()
-  for(let i = 0; i < objects.length; i++){
-    districtOne.add(objects[i])
-  }
-
-   for (let i = 0; i < DISTRICT_ONE_GLB.length; i++) {
-    const currentModel = DISTRICT_ONE_GLB[i]
+async function loadZoneOne() {
+  for (let i = 0; i < DISTRICT_ONE_GLB.length; i++) {
+    const model = DISTRICT_ONE_GLB[i]
     try {
-      onLoadAnimation(currentModel.gltf, currentModel, DISTRICT_NAMES[1])
+      await onLoadAnimation(model.gltf, model)
     } catch (err) {
       console.log(err)
     }
   }
-  
+  try {
+    mainScene.traverse(obj => {
+      if (typeof obj.zone === 'number') {
+
+       if(obj.zone !== 1) {
+         console.log("TRAVERSE ONE: ", obj)
+         mainScene.remove(obj)
+       }
+     } 
+   });
+  } catch (err) {
+   console.log(err)
+  }
+
+  dynamicLoaded = true;  
 }
 
-function createDistrictTwo() {
-  console.log("createDistrictTwo")
-
-  districtTwo = new THREE.Scene();
-  districtTwo.background = new THREE.Color(0xffffff);
-  districtTwo.name = "D_TWO"
-
-  const objects = generateDistrictTwoObjects()
-  for(let i = 0; i < objects.length; i++){
-    districtTwo.add(objects[i]);
-  }
-  
+async function loadZoneTwo() {
+ 
   for (let i = 0; i < DISTRICT_TWO_GLB.length; i++) {
-    const currentModel = DISTRICT_TWO_GLB[i]
-    onLoadAnimation(currentModel.gltf, currentModel, DISTRICT_NAMES[2])
+    const model = DISTRICT_TWO_GLB[i]
+    try {
+      await onLoadAnimation(model.gltf, model)
+    } catch (err) {
+      console.log(err)
+    }
   }
 
-}
+  try {
+    mainScene.traverse(obj => {
+      if (typeof obj.zone === 'number') {
 
-function createDistrictThree() {
-  districtThree = new THREE.Scene();
-  districtThree.background = new THREE.Color(0xffffff);
-  districtThree.name = "D_THREE"
-
-  const objects = generateDistrictThreeObjects();
-
-  for(let i = 0; i < objects.length; i++){
-    districtThree.add(objects[i]);
-  }
-}
-
-function onLoadAnimation(model, data, district) {
-  // console.log("load animated models: ", data)
-  const { posX, posY, posZ, rx, ry, rz } = data
-  if(model){
-    model.scene.position.set(posX, posY, posZ);
-    model.scene.rotation.set(rx, ry, rz);
-    model.scene.rotation.y = Math.PI/2.0; // face front  
-  }
-
-  if(data.name === "cctv") {
-
-    // Particles
-    const particlesGeometry = new THREE.SphereGeometry(5, 32, 32)
-    const particlesMaterial = new THREE.PointsMaterial({
-      size: 5,
-      sizeAttenuation: true
+        if(obj.zone !== 2) {
+          console.log("TRAVERSE TWO: ", obj)
+           mainScene.remove(obj)
+        }
+      }
     })
-    const particles = new THREE.Points(particlesGeometry, particlesMaterial)
-    model.scene.rotateX(Math.PI/6.0)
-    model.scene.add(particles)
+  } catch (err) {
+   console.log(err)
   }
 
-  if(data.scale) {
-    const inputScale = data.scale
-    model.scene.scale.set(inputScale, inputScale, inputScale)
-  } else {
-    model.scene.scale.set(25, 25, 25);
-  }
-
-  if(model.animations.length) {
-    let mixer = new THREE.AnimationMixer(model.scene);
-    window.mixers.push(mixer)
-
-    var action = mixer.clipAction(model.animations[0])
-    action.play();   
-  }
-
-  switch(district) {
-    case DISTRICT_NAMES[0]:
-      districtGarden.add(model.scene);
-      break;
-    case DISTRICT_NAMES[1]:
-      districtOne.add(model.scene);
-      break;
-    case DISTRICT_NAMES[2]:
-      districtTwo.add(model.scene);
-      break;
-    case DISTRICT_NAMES[3]:
-      districtThree.add(model.scene);
-      break;
-  }
+  dynamicLoaded = true;  
 }
 
 
@@ -723,7 +616,7 @@ function checkPointerControls() {
     // const onObject = intersections.length > 0;
 
     // control speed of movement
-    const delta = ( time - prevTime ) / 1000;
+    const delta = ( time - prevTime ) / 300;  // larger dividend, slower
 
     velocity.x -= velocity.x * 10.0 * delta;
     velocity.z -= velocity.z * 10.0 * delta;
@@ -760,4 +653,38 @@ function checkPointerControls() {
   }
 
   prevTime = time;
+}
+
+function onLoadAnimation(model, data) {
+ // console.log("load animated models: ", data)
+ const { posX, posY, posZ, rx, ry, rz } = data
+ if(model){
+   model.scene.position.set(posX, posY, posZ);
+   model.scene.rotation.set(rx, ry, rz);
+   model.scene.rotation.y = Math.PI/2.0; // face front  
+ }
+
+ if(data.scale) {
+   const inputScale = data.scale
+   model.scene.scale.set(inputScale, inputScale, inputScale)
+ } else if(!data.type) {
+   model.scene.scale.set(10, 10, 10);
+ } else if(data.type === "monument"){
+   model.scene.scale.set(25, 25, 25);
+ }
+
+ if(model.animations.length) {
+   let mixer = new THREE.AnimationMixer(model.scene);
+   window.mixers.push(mixer)
+
+   var action = mixer.clipAction(model.animations[0])
+   action.play();   
+ }
+
+ if(data.zone) {
+   model.scene.zone = data.zone
+ }
+
+ mainScene.add(model.scene)
+
 }

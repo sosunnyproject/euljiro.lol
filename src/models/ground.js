@@ -8,8 +8,8 @@ import turbulenceFragment from '../shaders/turbulence.frag.js';
 let date = new Date();
 let pn = new Perlin('rnd' + date.getTime());
 
-export function generateGround() {
-  var groundGeometry = new THREE.PlaneGeometry(4000, 4000, 60, 80);
+export function generateGround(width, height, zHeight, segments, side) {
+  var groundGeometry = new THREE.PlaneGeometry(width || 500, height || 500, segments || 60, segments || 80);
   const position = groundGeometry.attributes.position;
   const vec = new THREE.Vector3();
   const newVectors = []
@@ -17,6 +17,7 @@ export function generateGround() {
     vec.fromBufferAttribute(position, i);
     let value = pn.noise(vec.x / 2, vec.y / 2, 0);
     vec.z = value * 10;
+    if(zHeight) vec.z *= zHeight;
 
     newVectors.push(vec.x)
     newVectors.push(vec.y)
@@ -30,7 +31,8 @@ export function generateGround() {
       u_resolution: { value: new THREE.Vector2() }
     },
     vertexShader: vertexShader,  
-    fragmentShader: turbulenceFragment
+    fragmentShader: turbulenceFragment, 
+    side: side ? side : THREE.FrontSide
   } );  
 
   // const groundMaterial = new THREE.MeshPhongMaterial({ color: 0xccccc, side: THREE.DoubleSide });

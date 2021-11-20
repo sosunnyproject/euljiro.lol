@@ -4,29 +4,25 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/examples/jsm/loaders/dracoloader';
 import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls.js';
+import { FontLoader } from 'three/examples/jsm/loaders/FontLoader';
 
-import { GUI } from 'three/examples/jsm/libs/dat.gui.module';
 import Stats from 'three/examples/jsm/libs/stats.module';
 import { WEBGL } from 'three/examples/jsm/WebGL';
 
 import { Loader } from 'three';
 import { statSync } from 'fs';
 import { getRandomArbitrary } from './utils.js';
-import { FontLoader } from 'three/examples/jsm/loaders/FontLoader';
-import { RectAreaLightHelper } from 'three/examples/jsm/helpers/RectAreaLightHelper';
-import { RectAreaLightUniformsLib } from 'three/examples/jsm/lights/RectAreaLightUniformsLib';
+import { ZONE_NAMES, ZONE_POS } from './globalConstants.js';
 
 // import model urls
 import { DISTRICT_ONE_GLB, DISTRICT_TWO_GLB, MONUMENTS_GLB } from './models/glbLoader.js';
-import uhbeeFont from "../assets/fonts/uhbeeRiceRegular.json"
-import euljiro10years from "../assets/fonts/bmEuljiro10years.json"
-import euljiroRegular from "../assets/fonts/bmEuljiroRegular.json"
+
 import { generateGround } from './models/ground.js';
 import vertexShader from './shaders/vertex.glsl.js';
 import fogFragment from './shaders/fog.frag.js';
-import FALL_IMAGE from '../assets/png/eulji.jpg';
-import { sin } from 'prelude-ls';
 import metallicFrag from './shaders/metallic.frag.js';
+import { updateStepProgress, updateLoadingProgress } from './utils';
+import { loadAssets } from './loadAssets.js';
 
 let stats, camera, renderer, pointerControls;
 
@@ -35,6 +31,7 @@ let prevDistrictIndex = 1;
 let prevTime = performance.now();
 const velocity = new THREE.Vector3();
 const direction = new THREE.Vector3();
+
 // raycaster
 const rayOrigin = new THREE.Vector3()
 const rayDirection = new THREE.Vector3( 10, 0, 10 )
@@ -42,13 +39,12 @@ rayDirection.normalize()
 let raycaster = new THREE.Raycaster(rayOrigin, rayDirection, 0, 10);
 // raycaster.set(rayOrigin, rayDirection)
 let rayObjects = []
-let domeGeo;
-let cubeRenderTarget2, cubeCamera2, movingSpot;
+let cubeRenderTarget2, cubeCamera2;
 
 // Zones
-const ZONE_NAMES = ["GARDEN", "ONE", "TWO", "THREE"]
 window.ZONE = "ONE"
-let dynamicLoaded = false, zoneChanged = false;
+let dynamicLoaded = false;
+let domeGeo;
 
 // Clock: autoStart, elapsedTime, oldTime, running, startTime
 var clock = new THREE.Clock();
@@ -56,7 +52,7 @@ var clock = new THREE.Clock();
 // Loading Manager for 3d models and animation
 window.mixers = [];
 const loadManager = new THREE.LoadingManager();
-// loadManager.onLoad = init;
+loadManager.onLoad = init;
 const gltfLoader = new GLTFLoader(loadManager);
 const dracoLoader = new DRACOLoader();
 dracoLoader.setDecoderPath('three/examples/js/libs/draco');
@@ -65,102 +61,7 @@ gltfLoader.setDRACOLoader(dracoLoader);
 const fontLoader = new FontLoader(loadManager)
 const textureLoader = new THREE.TextureLoader(loadManager);
 
-loadAssets()
-
-async function loadAssets() {
-  const loadNum = MONUMENTS_GLB.length + DISTRICT_TWO_GLB.length + DISTRICT_ONE_GLB.length;
-  let count = 0
-  
-  MONUMENTS_GLB.forEach(model => {
-   gltfLoader.load(model.url,
-    (gltf) => {
-     model.gltf = gltf;
-     count++;
-     console.log("loaded")
-     let per = Math.floor((count / loadNum) * 100)
-     loadProgress(per);
-   })
-  })
-
-  DISTRICT_ONE_GLB.forEach(model => {
-    gltfLoader.load(model.url, 
-      (gltf) => {
-      model.gltf = gltf;
-      count++;
-      console.log("loaded")
-      let per = Math.floor((count / loadNum) * 100)
-      loadProgress(per);
-    })
-  })
-
-  DISTRICT_TWO_GLB.forEach(model => {
-    gltfLoader.load(model.url, 
-      (gltf) => {
-      model.gltf = gltf;
-      count++;
-      console.log("loaded")
-      let per = Math.floor((count / loadNum) * 100)
-      loadProgress(per);
-    })
-  })
-
-  // Load Font for TextGeometry
-  fontLoader.load(
-    uhbeeFont,
-    (font) => {
-      window.UHBEE_FONT = font;
-      count++;
-      console.log("loaded")
-      let per = Math.floor((count / loadNum) * 100)
-      loadProgress(per);
-    }
-  )
-
-  textureLoader.load( FALL_IMAGE, function ( texture ) {
-
-    texture.encoding = THREE.sRGBEncoding;
-    texture.mapping = THREE.EquirectangularReflectionMapping;
-
-    init(texture)
-
-  } );
-}
-
-// Load Progress Bar
-var leftBar = document.querySelector('.left .bar');
-var rightBar = document.querySelector('.right .bar');
-var per = document.querySelector('.value');
-function loadProgress(value) {
-  per.innerHTML=value +'%';
-  if (value <= 50) {
-    var degree = 18*value/5;
-    rightBar.style.transform = "rotate("+degree+"deg)";
-    leftBar.style.transform = "rotate(0deg)";
-  } else {
-    var degree = 18*(value-50)/5;
-    rightBar.style.transform = "rotate(180deg)";
-    leftBar.style.transform = "rotate("+degree+"deg)";
-  }
-}
-
-// Step Counter Bar
-var stepCounter = document.querySelector('#stepCounter')
-var stepLeftBar = stepCounter.querySelector('.left .bar');
-var stepRightBar = stepCounter.querySelector('.right .bar');
-var stepPer = stepCounter.querySelector('.value');
-
-function stepProgress(value) {
-  stepPer.innerHTML=value +'%';
-  if (value <= 50) {
-    var degree = 18*value/5;
-    stepRightBar.style.transform = "rotate("+degree+"deg)";
-    stepLeftBar.style.transform = "rotate(0deg)";
-  } else {
-    var degree = 18*(value-50)/5;
-    stepRightBar.style.transform = "rotate(180deg)";
-    stepLeftBar.style.transform = "rotate("+degree+"deg)";
-  }
-}
+loadAssets(gltfLoader, fontLoader, textureLoader)
 
 // Canvas
 const canvas = document.querySelector('#c');
@@ -184,30 +85,14 @@ function makeCamera() {
   return new THREE.PerspectiveCamera(fov, aspect, zNear, zFar);
 }
 camera = makeCamera();
-// camera.position.set(-100, 100, 0) //.multiplyScalar(1);
-// camera.lookAt(0, 0, 0);
 camera.position.x = 800;
 camera.position.y = 1;
 camera.position.z = -800;
 camera.lookAt(new THREE.Vector3(0, 0, 0));
 
-// Camera GUI Input
-// const gui = new GUI();
-// const guiBox = gui.addFolder('guiBox');
-// guiBox.add(params, 'fov', 1, 100).onChange(makeCamera)
-// guiBox.add(params, 'aspect', 1, 20).onChange(makeCamera)
-// guiBox.add(params, 'zNear', 0.1, 1).onChange(makeCamera)
-// guiBox.add(params, 'zFar', 500, 2000).onChange(makeCamera)
-
 // Scene
 const scene = new THREE.Scene()
-scene.background = new THREE.Color(0x555555);
-
-// fps control
-let characterGeom = new THREE.BoxGeometry(1, 1, 1);
-let characterMat = new THREE.MeshPhongMaterial( {color: 0xff1122} );
-let character = new THREE.Mesh(characterGeom, characterMat);
-scene.add(character);
+scene.background = new THREE.Color(0xf9f9f9);
 
 // Light
 const skyColor = 0xB1E1FF;  // light blue
@@ -233,27 +118,18 @@ const blocker = document.getElementById( 'blocker' );
 
 pointerControls.addEventListener('change', function () {
 
-  // console.log(pointerControls.getObject().position)
-  // console.log(pointerControls.getObject().rotation)
-    // camera position check
-    let currentPos = pointerControls.getObject().position
-    let currentRot = pointerControls.getObject().rotation  
-  
-    checkCameraPosition(currentPos)
-  
-    // update character
-    // character.position.copy(currentPos);
-    // character.rotation.copy(pointerControls.getObject().rotation);
-    // character.position.x -= 20
-    // character.position.z += 20
-    // character.updateMatrix();
-    // character.translateX(-10);
+  // camera position check
+  let currentPos = pointerControls.getObject().position
+  let currentRot = pointerControls.getObject().rotation  
+
+  checkCameraPosition(currentPos)
     
 })
 
 instructions.addEventListener( 'click', function () {
   pointerControls.lock();
 } );
+
 pointerControls.addEventListener( 'lock', function () {
 
   instructions.style.display = 'none';
@@ -273,7 +149,7 @@ const onKeyDown = function ( event ) {
   accSteps++;
   
   let per = Math.floor((accSteps / 1000) * 100 )
-  stepProgress(per)
+  updateStepProgress(per)
 
   switch ( event.code ) {
 
@@ -333,16 +209,6 @@ const onKeyUp = function ( event ) {
 document.addEventListener( 'keydown', onKeyDown );
 document.addEventListener( 'keyup', onKeyUp );
 
-// orientation
-// document.addEventListener('DOMContentLoaded', addListenMouse, false); 
-
-// function addListenMouse() {
-//   document.addEventListener('mousemove', e => {
-//     console.log("move x: ", e.movementX, ", move y: ", e.movementY)
-//     console.log("camera: ", camera.quaternion)
-//   })
-// }
-
 // GamePad Interaction
 let gamepadConnected = false;
 let moveForward = false;
@@ -370,7 +236,7 @@ function xboxKeyPressed (gamepad) {
 
   
   let per = Math.floor((accSteps / 1000) * 100 )
-  stepProgress(per)
+  updateStepProgress(per)
 
   const buttons = gamepad.buttons;
 
@@ -467,8 +333,11 @@ function tick() {
 
   // update shader material
   scene.traverse(obj => {
-    if(obj.name === "shader") {
+    if(obj.name.includes("shader")) {
       obj.material.uniforms.u_time.value = time * 0.0002; 
+    }
+    if(!rayObjects.length && obj.name.includes("dome")){
+      obj.material.uniforms.u_alpha.value -= time * 0.001;
     }
   })
 
@@ -522,8 +391,9 @@ function loadZones() {
 // including animation loop
 function render() {
 
-  if(accSteps > 1000) {
+  if(accSteps > 500) {
     initSteps()
+    disableRaycastIntersect()
     // switchDistrictBySteps()
   }
 
@@ -540,7 +410,7 @@ function render() {
     }  
   // }
 
-  // cubeCamera2.update( renderer, scene );
+  // cubeCamera2.update( renderer, scene );  // render target
 
   renderer.autoClear = true;
   renderer.clear();
@@ -552,10 +422,10 @@ function initSteps() {
   // Init Steps
   console.log("Init steps")
   accSteps = 0;
-  stepProgress(0);
+  updateStepProgress(0);
 }
 
-function init(texture) {
+function init() {
 
   if(!WEBGL.isWebGLAvailable()) {
     const warning = WEBGL.getWebGLErrorMessage();
@@ -563,7 +433,7 @@ function init(texture) {
   } else {
     console.log("init")
     initStats();
-    main(texture)
+    main()
     tick();
   }
 }
@@ -578,7 +448,12 @@ function initStats() {
   return stats;
 }
 
-function main(texture) {
+function disableRaycastIntersect() {
+  rayObjects = []
+  console.log("raycast disabled")
+}
+
+function main() {
   // const pointLight1 = new THREE.PointLight( 0xffffff );
   // pointLight1.position.set(700, 10, -600 );
   // pointLight1.castShadow = false;
@@ -647,7 +522,7 @@ function main(texture) {
   })
   
   const ground1 = new THREE.Mesh(ground1geom, metallicShader);
-  ground1.name = "shader";
+  ground1.name = "shader ground";
   ground1.rotateX(Math.PI/2)
 
   //  const ground1 = generateGround();
@@ -697,7 +572,7 @@ function main(texture) {
     domeGeo.computeBoundingSphere();
 
     const domeWall = new THREE.Mesh(domeGeo, fogShader)
-    domeWall.name = "shader"
+    domeWall.name = "shader dome"
     scene.add( domeWall );
 
     // box helper
@@ -807,7 +682,7 @@ function checkPointerControls() {
     } 
     else {
       let contains = domeGeo?.boundingSphere?.containsPoint(camera.position)
-      if(!contains) {
+      if(rayObjects.length && !contains) {
         console.log("contains? ", contains)
         camera.position.x = 1300;
         camera.position.z = -800;

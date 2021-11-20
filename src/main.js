@@ -13,6 +13,8 @@ import { Loader } from 'three';
 import { statSync } from 'fs';
 import { getRandomArbitrary } from './utils.js';
 import { FontLoader } from 'three/examples/jsm/loaders/FontLoader';
+import { RectAreaLightHelper } from 'three/examples/jsm/helpers/RectAreaLightHelper';
+import { RectAreaLightUniformsLib } from 'three/examples/jsm/lights/RectAreaLightUniformsLib';
 
 // import model urls
 import { DISTRICT_ONE_GLB, DISTRICT_TWO_GLB, MONUMENTS_GLB } from './models/glbLoader.js';
@@ -20,17 +22,31 @@ import uhbeeFont from "../assets/fonts/uhbeeRiceRegular.json"
 import euljiro10years from "../assets/fonts/bmEuljiro10years.json"
 import euljiroRegular from "../assets/fonts/bmEuljiroRegular.json"
 import { generateGround } from './models/ground.js';
+import vertexShader from './shaders/vertex.glsl.js';
+import fogFragment from './shaders/fog.frag.js';
+import FALL_IMAGE from '../assets/png/eulji.jpg';
+import { sin } from 'prelude-ls';
+import metallicFrag from './shaders/metallic.frag.js';
 
-let stats, camera, renderer, pointerControls, character, character1;
+let stats, camera, renderer, pointerControls;
 
 let accSteps = 0;
 let prevDistrictIndex = 1;
 let prevTime = performance.now();
 const velocity = new THREE.Vector3();
 const direction = new THREE.Vector3();
+// raycaster
+const rayOrigin = new THREE.Vector3()
+const rayDirection = new THREE.Vector3( 10, 0, 10 )
+rayDirection.normalize()
+let raycaster = new THREE.Raycaster(rayOrigin, rayDirection, 0, 10);
+// raycaster.set(rayOrigin, rayDirection)
+let rayObjects = []
+let domeGeo;
+let cubeRenderTarget2, cubeCamera2, movingSpot;
 
+// Zones
 const ZONE_NAMES = ["GARDEN", "ONE", "TWO", "THREE"]
-
 window.ZONE = "ONE"
 let dynamicLoaded = false, zoneChanged = false;
 
@@ -40,16 +56,18 @@ var clock = new THREE.Clock();
 // Loading Manager for 3d models and animation
 window.mixers = [];
 const loadManager = new THREE.LoadingManager();
-loadManager.onLoad = init;
+// loadManager.onLoad = init;
 const gltfLoader = new GLTFLoader(loadManager);
 const dracoLoader = new DRACOLoader();
 dracoLoader.setDecoderPath('three/examples/js/libs/draco');
 gltfLoader.setDRACOLoader(dracoLoader);
 
 const fontLoader = new FontLoader(loadManager)
+const textureLoader = new THREE.TextureLoader(loadManager);
+
 loadAssets()
 
-function loadAssets() {
+async function loadAssets() {
   const loadNum = MONUMENTS_GLB.length + DISTRICT_TWO_GLB.length + DISTRICT_ONE_GLB.length;
   let count = 0
   
@@ -97,6 +115,15 @@ function loadAssets() {
       loadProgress(per);
     }
   )
+
+  textureLoader.load( FALL_IMAGE, function ( texture ) {
+
+    texture.encoding = THREE.sRGBEncoding;
+    texture.mapping = THREE.EquirectangularReflectionMapping;
+
+    init(texture)
+
+  } );
 }
 
 // Load Progress Bar
@@ -138,7 +165,8 @@ function stepProgress(value) {
 // Canvas
 const canvas = document.querySelector('#c');
 const WIDTH = window.innerWidth, HEIGHT = window.innerHeight
-renderer = new THREE.WebGLRenderer({ canvas });
+renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+renderer.outputEncoding = THREE.sRGBEncoding;
 renderer.setClearColor(new THREE.Color(0x000, 1.0));
 renderer.setSize(WIDTH, HEIGHT);
 // renderer.shadowMap.enabled = true;
@@ -147,8 +175,8 @@ renderer.setSize(WIDTH, HEIGHT);
 // Camera
 const params = {
   fov: 20,
-  aspect: 0.5, 
-  zNear: 5,
+  aspect: 2.5, 
+  zNear: 10,
   zFar: 4000
 }
 function makeCamera() {
@@ -158,9 +186,9 @@ function makeCamera() {
 camera = makeCamera();
 // camera.position.set(-100, 100, 0) //.multiplyScalar(1);
 // camera.lookAt(0, 0, 0);
-camera.position.x = 1000;
+camera.position.x = 800;
 camera.position.y = 1;
-camera.position.z = -1000;
+camera.position.z = -800;
 camera.lookAt(new THREE.Vector3(0, 0, 0));
 
 // Camera GUI Input
@@ -172,15 +200,25 @@ camera.lookAt(new THREE.Vector3(0, 0, 0));
 // guiBox.add(params, 'zFar', 500, 2000).onChange(makeCamera)
 
 // Scene
-const mainScene = new THREE.Scene()
-mainScene.background = new THREE.Color(0xffffff);
+const scene = new THREE.Scene()
+scene.background = new THREE.Color(0x555555);
+
+// fps control
+let characterGeom = new THREE.BoxGeometry(1, 1, 1);
+let characterMat = new THREE.MeshPhongMaterial( {color: 0xff1122} );
+let character = new THREE.Mesh(characterGeom, characterMat);
+scene.add(character);
 
 // Light
 const skyColor = 0xB1E1FF;  // light blue
 const groundColor = 0xB97A20;  // brownish orange
 const intensity = 1;
 const light = new THREE.HemisphereLight(skyColor, groundColor, intensity);
-mainScene.add(light)
+scene.add(light)
+
+// const dirLight1 = new THREE.DirectionalLight( 0x0000ff );
+// dirLight1.position.set( 1, 1, 1 );
+// scene.add( dirLight1 );
 
 // Orbit Controls
 const controls = new OrbitControls( camera, renderer.domElement);
@@ -192,6 +230,26 @@ controls.update();
 pointerControls = new PointerLockControls(camera, document.body);
 const instructions = document.getElementById( 'instructions' );
 const blocker = document.getElementById( 'blocker' );
+
+pointerControls.addEventListener('change', function () {
+
+  // console.log(pointerControls.getObject().position)
+  // console.log(pointerControls.getObject().rotation)
+    // camera position check
+    let currentPos = pointerControls.getObject().position
+    let currentRot = pointerControls.getObject().rotation  
+  
+    checkCameraPosition(currentPos)
+  
+    // update character
+    // character.position.copy(currentPos);
+    // character.rotation.copy(pointerControls.getObject().rotation);
+    // character.position.x -= 20
+    // character.position.z += 20
+    // character.updateMatrix();
+    // character.translateX(-10);
+    
+})
 
 instructions.addEventListener( 'click', function () {
   pointerControls.lock();
@@ -292,7 +350,6 @@ let moveBackward = false;
 let moveLeft = false;
 let moveRight = false;
 let canJump = false;
-let raycaster;
 
 window.addEventListener("gamepadconnected", function(e) {
   console.log("Gamepad connected at index %d: %s. %d buttons, %d axes.",
@@ -304,8 +361,6 @@ window.addEventListener("gamepaddisconnected", function(e) {
   console.log("Gamepad DISconnected")
   gamepadConnected = false;
 })
-
-raycaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, - 1, 0 ), 0, 10 );
 
 function xboxKeyPressed (gamepad) {
   if(!gamepad) {
@@ -390,12 +445,9 @@ function xboxAxesPressed(gamepad) {
 }
 
 function tick() {
+  const time = performance.now();
 
-  // camera position check
-  let currentPos = pointerControls.getObject().position  
-  checkCameraPosition(currentPos)
-
-  //gamepad
+  // gamepad
   if (gamepadConnected) {
     const gamepad = navigator.getGamepads()[0];
     
@@ -413,6 +465,13 @@ function tick() {
     }
   } 
 
+  // update shader material
+  scene.traverse(obj => {
+    if(obj.name === "shader") {
+      obj.material.uniforms.u_time.value = time * 0.0002; 
+    }
+  })
+
   render();
 
   requestAnimationFrame( tick );
@@ -421,7 +480,8 @@ function tick() {
 };
 
 window.addEventListener('click', function () {
-  console.log(mainScene.children)
+  console.log("check position:", pointerControls.getObject().position) 
+  console.log("check rotation:", pointerControls.getObject().rotation)
 })
 
 function checkCameraPosition(currentPos)  {
@@ -462,7 +522,6 @@ function loadZones() {
 // including animation loop
 function render() {
 
-  const time = performance.now();
   if(accSteps > 1000) {
     initSteps()
     // switchDistrictBySteps()
@@ -481,9 +540,11 @@ function render() {
     }  
   // }
 
+  // cubeCamera2.update( renderer, scene );
+
   renderer.autoClear = true;
   renderer.clear();
-  renderer.render( mainScene, camera );
+  renderer.render( scene, camera );
   stats.update()
 }
 
@@ -494,7 +555,7 @@ function initSteps() {
   stepProgress(0);
 }
 
-function init() {
+function init(texture) {
 
   if(!WEBGL.isWebGLAvailable()) {
     const warning = WEBGL.getWebGLErrorMessage();
@@ -502,7 +563,7 @@ function init() {
   } else {
     console.log("init")
     initStats();
-    main()
+    main(texture)
     tick();
   }
 }
@@ -517,27 +578,146 @@ function initStats() {
   return stats;
 }
 
-function main() {
+function main(texture) {
+  // const pointLight1 = new THREE.PointLight( 0xffffff );
+  // pointLight1.position.set(700, 10, -600 );
+  // pointLight1.castShadow = false;
+
+  // const spot2 = new THREE.SpotLight( 0x0000ff );
+  // spot2.position.set(1500, 5, -900 );
+  // spot2.intensity = 2.0;
+  // spot2.castShadow = false;
+  // scene.add( spot2 )
+
+  // const ambientLight = new THREE.AmbientLight( 0x404040 ); // soft white light
+  // scene.add(ambientLight)
+
   // Object
- const geometry = new THREE.BoxGeometry(50, 50, 50)
- const material = new THREE.MeshBasicMaterial({ color: 0xff0000 })
- const mesh = new THREE.Mesh(geometry, material)
+  const geometry = new THREE.BoxGeometry(50, 50, 50)
+  const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 })
+  const mesh = new THREE.Mesh(geometry, material)
+  mesh.position.y = 200
 
- mainScene.add(mesh)
+  scene.add(mesh)
 
- // grounds
- const ground1 = generateGround();
- ground1.position.set(750, -10, -750)
- mainScene.add(ground1);
+  // grounds
+  const ground1geom = new THREE.CircleGeometry(600, 600);
+  ground1geom.computeVertexNormals();
+
+  // shader material
+  const metallicShader = new THREE.ShaderMaterial({
+    uniforms: {
+      u_time: { value: 1.0 },
+      u_resolution: { value: new THREE.Vector2(0.0, 0.0) },
+      u_alpha: { value: 0.9 }
+    },
+    vertexShader: vertexShader,
+    fragmentShader: metallicFrag,
+    side: THREE.DoubleSide,
+    transparent: true
+  })
+
+  // rtt test
+  cubeRenderTarget2 = new THREE.WebGLCubeRenderTarget( 256, {
+    format: THREE.RGBFormat,
+    generateMipmaps: true,
+    minFilter: THREE.LinearMipmapLinearFilter,
+    encoding: THREE.sRGBEncoding
+  } );
+
+  cubeCamera2 = new THREE.CubeCamera( 1, 1000, cubeRenderTarget2 );
+  cubeCamera2.position.set(1200, 0, -800)
+
+  const rttMat = new THREE.MeshBasicMaterial( {
+    envMap: cubeRenderTarget2.texture,
+    combine: THREE.MultiplyOperation,
+    reflectivity: 1,
+    side: THREE.DoubleSide
+  } );
+
+  const reflectiveMat = new THREE.MeshPhongMaterial({
+    color: 0xffffff,
+    shininess: 100.0,
+    emissive: 0x000000,
+    specular: 0xffffff,
+    side: THREE.DoubleSide,
+    reflectivity: 1.0,
+    envMap: cubeRenderTarget2.texture,
+    combine: THREE.MultiplyOperation,
+  })
+  
+  const ground1 = new THREE.Mesh(ground1geom, metallicShader);
+  ground1.name = "shader";
+  ground1.rotateX(Math.PI/2)
+
+  //  const ground1 = generateGround();
+  ground1.position.set(750, -20, -750)
+  scene.add(ground1);
 
  const ground2 = generateGround();
  ground2.position.set(-750, -10, -750)
- mainScene.add(ground2)
+ ground2.name = "ground2"
+ scene.add(ground2)
 
  const ground3 = generateGround();
  ground3.position.set(0, -10, 750)
- mainScene.add(ground3)
+ ground3.name = "ground3"
+ scene.add(ground3)
 
+ // walls
+  {
+    const geometry = new THREE.PlaneGeometry(600, 1000, 1000, 100 );
+    const fogShader = new THREE.ShaderMaterial( {
+      uniforms: {
+        u_time: { value: 1.0 },
+        u_resolution: { value: new THREE.Vector2(0.0, 0.0) },
+        u_alpha: { value: 0.5 }
+      },
+      vertexShader: vertexShader,
+      fragmentShader: fogFragment,
+      side: THREE.BackSide,
+      transparent: true
+    } );  
+
+    const materialBack = new THREE.MeshPhongMaterial({ 
+      color: 0x808080, 
+      side: THREE.BackSide,  
+      opacity: 0.7,
+      transparent: true
+    });
+    const wall = new THREE.Mesh( geometry, materialBack );
+    wall.position.set(750, 300, -500)
+    // cube.rotateX(Math.PI/2)
+    wall.name = "shader"
+    // scene.add( wall );
+
+    domeGeo = new THREE.SphereGeometry( 600, 600, 600 );
+    domeGeo.rotateY(-Math.PI/3)
+    domeGeo.translate(750, 0, -750)
+    domeGeo.computeBoundingSphere();
+
+    const domeWall = new THREE.Mesh(domeGeo, fogShader)
+    domeWall.name = "shader"
+    scene.add( domeWall );
+
+    // box helper
+    
+    const materialFront = new THREE.MeshPhongMaterial({ 
+      color: 0x808080, 
+      side: THREE.DoubleSide,  
+      opacity: 0.7,
+      transparent: true
+    });
+    const wall2 = new THREE.Mesh( geometry, materialFront );
+    wall2.name = "wall2"
+    wall2.position.set(500, 300, -750)
+    wall2.rotateY(Math.PI/2)
+    // scene.add( wall2 );
+
+    rayObjects.push(domeWall)
+  }
+
+ // monument gltf
  for (let i = 0; i < MONUMENTS_GLB.length; i++) {
    const monuments = MONUMENTS_GLB[i]
    try {
@@ -558,12 +738,12 @@ async function loadZoneOne() {
     }
   }
   try {
-    mainScene.traverse(obj => {
+    scene.traverse(obj => {
       if (typeof obj.zone === 'number') {
 
        if(obj.zone !== 1) {
-         console.log("TRAVERSE ONE: ", obj)
-         mainScene.remove(obj)
+        //  console.log("TRAVERSE ONE: ", obj)
+         scene.remove(obj)
        }
      } 
    });
@@ -586,12 +766,12 @@ async function loadZoneTwo() {
   }
 
   try {
-    mainScene.traverse(obj => {
+    scene.traverse(obj => {
       if (typeof obj.zone === 'number') {
 
         if(obj.zone !== 2) {
-          console.log("TRAVERSE TWO: ", obj)
-           mainScene.remove(obj)
+          // console.log("TRAVERSE TWO: ", obj)
+           scene.remove(obj)
         }
       }
     })
@@ -609,11 +789,45 @@ function checkPointerControls() {
   if ( pointerControls.isLocked === true ) {
 
     raycaster.ray.origin.copy( pointerControls.getObject().position );
-    raycaster.ray.origin.y -= 10;
+    // raycaster.ray.origin.y += 1;
+    // raycaster.ray.origin.x += 2;
+    // raycaster.ray.origin.z += 2
 
-    // const intersections = raycaster.intersectObjects( objects, false );
+    const intersections = raycaster.intersectObjects( rayObjects, false );
 
-    // const onObject = intersections.length > 0;
+    const onObject = intersections.length > 0;
+
+    if(onObject){
+      for ( let i = 0; i < intersections.length; i ++ ) {
+        // console.log("INTERSECT?? ", intersections[i].object.name)
+        // intersections[ i ].object.material.wireframe = true;
+        console.log('intersect')
+        goBack()
+      }
+    } 
+    else {
+      let contains = domeGeo?.boundingSphere?.containsPoint(camera.position)
+      if(!contains) {
+        console.log("contains? ", contains)
+        camera.position.x = 1300;
+        camera.position.z = -800;
+        camera.lookAt(750, 15, -750)
+      }
+    }
+
+    function goBack() {
+      console.log('jump')
+      canJump = true;
+      const jumpCode = {code: "Space"}
+      onKeyDown(jumpCode)
+      velocity.y += 500 
+
+      setTimeout(function () {
+        camera.position.x = 1300;
+        camera.position.z = -800;
+        camera.lookAt(750, 15, -750)
+      }, 10)
+    }
 
     // control speed of movement
     const delta = ( time - prevTime ) / 300;  // larger dividend, slower
@@ -630,12 +844,12 @@ function checkPointerControls() {
     if ( moveForward || moveBackward ) velocity.z -= direction.z * 400.0 * delta;
     if ( moveLeft || moveRight ) velocity.x -= direction.x * 400.0 * delta;
 
-    // if ( onObject === true ) {
+    if ( onObject === true ) {
 
-    //   velocity.y = Math.max( 0, velocity.y );
-    //   canJump = true;
+      velocity.y = Math.max( 0, velocity.y * 2 );
+      canJump = true;
 
-    // }
+    }
 
     pointerControls.moveRight( - velocity.x * delta );
     pointerControls.moveForward( - velocity.z * delta );
@@ -654,6 +868,7 @@ function checkPointerControls() {
 
   prevTime = time;
 }
+
 
 function onLoadAnimation(model, data) {
  // console.log("load animated models: ", data)
@@ -685,6 +900,38 @@ function onLoadAnimation(model, data) {
    model.scene.zone = data.zone
  }
 
- mainScene.add(model.scene)
+ scene.add(model.scene)
 
 }
+
+const physicalMat = new THREE.MeshPhysicalMaterial({
+  color: 0xff00ff,
+  emissive: 0x00ffff,
+  clearcoat: 1.0,
+  metalness: 1.0,
+  roughness: 0.0,
+  reflectivity: 1.0,
+  // envMap: cubeRenderTarget2.texture,
+  // alphaMap: cubeRenderTarget2.texture,
+  // map: cubeRenderTarget2.texture,
+  combine: THREE.MultiplyOperation,
+  side: THREE.DoubleSide,
+  opacity: 0.5,
+  specularColor: 0xff0000
+})
+
+
+const testMat = new THREE.MeshPhysicalMaterial({
+  color: 0xffffff,
+  metalness: 0.9,
+  roughness: 0.0,
+  // alphaMap: texture,
+  // envMap: texture,
+  envMapIntensity: 1.0,
+  transmission: 0.58, // use material.transmission for glass materials
+  specularIntensity: 1.0,
+  specularColor: 0xffff00,
+  opacity: 0.6,
+  side: THREE.DoubleSide,
+  transparent: true
+})

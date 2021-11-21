@@ -8,8 +8,6 @@ export function getRandomInt(min, max) {
  return Math.floor(Math.random() * (max - min) + min); //The maximum is exclusive and the minimum is inclusive
 }
 
-let stepLimit = 500
-
 export function updateStepNum() {
   if(window.ZONE === "GARDEN") {
    window.ACC_STEPS++;
@@ -17,7 +15,7 @@ export function updateStepNum() {
    window.ACC_STEPS--;
   }
 
-  let per = Math.floor((window.ACC_STEPS / stepLimit) * 100 )
+  let per = Math.floor((window.ACC_STEPS / window.STEP_LIMIT) * 100 )
   updateStepProgress(per)
 }
 

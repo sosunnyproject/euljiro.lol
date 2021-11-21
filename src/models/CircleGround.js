@@ -17,7 +17,7 @@ export default class CircleGround extends THREE.Mesh {
 
  computeGeometry() {
   this.geom.rotateX(Math.PI/2)
-  this.geom.translate(this.center.x, this.center.y, this.center.z)
+  this.geom.translate(this.center.x, this.center.y-5, this.center.z)
 
   this.geom.computeVertexNormals();
   this.geom.computeBoundingSphere();

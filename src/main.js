@@ -47,10 +47,10 @@ let cubeRenderTarget2, cubeCamera2;
 const postprocessing = {};
 
 // Zones
-let stepLimit = 500
+window.STEP_LIMIT = 200
 window.ZONE = "ONE"
 window.DYNAMIC_LOADED = false;
-window.ACC_STEPS = stepLimit;
+window.ACC_STEPS = window.STEP_LIMIT;
 
 
 // Clock: autoStart, elapsedTime, oldTime, running, startTime
@@ -339,9 +339,9 @@ function tick() {
     if(obj.name.includes("shader")) {
       obj.material.uniforms.u_time.value = time * 0.0002; 
     }
-    if(!rayObjects.length && obj.name.includes("dome")){
-      obj.material.uniforms.u_alpha.value -= time * 0.001;
-    }
+    // if(!rayObjects.length && obj.name.includes("dome")){
+    //   obj.material.uniforms.u_alpha.value -= time * 0.001;
+    // }
   })
 
   render();
@@ -369,7 +369,7 @@ function checkCameraLoadAssets(currentPos)  {
 
   const centerX1 = ZONE_POS.ONE.x
   const centerZ1 = ZONE_POS.ONE.z
-  const radius1 = 600
+  const radius1 = 610
 
   const dx1 = Math.abs(currentPos.x - centerX1)
   const dz1 = Math.abs(currentPos.z - centerZ1)
@@ -393,7 +393,7 @@ function checkCameraLoadAssets(currentPos)  {
 
   const centerX2 = ZONE_POS.TWO.x
   const centerZ2 = ZONE_POS.TWO.z
-  const radius2 = 600
+  const radius2 = 610
 
   const dx2 = Math.abs(currentPos.x - centerX2)
   const dz2 = Math.abs(currentPos.z - centerZ2)
@@ -407,7 +407,7 @@ function checkCameraLoadAssets(currentPos)  {
 
   const centerX3 = ZONE_POS.THREE.x
   const centerZ3 = ZONE_POS.THREE.z
-  const radius3 = 600
+  const radius3 = 610
 
   const dx3 = Math.abs(currentPos.x - centerX3)
   const dz3 = Math.abs(currentPos.z - centerZ3)
@@ -422,7 +422,6 @@ function checkCameraLoadAssets(currentPos)  {
   // GARDEN
   if(inZone1 + inZone2 + inZone3 == 0) {
     window.ZONE = "GARDEN"
-    console.log("garden: ", window.ZONE)
   } 
 
 }
@@ -430,17 +429,33 @@ function checkCameraLoadAssets(currentPos)  {
 function loadZones(zone) {
   window.DYNAMIC_LOADED = false;
 
+  if(window.DYNAMIC_LOADED) return;
+
   switch(zone) {
     case "ONE":
       loadZoneOneGLB(scene)
+      updateFogDome(zone)
       break;
+
     case "TWO":
       loadZoneTwoGLB(scene)
+      updateFogDome(zone)
       break;
+
     case "THREE":
       loadZoneThreeGLB(scene)
+      updateFogDome(zone)
       break;
   }
+}
+
+function updateFogDome(zone) {
+  if(!window.FOG_DOME) return;
+
+  window.FOG_DOME?.position.set(ZONE_POS[zone].x, 100, ZONE_POS[zone].z)
+  window.FOG_DOME.material.uniforms.u_alpha.value = 1.0;
+
+  rayObjects.push(window.FOG_DOME)
 }
 
 function init() {
@@ -457,12 +472,13 @@ function init() {
 }
 
 function disableRaycastIntersect() {
-  rayObjects.forEach(obj => {
-    scene.remove(obj)
-  })  
+  console.log("raycast disabled")
+
+  console.log(window.FOG_DOME.material.uniforms.u_alpha.value)
+  window.FOG_DOME.material.uniforms.u_alpha.value = 0;
+
   rayObjects = []
 
-  console.log("raycast disabled")
   window.DYNAMIC_LOADED = false;
 }
 
@@ -484,11 +500,11 @@ function main() {
 
   loadDefaultEnvironment()
 
-  // testRenderTarget()
-
   drawDomeWall()
 
   /*
+  testRenderTarget()
+
   initPostprocessing();
 
   const effectController = {
@@ -512,7 +528,7 @@ function drawDomeWall() {
       uniforms: {
         u_time: { value: 1.0 },
         u_resolution: { value: new THREE.Vector2(0.0, 0.0) },
-        u_alpha: { value: 0.5 }
+        u_alpha: { value: 0.8 }
       },
       vertexShader: vertexShader,
       fragmentShader: fogFragment,
@@ -520,27 +536,24 @@ function drawDomeWall() {
       transparent: true
     });  
 
-    // const ground3Mat = new THREE.MeshPhongMaterial({ color: 0x77777, side: THREE.DoubleSide });
-
-    // const domeGeo = new THREE.SphereGeometry( 600, 600, 600 );
-    // domeGeo.rotateY(-Math.PI)
-    // domeGeo.translate(currentZoneCenter.x, currentZoneCenter.y, currentZoneCenter.z)
-    // domeGeo.computeBoundingSphere();
-
     const points = [];
     for ( let i = 0; i < 10; i ++ ) {
       points.push( new THREE.Vector2( Math.sin( i * 0.2 ) * 10 + 2, ( i - 5 ) * 1 ) );
     }
-    const latheTop = new THREE.LatheGeometry( points, 15, 0, 2 * Math.PI );
+    const latheTop = new THREE.LatheGeometry( points, 35, 0, 2 * Math.PI );
 
     const domeWall = new THREE.Mesh(latheTop, fogShader)
     domeWall.name = "shader dome"
     domeWall.rotateX(Math.PI)
     domeWall.scale.set(60, 30, 60)
     domeWall.position.set(750, 100, -750)
-    scene.add( domeWall );
 
+    // const hasDome = scene.children.find(obj => obj.name==="shader dome")
+    window.FOG_DOME = domeWall;
+
+    scene.add( domeWall );
     rayObjects.push(domeWall)
+
 }
 
 function loadDefaultEnvironment() {
@@ -599,7 +612,7 @@ function loadDefaultEnvironment() {
     fragmentShader: turbulenceFragment, 
     side: THREE.DoubleSide
   } ); 
-  const ground4 = new CircleGround(ZONE_POS["GARDEN"], 1000, parkShader, "shader park")
+  const ground4 = new CircleGround(ZONE_POS["GARDEN"], 3000, parkShader, "shader park")
   scene.add(ground4)
 
   window.GROUNDS = [ground1.geom, ground2.geom, ground3.geom, ground4.geom];
@@ -616,6 +629,29 @@ function loadDefaultEnvironment() {
 
 }
 
+function goBack(target) {
+
+  if(target) {
+      console.log(target)
+      camera.position.x = target.x;
+      camera.position.z = target.z ;
+      camera.lookAt(target.lx, 15, target.lz)
+  } else {
+    canJump = true;
+    const jumpCode = {code: "Space"}
+    onKeyDown(jumpCode)
+    velocity.y += 100 
+
+    setTimeout(function () {
+      camera.position.x = ZONE_RESET_POS[window.ZONE].x;
+      camera.position.z = ZONE_RESET_POS[window.ZONE].z;
+      camera.lookAt(ZONE_POS[window.ZONE].x, 15, ZONE_POS[window.ZONE].z)
+    }, 10)
+  }
+ 
+}
+
+
 function checkPointerControls() {
   const time = performance.now();
   const currentPosition = pointerControls.getObject().position
@@ -623,9 +659,6 @@ function checkPointerControls() {
   if ( pointerControls.isLocked === true ) {
 
     raycaster.ray.origin.copy(currentPosition);
-    // raycaster.ray.origin.y += 1;
-    // raycaster.ray.origin.x += 2;
-    // raycaster.ray.origin.z += 2
 
     const intersections = raycaster.intersectObjects( rayObjects, false );
 
@@ -659,26 +692,10 @@ function checkPointerControls() {
           console.log("contains? ", insideZone)
 
           goBack();
-          // camera.position.x = 1100;
-          // camera.position.z = -700;
-          // camera.lookAt(750, 15, -750)
         }
       }
     // }
 
-    function goBack() {
-      console.log('jump')
-      canJump = true;
-      const jumpCode = {code: "Space"}
-      onKeyDown(jumpCode)
-      velocity.y += 300 
-
-      setTimeout(function () {
-        camera.position.x = ZONE_RESET_POS[window.ZONE].x;
-        camera.position.z = ZONE_RESET_POS[window.ZONE].z;
-        camera.lookAt(ZONE_POS[window.ZONE].x, 15, ZONE_POS[window.ZONE].z)
-      }, 10)
-    }
 
     // control speed of movement
     const delta = ( time - prevTime ) / 300;  // larger dividend, slower
@@ -723,15 +740,23 @@ function checkPointerControls() {
 // including animation loop
 function render() {
 
+  const gardenTarget = {
+    x: 100, z: 0,
+    lx: 0, lz: 0
+  }
+
   if(window.ZONE !== "GARDEN") {
-    if(window.ACC_STEPS <= 0 ) {  // move to garden
+    // console.log(window.ACC_STEPS, window.ZONE)
+  
+    if(window.ACC_STEPS <= -5 ) {  // force move to garden
+      goBack(gardenTarget)
       disableRaycastIntersect()
     }
 
-  } else if (window.ACC_STEPS >= stepLimit ) {
-    disableRaycastIntersect()
-    
-  }
+  } 
+  // else if (window.ACC_STEPS >= stepLimit ) {  // open to zone 1, 2, 3
+  //   disableRaycastIntersect()
+  // }
 
   const canvas = renderer.domElement;
   camera.aspect = canvas.clientWidth / canvas.clientHeight;
@@ -785,36 +810,6 @@ function initStats() {
   document.querySelector("#stats-output").append(stats.domElement);
   return stats;
 }
-
-const physicalMat = new THREE.MeshPhysicalMaterial({
-  color: 0xff00ff,
-  emissive: 0x00ffff,
-  clearcoat: 1.0,
-  metalness: 1.0,
-  roughness: 0.0,
-  reflectivity: 1.0,
-  // envMap: cubeRenderTarget2.texture,
-  // alphaMap: cubeRenderTarget2.texture,
-  // map: cubeRenderTarget2.texture,
-  side: THREE.DoubleSide,
-  opacity: 0.5,
-})
-
-
-const testMat = new THREE.MeshPhysicalMaterial({
-  color: 0xffffff,
-  metalness: 0.9,
-  roughness: 0.0,
-  // alphaMap: texture,
-  // envMap: texture,
-  envMapIntensity: 1.0,
-  transmission: 0.58, // use material.transmission for glass materials
-  specularIntensity: 1.0,
-  specularColor: 0xffff00,
-  opacity: 0.6,
-  side: THREE.DoubleSide,
-  transparent: true
-})
 
 function testRenderTarget() {
   

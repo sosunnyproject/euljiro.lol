@@ -5,6 +5,9 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/examples/jsm/loaders/dracoloader';
 import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls.js';
 import { FontLoader } from 'three/examples/jsm/loaders/FontLoader';
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
+import { BokehPass } from 'three/examples/jsm/postprocessing/BokehPass.js';
 
 import Stats from 'three/examples/jsm/libs/stats.module';
 import { WEBGL } from 'three/examples/jsm/WebGL';
@@ -12,22 +15,23 @@ import { WEBGL } from 'three/examples/jsm/WebGL';
 import { Loader } from 'three';
 import { statSync } from 'fs';
 import { getRandomArbitrary } from './utils.js';
-import { ZONE_NAMES, ZONE_POS } from './globalConstants.js';
+import { ZONE_NAMES, ZONE_POS, ZONE_RESET_POS } from './globalConstants.js';
 
 // import model urls
-import { DISTRICT_ONE_GLB, DISTRICT_TWO_GLB, MONUMENTS_GLB } from './models/glbLoader.js';
+import { MONUMENTS_GLB } from './models/glbLoader.js';
 
 import { generateGround } from './models/ground.js';
 import vertexShader from './shaders/vertex.glsl.js';
 import fogFragment from './shaders/fog.frag.js';
+import coffeeRiverFragment from './shaders/coffee.frag.js';
+import turbulenceFragment from './shaders/turbulence.frag.js';
 import metallicFrag from './shaders/metallic.frag.js';
-import { updateStepProgress, updateLoadingProgress } from './utils';
-import { loadAssets } from './loadAssets.js';
+import { updateStepProgress, updateLoadingProgress, updateStepNum } from './utils';
+import { loadAssets, loadZoneOneGLB, loadZoneThreeGLB, loadZoneTwoGLB, onLoadAnimation } from './loadAssets.js';
+import CircleGround from './models/CircleGround'
 
 let stats, camera, renderer, pointerControls;
 
-let accSteps = 0;
-let prevDistrictIndex = 1;
 let prevTime = performance.now();
 const velocity = new THREE.Vector3();
 const direction = new THREE.Vector3();
@@ -40,17 +44,20 @@ let raycaster = new THREE.Raycaster(rayOrigin, rayDirection, 0, 10);
 // raycaster.set(rayOrigin, rayDirection)
 let rayObjects = []
 let cubeRenderTarget2, cubeCamera2;
+const postprocessing = {};
 
 // Zones
+let stepLimit = 500
 window.ZONE = "ONE"
-let dynamicLoaded = false;
-let domeGeo;
+window.DYNAMIC_LOADED = false;
+window.ACC_STEPS = stepLimit;
+
 
 // Clock: autoStart, elapsedTime, oldTime, running, startTime
 var clock = new THREE.Clock();
 
 // Loading Manager for 3d models and animation
-window.mixers = [];
+window.MIXERS = [];
 const loadManager = new THREE.LoadingManager();
 loadManager.onLoad = init;
 const gltfLoader = new GLTFLoader(loadManager);
@@ -78,17 +85,17 @@ const params = {
   fov: 20,
   aspect: 2.5, 
   zNear: 10,
-  zFar: 4000
+  zFar: 6000
 }
 function makeCamera() {
   const { fov, aspect, zNear, zFar} = params;  // the canvas default
   return new THREE.PerspectiveCamera(fov, aspect, zNear, zFar);
 }
 camera = makeCamera();
-camera.position.x = 800;
-camera.position.y = 1;
+camera.position.x = 1300;
+camera.position.y = 2;
 camera.position.z = -800;
-camera.lookAt(new THREE.Vector3(0, 0, 0));
+camera.lookAt(new THREE.Vector3(750, 0, -750));
 
 // Scene
 const scene = new THREE.Scene()
@@ -122,7 +129,7 @@ pointerControls.addEventListener('change', function () {
   let currentPos = pointerControls.getObject().position
   let currentRot = pointerControls.getObject().rotation  
 
-  checkCameraPosition(currentPos)
+  checkCameraLoadAssets(currentPos)
     
 })
 
@@ -146,10 +153,7 @@ pointerControls.addEventListener( 'unlock', function () {
 
 // Key Controls
 const onKeyDown = function ( event ) {
-  accSteps++;
-  
-  let per = Math.floor((accSteps / 1000) * 100 )
-  updateStepProgress(per)
+  updateStepNum()
 
   switch ( event.code ) {
 
@@ -174,7 +178,7 @@ const onKeyDown = function ( event ) {
       break;
 
     case 'Space':
-      if ( canJump === true ) velocity.y += 350;
+      if ( canJump === true ) velocity.y += 650;
       canJump = false;
       break;
   }
@@ -215,7 +219,7 @@ let moveForward = false;
 let moveBackward = false;
 let moveLeft = false;
 let moveRight = false;
-let canJump = false;
+let canJump = true;
 
 window.addEventListener("gamepadconnected", function(e) {
   console.log("Gamepad connected at index %d: %s. %d buttons, %d axes.",
@@ -234,9 +238,8 @@ function xboxKeyPressed (gamepad) {
     return
   }
 
-  
-  let per = Math.floor((accSteps / 1000) * 100 )
-  updateStepProgress(per)
+  // let per = Math.floor((window.ACC_STEPS / stepLimit) * 100 )
+  // updateStepProgress(per)
 
   const buttons = gamepad.buttons;
 
@@ -248,28 +251,28 @@ function xboxKeyPressed (gamepad) {
 
   if(buttons[12].touched) {  // up
     moveForward = true;
-    accSteps++;
+    updateStepNum()
   } 
   if(!buttons[12].touched) {
     moveForward = false;
   }
   if(buttons[15].touched) {
     moveRight = true;
-    accSteps++;
+    updateStepNum()
   }
   if(!buttons[15].touched){
     moveRight = false;
   }
   if(buttons[13].touched) {
     moveBackward = true;
-    accSteps++;
+    updateStepNum()
   }
   if(!buttons[13].touched){
     moveBackward = false;
   }
   if(buttons[14].touched) {
     moveLeft = true;
-    accSteps++;
+    updateStepNum()
   }
   if(!buttons[14].touched){
     moveLeft = false;
@@ -349,80 +352,95 @@ function tick() {
 };
 
 window.addEventListener('click', function () {
-  console.log("check position:", pointerControls.getObject().position) 
-  console.log("check rotation:", pointerControls.getObject().rotation)
+  console.log(scene.children)
+  // console.log("check position:", pointerControls.getObject().position) 
+  // console.log("check rotation:", pointerControls.getObject().rotation)
 })
 
-function checkCameraPosition(currentPos)  {
- // console.log(currentPos)
+function checkCameraLoadAssets(currentPos)  {
 
  // zone 1
- if(currentPos.x > 600 && currentPos.x < 850) {
-  if(currentPos.z < -600 && currentPos.z > -850) {
+//  if(currentPos.x > ZONE_POS && currentPos.x < 850) {
+//     if(currentPos.z < -600 && currentPos.z > -850) {
+//       window.ZONE = "ONE"
+//       loadZones()
+//     }
+//   }
+
+  const centerX1 = ZONE_POS.ONE.x
+  const centerZ1 = ZONE_POS.ONE.z
+  const radius1 = 600
+
+  const dx1 = Math.abs(currentPos.x - centerX1)
+  const dz1 = Math.abs(currentPos.z - centerZ1)
+
+  let inZone1 = dx1*dx1 + dz1*dz1 <= radius1*radius1
+  // zone 1
+  // let inZone1 = window.GROUNDS[0]?.boundingSphere?.containsPoint(currentPos)
+  if(inZone1) {
     window.ZONE = "ONE"
-    loadZones()
+    loadZones(window.ZONE)
+    return;
   }
-}
 
  // zone 2
- if(currentPos.x < -600 && currentPos.x > -850) {
-   if(currentPos.z < -600 && currentPos.z > -850) {
-     window.ZONE = "TWO"
-     loadZones()
-   }
- } 
-}
-function loadZones() {
-  dynamicLoaded = false;
+//  if(currentPos.x < -600 && currentPos.x > -850) {
+//    if(currentPos.z < -600 && currentPos.z > -850) {
+//      window.ZONE = "TWO"
+//      loadZones()
+//    }
+//  }
 
-  switch(window.ZONE) {
-    case "ONE":
-      if(!dynamicLoaded) loadZoneOne()
-      break;
-    case "TWO":
-      if(!dynamicLoaded) loadZoneTwo()
-      break;
-    // case "THREE":
-    //   if(!dynamicLoaded) loadZoneTHREE()
-    //   break;
-  } 
-}
+  const centerX2 = ZONE_POS.TWO.x
+  const centerZ2 = ZONE_POS.TWO.z
+  const radius2 = 600
 
-// including animation loop
-function render() {
+  const dx2 = Math.abs(currentPos.x - centerX2)
+  const dz2 = Math.abs(currentPos.z - centerZ2)
 
-  if(accSteps > 500) {
-    initSteps()
-    disableRaycastIntersect()
-    // switchDistrictBySteps()
+  let inZone2 = dx2*dx2 + dz2*dz2 <= radius2*radius2
+  if(inZone2) {
+    window.ZONE = "TWO"
+    loadZones(window.ZONE)
+    return;
   }
 
-  const canvas = renderer.domElement;
-  camera.aspect = canvas.clientWidth / canvas.clientHeight;
-  camera.updateProjectionMatrix();     
+  const centerX3 = ZONE_POS.THREE.x
+  const centerZ3 = ZONE_POS.THREE.z
+  const radius3 = 600
 
-  var delta = clock.getDelta();
+  const dx3 = Math.abs(currentPos.x - centerX3)
+  const dz3 = Math.abs(currentPos.z - centerZ3)
 
-  // if(currentScene.name === "D_TWO") {
-    if(window.mixers.length > 0) {
-      window.mixers.forEach(mixer => mixer.update(delta))
-      // mixer.update(delta);
-    }  
-  // }
+  let inZone3 = dx3*dx3 + dz3*dz3 <= radius3*radius3
+  if(inZone3) {
+    window.ZONE = "THREE"
+    loadZones(window.ZONE)
+    return;
+  }
 
-  // cubeCamera2.update( renderer, scene );  // render target
+  // GARDEN
+  if(inZone1 + inZone2 + inZone3 == 0) {
+    window.ZONE = "GARDEN"
+    console.log("garden: ", window.ZONE)
+  } 
 
-  renderer.autoClear = true;
-  renderer.clear();
-  renderer.render( scene, camera );
-  stats.update()
 }
 
-function initSteps() {
-  // Init Steps
-  console.log("Init steps")
-  accSteps = 0;
-  updateStepProgress(0);
+function loadZones(zone) {
+  window.DYNAMIC_LOADED = false;
+
+  switch(zone) {
+    case "ONE":
+      loadZoneOneGLB(scene)
+      break;
+    case "TWO":
+      loadZoneTwoGLB(scene)
+      break;
+    case "THREE":
+      loadZoneThreeGLB(scene)
+      break;
+  }
 }
 
 function init() {
@@ -438,22 +456,19 @@ function init() {
   }
 }
 
-function initStats() {
-  stats = new Stats();
-  stats.setMode(0);
-  stats.domElement.style.position = 'absolute';
-  stats.domElement.style.left = '0px';
-  stats.domElement.style.top = '0px';
-  document.querySelector("#stats-output").append(stats.domElement);
-  return stats;
-}
-
 function disableRaycastIntersect() {
+  rayObjects.forEach(obj => {
+    scene.remove(obj)
+  })  
   rayObjects = []
+
   console.log("raycast disabled")
+  window.DYNAMIC_LOADED = false;
 }
 
 function main() {
+  renderer.autoClear = true;
+
   // const pointLight1 = new THREE.PointLight( 0xffffff );
   // pointLight1.position.set(700, 10, -600 );
   // pointLight1.castShadow = false;
@@ -467,7 +482,70 @@ function main() {
   // const ambientLight = new THREE.AmbientLight( 0x404040 ); // soft white light
   // scene.add(ambientLight)
 
-  // Object
+  loadDefaultEnvironment()
+
+  // testRenderTarget()
+
+  drawDomeWall()
+
+  /*
+  initPostprocessing();
+
+  const effectController = {
+    focus: 500.0,
+    aperture: 5,
+    maxblur: 0.01
+  };
+  postprocessing.bokeh.uniforms[ "focus" ].value = effectController.focus;
+  postprocessing.bokeh.uniforms[ "aperture" ].value = effectController.aperture * 0.00001;
+  postprocessing.bokeh.uniforms[ "maxblur" ].value = effectController.maxblur;
+
+  */
+}
+
+function drawDomeWall() {
+
+   const currentZoneCenter = ZONE_POS[window.ZONE]
+
+   // walls
+    const fogShader = new THREE.ShaderMaterial( {
+      uniforms: {
+        u_time: { value: 1.0 },
+        u_resolution: { value: new THREE.Vector2(0.0, 0.0) },
+        u_alpha: { value: 0.5 }
+      },
+      vertexShader: vertexShader,
+      fragmentShader: fogFragment,
+      side: THREE.BackSide,
+      transparent: true
+    });  
+
+    // const ground3Mat = new THREE.MeshPhongMaterial({ color: 0x77777, side: THREE.DoubleSide });
+
+    // const domeGeo = new THREE.SphereGeometry( 600, 600, 600 );
+    // domeGeo.rotateY(-Math.PI)
+    // domeGeo.translate(currentZoneCenter.x, currentZoneCenter.y, currentZoneCenter.z)
+    // domeGeo.computeBoundingSphere();
+
+    const points = [];
+    for ( let i = 0; i < 10; i ++ ) {
+      points.push( new THREE.Vector2( Math.sin( i * 0.2 ) * 10 + 2, ( i - 5 ) * 1 ) );
+    }
+    const latheTop = new THREE.LatheGeometry( points, 15, 0, 2 * Math.PI );
+
+    const domeWall = new THREE.Mesh(latheTop, fogShader)
+    domeWall.name = "shader dome"
+    domeWall.rotateX(Math.PI)
+    domeWall.scale.set(60, 30, 60)
+    domeWall.position.set(750, 100, -750)
+    scene.add( domeWall );
+
+    rayObjects.push(domeWall)
+}
+
+function loadDefaultEnvironment() {
+
+  // Center Object
   const geometry = new THREE.BoxGeometry(50, 50, 50)
   const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 })
   const mesh = new THREE.Mesh(geometry, material)
@@ -475,11 +553,7 @@ function main() {
 
   scene.add(mesh)
 
-  // grounds
-  const ground1geom = new THREE.CircleGeometry(600, 600);
-  ground1geom.computeVertexNormals();
-
-  // shader material
+  // ZONE 1 GROUND
   const metallicShader = new THREE.ShaderMaterial({
     uniforms: {
       u_time: { value: 1.0 },
@@ -489,9 +563,261 @@ function main() {
     vertexShader: vertexShader,
     fragmentShader: metallicFrag,
     side: THREE.DoubleSide,
+      side: THREE.DoubleSide,  
+    side: THREE.DoubleSide,
     transparent: true
   })
+  const ground1 = new CircleGround(ZONE_POS["ONE"], 600, metallicShader, "shader ground")
+  scene.add(ground1);
 
+  // ZONE 2 GROUND
+  const coffeeShader = new THREE.ShaderMaterial( {
+    uniforms: {
+      u_time: { value: 1.0 },
+      u_resolution: { value: new THREE.Vector2() }
+    },
+      vertexShader: vertexShader,
+      fragmentShader: coffeeRiverFragment,
+      side: THREE.DoubleSide
+  } );
+
+  const ground2 = new CircleGround(ZONE_POS["TWO"], 600, coffeeShader, "shader ground");
+  scene.add(ground2)
+
+  // ZONE 3 GROUND
+  const ground3Mat = new THREE.MeshPhongMaterial({ color: 0x77777, side: THREE.DoubleSide });
+  const ground3 = new CircleGround(ZONE_POS["THREE"], 600, ground3Mat, "ground");;
+  scene.add(ground3)
+
+  // ZONE PARK GROUND
+  const parkShader = new THREE.ShaderMaterial( {
+    uniforms: {
+      u_time: { value: 1.0 },
+      u_resolution: { value: new THREE.Vector2() }
+    },
+    vertexShader: vertexShader,  
+    fragmentShader: turbulenceFragment, 
+    side: THREE.DoubleSide
+  } ); 
+  const ground4 = new CircleGround(ZONE_POS["GARDEN"], 1000, parkShader, "shader park")
+  scene.add(ground4)
+
+  window.GROUNDS = [ground1.geom, ground2.geom, ground3.geom, ground4.geom];
+
+  // monument gltf
+  for (let i = 0; i < MONUMENTS_GLB.length; i++) {
+    const monuments = MONUMENTS_GLB[i]
+    try {
+      onLoadAnimation(monuments.gltf, monuments, scene)
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
+}
+
+function checkPointerControls() {
+  const time = performance.now();
+  const currentPosition = pointerControls.getObject().position
+
+  if ( pointerControls.isLocked === true ) {
+
+    raycaster.ray.origin.copy(currentPosition);
+    // raycaster.ray.origin.y += 1;
+    // raycaster.ray.origin.x += 2;
+    // raycaster.ray.origin.z += 2
+
+    const intersections = raycaster.intersectObjects( rayObjects, false );
+
+    const onObject = intersections.length > 0;
+
+    // if(onObject){
+    //   for ( let i = 0; i < intersections.length; i ++ ) {
+    //     // console.log("INTERSECT?? ", intersections[i].object.name)
+    //     // intersections[ i ].object.material.wireframe = true;
+    //     console.log('intersect')
+    //     goBack()
+    //   }
+    // } 
+    // else {
+      if(rayObjects.length && window.GROUNDS.length > 0 && window.ZONE){
+        // let contains = window.GROUNDS[0]?.boundingSphere?.containsPoint(camera.position)  // or ground's geom
+        
+        const centerX1 = ZONE_POS[window.ZONE].x
+        const centerZ1 = ZONE_POS[window.ZONE].z
+        const radius1 = 600
+
+        const dx1 = Math.abs(currentPosition.x - centerX1)
+        const dz1 = Math.abs(currentPosition.z - centerZ1)
+
+        let insideZone = dx1*dx1 + dz1*dz1 <= radius1*radius1
+
+        // console.log(contains)
+        if(insideZone === undefined || null) return
+
+        if(!insideZone) {
+          console.log("contains? ", insideZone)
+
+          goBack();
+          // camera.position.x = 1100;
+          // camera.position.z = -700;
+          // camera.lookAt(750, 15, -750)
+        }
+      }
+    // }
+
+    function goBack() {
+      console.log('jump')
+      canJump = true;
+      const jumpCode = {code: "Space"}
+      onKeyDown(jumpCode)
+      velocity.y += 300 
+
+      setTimeout(function () {
+        camera.position.x = ZONE_RESET_POS[window.ZONE].x;
+        camera.position.z = ZONE_RESET_POS[window.ZONE].z;
+        camera.lookAt(ZONE_POS[window.ZONE].x, 15, ZONE_POS[window.ZONE].z)
+      }, 10)
+    }
+
+    // control speed of movement
+    const delta = ( time - prevTime ) / 300;  // larger dividend, slower
+
+    velocity.x -= velocity.x * 10.0 * delta;
+    velocity.z -= velocity.z * 10.0 * delta;
+
+    velocity.y -= 9.8 * 100.0 * delta;
+
+    direction.z = Number( moveForward ) - Number( moveBackward );
+    direction.x = Number( moveRight ) - Number( moveLeft );
+    direction.normalize(); // this ensures consistent movements in all directions
+
+    if ( moveForward || moveBackward ) velocity.z -= direction.z * 400.0 * delta;
+    if ( moveLeft || moveRight ) velocity.x -= direction.x * 400.0 * delta;
+
+    if ( onObject === true ) {
+
+      velocity.y = Math.max( 0, velocity.y);
+      canJump = true;
+
+    }
+
+    pointerControls.moveRight( - velocity.x * delta );
+    pointerControls.moveForward( - velocity.z * delta );
+
+    pointerControls.getObject().position.y += ( velocity.y * delta ); // new behavior
+
+    if ( pointerControls.getObject().position.y < 10 ) {
+
+      velocity.y = 0;
+      pointerControls.getObject().position.y = 5;
+
+      canJump = true;
+
+    }
+  }
+
+  prevTime = time;
+}
+
+// including animation loop
+function render() {
+
+  if(window.ZONE !== "GARDEN") {
+    if(window.ACC_STEPS <= 0 ) {  // move to garden
+      disableRaycastIntersect()
+    }
+
+  } else if (window.ACC_STEPS >= stepLimit ) {
+    disableRaycastIntersect()
+    
+  }
+
+  const canvas = renderer.domElement;
+  camera.aspect = canvas.clientWidth / canvas.clientHeight;
+  camera.updateProjectionMatrix();     
+
+  var delta = clock.getDelta();
+
+  if(window.MIXERS.length > 0) {
+    window.MIXERS.forEach(mixer => mixer.update(delta))
+    // mixer.update(delta);
+  }  
+
+  // cubeCamera2.update( renderer, scene );  // render target
+
+  // postprocessing.composer.render( 0.9 );
+
+  renderer.clear();
+  renderer.render( scene, camera );
+  stats.update()
+}
+
+function initPostprocessing() {
+
+  const renderPass = new RenderPass( scene, camera );
+
+  const bokehPass = new BokehPass( scene, camera, {
+    focus: 1.0,
+    aperture: 0.025,
+    maxblur: 0.01,
+
+    width: window.innerWidth,
+    height: window.innerHeight
+  } );
+
+  const composer = new EffectComposer( renderer );
+
+  composer.addPass( renderPass );
+  composer.addPass( bokehPass );
+
+  postprocessing.composer = composer;
+  postprocessing.bokeh = bokehPass;
+}
+
+
+function initStats() {
+  stats = new Stats();
+  stats.setMode(0);
+  stats.domElement.style.position = 'absolute';
+  stats.domElement.style.left = '0px';
+  stats.domElement.style.top = '0px';
+  document.querySelector("#stats-output").append(stats.domElement);
+  return stats;
+}
+
+const physicalMat = new THREE.MeshPhysicalMaterial({
+  color: 0xff00ff,
+  emissive: 0x00ffff,
+  clearcoat: 1.0,
+  metalness: 1.0,
+  roughness: 0.0,
+  reflectivity: 1.0,
+  // envMap: cubeRenderTarget2.texture,
+  // alphaMap: cubeRenderTarget2.texture,
+  // map: cubeRenderTarget2.texture,
+  side: THREE.DoubleSide,
+  opacity: 0.5,
+})
+
+
+const testMat = new THREE.MeshPhysicalMaterial({
+  color: 0xffffff,
+  metalness: 0.9,
+  roughness: 0.0,
+  // alphaMap: texture,
+  // envMap: texture,
+  envMapIntensity: 1.0,
+  transmission: 0.58, // use material.transmission for glass materials
+  specularIntensity: 1.0,
+  specularColor: 0xffff00,
+  opacity: 0.6,
+  side: THREE.DoubleSide,
+  transparent: true
+})
+
+function testRenderTarget() {
+  
   // rtt test
   cubeRenderTarget2 = new THREE.WebGLCubeRenderTarget( 256, {
     format: THREE.RGBFormat,
@@ -520,293 +846,4 @@ function main() {
     envMap: cubeRenderTarget2.texture,
     combine: THREE.MultiplyOperation,
   })
-  
-  const ground1 = new THREE.Mesh(ground1geom, metallicShader);
-  ground1.name = "shader ground";
-  ground1.rotateX(Math.PI/2)
-
-  //  const ground1 = generateGround();
-  ground1.position.set(750, -20, -750)
-  scene.add(ground1);
-
- const ground2 = generateGround();
- ground2.position.set(-750, -10, -750)
- ground2.name = "ground2"
- scene.add(ground2)
-
- const ground3 = generateGround();
- ground3.position.set(0, -10, 750)
- ground3.name = "ground3"
- scene.add(ground3)
-
- // walls
-  {
-    const geometry = new THREE.PlaneGeometry(600, 1000, 1000, 100 );
-    const fogShader = new THREE.ShaderMaterial( {
-      uniforms: {
-        u_time: { value: 1.0 },
-        u_resolution: { value: new THREE.Vector2(0.0, 0.0) },
-        u_alpha: { value: 0.5 }
-      },
-      vertexShader: vertexShader,
-      fragmentShader: fogFragment,
-      side: THREE.BackSide,
-      transparent: true
-    } );  
-
-    const materialBack = new THREE.MeshPhongMaterial({ 
-      color: 0x808080, 
-      side: THREE.BackSide,  
-      opacity: 0.7,
-      transparent: true
-    });
-    const wall = new THREE.Mesh( geometry, materialBack );
-    wall.position.set(750, 300, -500)
-    // cube.rotateX(Math.PI/2)
-    wall.name = "shader"
-    // scene.add( wall );
-
-    domeGeo = new THREE.SphereGeometry( 600, 600, 600 );
-    domeGeo.rotateY(-Math.PI/3)
-    domeGeo.translate(750, 0, -750)
-    domeGeo.computeBoundingSphere();
-
-    const domeWall = new THREE.Mesh(domeGeo, fogShader)
-    domeWall.name = "shader dome"
-    scene.add( domeWall );
-
-    // box helper
-    
-    const materialFront = new THREE.MeshPhongMaterial({ 
-      color: 0x808080, 
-      side: THREE.DoubleSide,  
-      opacity: 0.7,
-      transparent: true
-    });
-    const wall2 = new THREE.Mesh( geometry, materialFront );
-    wall2.name = "wall2"
-    wall2.position.set(500, 300, -750)
-    wall2.rotateY(Math.PI/2)
-    // scene.add( wall2 );
-
-    rayObjects.push(domeWall)
-  }
-
- // monument gltf
- for (let i = 0; i < MONUMENTS_GLB.length; i++) {
-   const monuments = MONUMENTS_GLB[i]
-   try {
-     onLoadAnimation(monuments.gltf, monuments)
-   } catch (err) {
-     console.log(err)
-   }
- }
 }
-
-async function loadZoneOne() {
-  for (let i = 0; i < DISTRICT_ONE_GLB.length; i++) {
-    const model = DISTRICT_ONE_GLB[i]
-    try {
-      await onLoadAnimation(model.gltf, model)
-    } catch (err) {
-      console.log(err)
-    }
-  }
-  try {
-    scene.traverse(obj => {
-      if (typeof obj.zone === 'number') {
-
-       if(obj.zone !== 1) {
-        //  console.log("TRAVERSE ONE: ", obj)
-         scene.remove(obj)
-       }
-     } 
-   });
-  } catch (err) {
-   console.log(err)
-  }
-
-  dynamicLoaded = true;  
-}
-
-async function loadZoneTwo() {
- 
-  for (let i = 0; i < DISTRICT_TWO_GLB.length; i++) {
-    const model = DISTRICT_TWO_GLB[i]
-    try {
-      await onLoadAnimation(model.gltf, model)
-    } catch (err) {
-      console.log(err)
-    }
-  }
-
-  try {
-    scene.traverse(obj => {
-      if (typeof obj.zone === 'number') {
-
-        if(obj.zone !== 2) {
-          // console.log("TRAVERSE TWO: ", obj)
-           scene.remove(obj)
-        }
-      }
-    })
-  } catch (err) {
-   console.log(err)
-  }
-
-  dynamicLoaded = true;  
-}
-
-
-function checkPointerControls() {
-  const time = performance.now();
-
-  if ( pointerControls.isLocked === true ) {
-
-    raycaster.ray.origin.copy( pointerControls.getObject().position );
-    // raycaster.ray.origin.y += 1;
-    // raycaster.ray.origin.x += 2;
-    // raycaster.ray.origin.z += 2
-
-    const intersections = raycaster.intersectObjects( rayObjects, false );
-
-    const onObject = intersections.length > 0;
-
-    if(onObject){
-      for ( let i = 0; i < intersections.length; i ++ ) {
-        // console.log("INTERSECT?? ", intersections[i].object.name)
-        // intersections[ i ].object.material.wireframe = true;
-        console.log('intersect')
-        goBack()
-      }
-    } 
-    else {
-      let contains = domeGeo?.boundingSphere?.containsPoint(camera.position)
-      if(rayObjects.length && !contains) {
-        console.log("contains? ", contains)
-        camera.position.x = 1300;
-        camera.position.z = -800;
-        camera.lookAt(750, 15, -750)
-      }
-    }
-
-    function goBack() {
-      console.log('jump')
-      canJump = true;
-      const jumpCode = {code: "Space"}
-      onKeyDown(jumpCode)
-      velocity.y += 500 
-
-      setTimeout(function () {
-        camera.position.x = 1300;
-        camera.position.z = -800;
-        camera.lookAt(750, 15, -750)
-      }, 10)
-    }
-
-    // control speed of movement
-    const delta = ( time - prevTime ) / 300;  // larger dividend, slower
-
-    velocity.x -= velocity.x * 10.0 * delta;
-    velocity.z -= velocity.z * 10.0 * delta;
-
-    velocity.y -= 9.8 * 100.0 * delta;
-
-    direction.z = Number( moveForward ) - Number( moveBackward );
-    direction.x = Number( moveRight ) - Number( moveLeft );
-    direction.normalize(); // this ensures consistent movements in all directions
-
-    if ( moveForward || moveBackward ) velocity.z -= direction.z * 400.0 * delta;
-    if ( moveLeft || moveRight ) velocity.x -= direction.x * 400.0 * delta;
-
-    if ( onObject === true ) {
-
-      velocity.y = Math.max( 0, velocity.y * 2 );
-      canJump = true;
-
-    }
-
-    pointerControls.moveRight( - velocity.x * delta );
-    pointerControls.moveForward( - velocity.z * delta );
-
-    pointerControls.getObject().position.y += ( velocity.y * delta ); // new behavior
-
-    if ( pointerControls.getObject().position.y < 10 ) {
-
-      velocity.y = 0;
-      pointerControls.getObject().position.y = 5;
-
-      canJump = true;
-
-    }
-  }
-
-  prevTime = time;
-}
-
-
-function onLoadAnimation(model, data) {
- // console.log("load animated models: ", data)
- const { posX, posY, posZ, rx, ry, rz } = data
- if(model){
-   model.scene.position.set(posX, posY, posZ);
-   model.scene.rotation.set(rx, ry, rz);
-   model.scene.rotation.y = Math.PI/2.0; // face front  
- }
-
- if(data.scale) {
-   const inputScale = data.scale
-   model.scene.scale.set(inputScale, inputScale, inputScale)
- } else if(!data.type) {
-   model.scene.scale.set(10, 10, 10);
- } else if(data.type === "monument"){
-   model.scene.scale.set(25, 25, 25);
- }
-
- if(model.animations.length) {
-   let mixer = new THREE.AnimationMixer(model.scene);
-   window.mixers.push(mixer)
-
-   var action = mixer.clipAction(model.animations[0])
-   action.play();   
- }
-
- if(data.zone) {
-   model.scene.zone = data.zone
- }
-
- scene.add(model.scene)
-
-}
-
-const physicalMat = new THREE.MeshPhysicalMaterial({
-  color: 0xff00ff,
-  emissive: 0x00ffff,
-  clearcoat: 1.0,
-  metalness: 1.0,
-  roughness: 0.0,
-  reflectivity: 1.0,
-  // envMap: cubeRenderTarget2.texture,
-  // alphaMap: cubeRenderTarget2.texture,
-  // map: cubeRenderTarget2.texture,
-  combine: THREE.MultiplyOperation,
-  side: THREE.DoubleSide,
-  opacity: 0.5,
-  specularColor: 0xff0000
-})
-
-
-const testMat = new THREE.MeshPhysicalMaterial({
-  color: 0xffffff,
-  metalness: 0.9,
-  roughness: 0.0,
-  // alphaMap: texture,
-  // envMap: texture,
-  envMapIntensity: 1.0,
-  transmission: 0.58, // use material.transmission for glass materials
-  specularIntensity: 1.0,
-  specularColor: 0xffff00,
-  opacity: 0.6,
-  side: THREE.DoubleSide,
-  transparent: true
-})

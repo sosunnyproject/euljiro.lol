@@ -8,6 +8,19 @@ export function getRandomInt(min, max) {
  return Math.floor(Math.random() * (max - min) + min); //The maximum is exclusive and the minimum is inclusive
 }
 
+let stepLimit = 500
+
+export function updateStepNum() {
+  if(window.ZONE === "GARDEN") {
+   window.ACC_STEPS++;
+  } else {
+   window.ACC_STEPS--;
+  }
+
+  let per = Math.floor((window.ACC_STEPS / stepLimit) * 100 )
+  updateStepProgress(per)
+}
+
 export function updateStepProgress(value) {
   // Step Counter Bar
   var stepCounter = document.querySelector('#stepCounter')

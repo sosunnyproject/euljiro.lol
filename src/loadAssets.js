@@ -70,6 +70,8 @@ export async function loadAssets(gltfLoader, fontLoader, textureLoader) {
 
 
 export async function loadZoneOneGLB(scene) {
+  console.log("loadZoneOneGLB")
+
   for (let i = 0; i < DISTRICT_ONE_GLB.length; i++) {
     const model = DISTRICT_ONE_GLB[i]
     try {
@@ -84,7 +86,7 @@ export async function loadZoneOneGLB(scene) {
 
        if(obj.zone !== 1) {
         //  console.log("TRAVERSE ONE: ", obj)
-         scene.remove(obj)
+        scene.remove(obj)
        }
      } 
    });
@@ -96,7 +98,7 @@ export async function loadZoneOneGLB(scene) {
 }
 
 export async function loadZoneTwoGLB(scene) {
- 
+  console.log("loadZoneTwoGLB")
   for (let i = 0; i < DISTRICT_TWO_GLB.length; i++) {
     const model = DISTRICT_TWO_GLB[i]
     try {
@@ -112,7 +114,7 @@ export async function loadZoneTwoGLB(scene) {
 
         if(obj.zone !== 2) {
           // console.log("TRAVERSE TWO: ", obj)
-           scene.remove(obj)
+          scene.remove(obj)
         }
       }
     })
@@ -125,7 +127,8 @@ export async function loadZoneTwoGLB(scene) {
 
 
 export async function loadZoneThreeGLB(scene) {
- 
+  console.log("loadZoneThreeGLB")
+
   for (let i = 0; i < DISTRICT_THREE_GLB.length; i++) {
     const model = DISTRICT_THREE_GLB[i]
     try {
@@ -141,7 +144,7 @@ export async function loadZoneThreeGLB(scene) {
 
         if(obj.zone !== 3) {
           // console.log("TRAVERSE TWO: ", obj)
-           scene.remove(obj)
+          scene.remove(obj)
         }
       }
     })

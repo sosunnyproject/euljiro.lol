@@ -29,6 +29,7 @@ import metallicFrag from './shaders/metallic.frag.js';
 import { updateStepProgress, updateLoadingProgress, updateStepNum } from './utils';
 import { loadAssets, loadZoneOneGLB, loadZoneThreeGLB, loadZoneTwoGLB, onLoadAnimation } from './loadAssets.js';
 import CircleGround from './models/CircleGround'
+import { generateDistrictGardenObjects } from './renderDistrictGarden.js';
 
 let stats, camera, renderer, pointerControls;
 
@@ -47,7 +48,7 @@ let cubeRenderTarget2, cubeCamera2;
 const postprocessing = {};
 
 // Zones
-window.STEP_LIMIT = 200
+window.STEP_LIMIT = 200 
 window.ZONE = "ONE"
 window.DYNAMIC_LOADED = false;
 window.ACC_STEPS = window.STEP_LIMIT;
@@ -82,7 +83,7 @@ renderer.setSize(WIDTH, HEIGHT);
 
 // Camera
 const params = {
-  fov: 20,
+  fov: 45,
   aspect: 2.5, 
   zNear: 10,
   zFar: 6000
@@ -429,9 +430,9 @@ function checkCameraLoadAssets(currentPos)  {
 }
 
 function loadZones(zone) {
-  window.DYNAMIC_LOADED = false;
 
   if(window.DYNAMIC_LOADED) return;
+  console.log("loadZones called, DYNAMIC_LOADED? ", window.DYNAMIC_LOADED)
 
   switch(zone) {
     case "ONE":
@@ -455,7 +456,7 @@ function updateFogDome(zone) {
   if(!window.FOG_DOME) return;
 
   window.FOG_DOME?.position.set(ZONE_POS[zone].x, 100, ZONE_POS[zone].z)
-  window.FOG_DOME.material.uniforms.u_alpha.value = 1.0;
+  window.FOG_DOME.material.uniforms.u_alpha.value = 0.5;
 
   rayObjects.push(window.FOG_DOME)
 }
@@ -619,6 +620,13 @@ function loadDefaultEnvironment() {
 
   window.GROUNDS = [ground1.geom, ground2.geom, ground3.geom, ground4.geom];
 
+  // add garden objects
+  const objects = generateDistrictGardenObjects()
+  
+  for(let i = 0; i < objects.length; i++){
+    scene.add(objects[i])
+  }
+
   // monument gltf
   for (let i = 0; i < MONUMENTS_GLB.length; i++) {
     const monuments = MONUMENTS_GLB[i]
@@ -700,7 +708,7 @@ function checkPointerControls() {
 
 
     // control speed of movement
-    const delta = ( time - prevTime ) / 300;  // larger dividend, slower
+    const delta = ( time - prevTime ) / 500;  // larger dividend, slower
 
     velocity.x -= velocity.x * 10.0 * delta;
     velocity.z -= velocity.z * 10.0 * delta;

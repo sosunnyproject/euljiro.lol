@@ -26,6 +26,7 @@ export function generateDistrictGardenObjects() {
 
   // mushrooms
   const m = generateMushroom()
+  arr.push(m)
 
   // ground plane
   const groundMesh = generateGround();
@@ -38,6 +39,13 @@ export function generateDistrictGardenObjects() {
   torusKnot.position.z = -40;
   torusKnot.rotation.y = Math.PI/2;
 
+  for(let i = 0; i < 10; i++){
+    const torusClone = torusKnot.clone();
+    torusClone.position.set(getRandomInt(-2000, 2000), 400, getRandomInt(-2000, 2000))
+    torusClone.scale.set(2, 2, 2)
+    arr.push(torusClone)
+   }
+
   const torus2 = new THREE.Mesh( torusKnotGeom, torusKnotMat );
   torus2.position.y = 80;
   torus2.position.z = 60;
@@ -46,14 +54,14 @@ export function generateDistrictGardenObjects() {
 
   const axes = new THREE.AxesHelper(20);
 
-  arr.push(m, groundMesh, torusKnot, torus2, axes)
+  // arr.pus(m, groundMesh, torusKnot, torus2, axes)
 
   // env
   const hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.6 );
   hemiLight.color.setHSL( 0.6, 1, 0.6 );
   hemiLight.groundColor.setHSL( 0.095, 1, 0.35 );
   hemiLight.position.set( 0, 50, 0 );
-  arr.push( hemiLight );
+  // arr.push( hemiLight );
 
   // SKYDOME
   {
@@ -72,14 +80,14 @@ export function generateDistrictGardenObjects() {
     } );
     uniforms[ "topColor" ].value.copy( hemiLight.color );
     const sky = new THREE.Mesh( skyGeo, skyMat );
-    arr.push( sky );
+    // arr.push( sky );
   }
   
   // tree object
-  for(let i = 0; i < 40; i++){
-   const x = getRandomArbitrary(-200, 200)
-   const tree = generateTree(x, 15, getRandomArbitrary(-100, 100))
-  //  arr.push(tree);  
+  for(let i = 0; i < 20; i++){
+   const x = getRandomArbitrary(-300, 300)
+   const tree = generateTree(x, 15, getRandomArbitrary(-300, 300))
+   arr.push(tree);  
   }
 
  {
@@ -90,9 +98,9 @@ export function generateDistrictGardenObjects() {
 
    const spotlight = new THREE.SpotLight(0xffffff, 0.3)
    spotlight.position.set(-40, 100, -10);
-   spotlight.castShadow = true;
+  //  spotlight.castShadow = true;
 
-   arr.push(light, spotlight)
+  //  arr.push(light, spotlight)
  }
 
   {
@@ -108,6 +116,13 @@ export function generateDistrictGardenObjects() {
   const lsystemTree2 =lsystemTree.clone()
   lsystemTree2.position.set(0, 0, 0);
   lsystemTree2.scale.set(5, 5, 5);
+
+  for(let i = 0; i < 10; i++){
+    const ltreeClone =lsystemTree.clone()
+  
+    ltreeClone.position.set(getRandomInt(-1000, 1000), 0, getRandomInt(-1000, 1000))
+    arr.push(ltreeClone)
+   }
 
   arr.push(lsystemTree, lsystemTree1, lsystemTree2)
   }

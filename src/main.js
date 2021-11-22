@@ -238,6 +238,8 @@ function xboxKeyPressed (gamepad) {
     return
   }
 
+  let currentPos = pointerControls.getObject().position
+  checkCameraLoadAssets(currentPos);
   // let per = Math.floor((window.ACC_STEPS / stepLimit) * 100 )
   // updateStepProgress(per)
 
@@ -631,23 +633,23 @@ function loadDefaultEnvironment() {
 
 function goBack(target) {
 
-  // if(target) {
+  if(target) {
       console.log(target)
       camera.position.x = target.x;
       camera.position.z = target.z ;
       camera.lookAt(target.lx, 15, target.lz)
-  // } else {
+  } else {
   //   canJump = true;
   //   const jumpCode = {code: "Space"}
   //   onKeyDown(jumpCode)
   //   velocity.y += 100 
 
   //   setTimeout(function () {
-  //     camera.position.x = ZONE_RESET_POS[window.ZONE].x;
-  //     camera.position.z = ZONE_RESET_POS[window.ZONE].z;
-  //     camera.lookAt(ZONE_POS[window.ZONE].x, 15, ZONE_POS[window.ZONE].z)
+      camera.position.x = ZONE_RESET_POS[window.ZONE].x;
+      camera.position.z = ZONE_RESET_POS[window.ZONE].z;
+      camera.lookAt(ZONE_POS[window.ZONE].x, 15, ZONE_POS[window.ZONE].z)
   //   }, 10)
-  // }
+  }
  
 }
 

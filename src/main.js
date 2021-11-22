@@ -252,7 +252,6 @@ function xboxKeyPressed (gamepad) {
   if(buttons[12].touched) {  // up
     moveForward = true;
     updateStepNum()
-    return;
   } 
   if(!buttons[12].touched) {
     moveForward = false;
@@ -260,7 +259,6 @@ function xboxKeyPressed (gamepad) {
   if(buttons[15].touched) {
     moveRight = true;
     updateStepNum()
-    return;
   }
   if(!buttons[15].touched){
     moveRight = false;
@@ -268,7 +266,6 @@ function xboxKeyPressed (gamepad) {
   if(buttons[13].touched) {
     moveBackward = true;
     updateStepNum()
-    return;
   }
   if(!buttons[13].touched){
     moveBackward = false;
@@ -276,7 +273,6 @@ function xboxKeyPressed (gamepad) {
   if(buttons[14].touched) {
     moveLeft = true;
     updateStepNum()
-    return;
   }
   if(!buttons[14].touched){
     moveLeft = false;
@@ -635,23 +631,23 @@ function loadDefaultEnvironment() {
 
 function goBack(target) {
 
-  if(target) {
+  // if(target) {
       console.log(target)
       camera.position.x = target.x;
       camera.position.z = target.z ;
       camera.lookAt(target.lx, 15, target.lz)
-  } else {
-    canJump = true;
-    const jumpCode = {code: "Space"}
-    onKeyDown(jumpCode)
-    velocity.y += 100 
+  // } else {
+  //   canJump = true;
+  //   const jumpCode = {code: "Space"}
+  //   onKeyDown(jumpCode)
+  //   velocity.y += 100 
 
-    setTimeout(function () {
-      camera.position.x = ZONE_RESET_POS[window.ZONE].x;
-      camera.position.z = ZONE_RESET_POS[window.ZONE].z;
-      camera.lookAt(ZONE_POS[window.ZONE].x, 15, ZONE_POS[window.ZONE].z)
-    }, 10)
-  }
+  //   setTimeout(function () {
+  //     camera.position.x = ZONE_RESET_POS[window.ZONE].x;
+  //     camera.position.z = ZONE_RESET_POS[window.ZONE].z;
+  //     camera.lookAt(ZONE_POS[window.ZONE].x, 15, ZONE_POS[window.ZONE].z)
+  //   }, 10)
+  // }
  
 }
 
@@ -753,7 +749,6 @@ function render() {
     // console.log(window.ACC_STEPS, window.ZONE)
   
     if(window.ACC_STEPS <= -5 ) {  // force move to garden
-      window.ACC_STEPS = 0;
       goBack(gardenTarget)
       disableRaycastIntersect()
     }

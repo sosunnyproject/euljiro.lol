@@ -15,6 +15,8 @@ export function updateStepNum() {
    window.ACC_STEPS--;
   }
 
+  console.log("updateStepNum? ", window.ACC_STEPS)
+
   let per = Math.floor((window.ACC_STEPS / window.STEP_LIMIT) * 100 )
   updateStepProgress(per)
 }

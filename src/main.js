@@ -252,6 +252,7 @@ function xboxKeyPressed (gamepad) {
   if(buttons[12].touched) {  // up
     moveForward = true;
     updateStepNum()
+    return;
   } 
   if(!buttons[12].touched) {
     moveForward = false;
@@ -259,6 +260,7 @@ function xboxKeyPressed (gamepad) {
   if(buttons[15].touched) {
     moveRight = true;
     updateStepNum()
+    return;
   }
   if(!buttons[15].touched){
     moveRight = false;
@@ -266,6 +268,7 @@ function xboxKeyPressed (gamepad) {
   if(buttons[13].touched) {
     moveBackward = true;
     updateStepNum()
+    return;
   }
   if(!buttons[13].touched){
     moveBackward = false;
@@ -273,6 +276,7 @@ function xboxKeyPressed (gamepad) {
   if(buttons[14].touched) {
     moveLeft = true;
     updateStepNum()
+    return;
   }
   if(!buttons[14].touched){
     moveLeft = false;
@@ -528,7 +532,7 @@ function drawDomeWall() {
       uniforms: {
         u_time: { value: 1.0 },
         u_resolution: { value: new THREE.Vector2(0.0, 0.0) },
-        u_alpha: { value: 0.8 }
+        u_alpha: { value: 0.5 }
       },
       vertexShader: vertexShader,
       fragmentShader: fogFragment,
@@ -749,6 +753,7 @@ function render() {
     // console.log(window.ACC_STEPS, window.ZONE)
   
     if(window.ACC_STEPS <= -5 ) {  // force move to garden
+      window.ACC_STEPS = 0;
       goBack(gardenTarget)
       disableRaycastIntersect()
     }

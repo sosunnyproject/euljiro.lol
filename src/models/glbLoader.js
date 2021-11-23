@@ -13,6 +13,11 @@ import ROCKET from "../../assets/districtOne/rocket.glb"
 import WORKER_1 from "../../assets/districtOne/worker1.glb"
 import WORKER_2 from "../../assets/districtOne/worker2.glb"
 import BIRD_BOT from "../../assets/districtOne/bird_bot.glb"
+import ROBOT_TIGER from "../../assets/districtOne/robotTiger.glb"
+import ROBOT_BIRD from "../../assets/districtOne/robotBird.glb"
+import TRADE_NEON from "../../assets/districtOne/tradeNeon.glb"
+import ROBOT_CRANE from "../../assets/districtOne/robotCrane.glb"
+import ROBOT_CHIP from "../../assets/districtOne/robotChip.glb"
 
 // district 2
 import TAPE from "../../assets/districtTwo/tape.glb"
@@ -56,17 +61,17 @@ const robotFace = {
 
 const excavator = {
   url: EXCAVATOR,
-  posX: ZONE_POS.THREE.x, posY: 200, posZ: ZONE_POS.THREE.z,
-  rx: 0, ry: Math.PI/3, rz: 0,
-  scale: 120,
+  posX: ZONE_POS.THREE.x, posY: 300, posZ: ZONE_POS.THREE.z,
+  rx: 0, ry: Math.PI/3.0, rz: 0,
+  scale: 200,
   type: "monument"
 }
 
  const coffeeSpa = {
   url: COFFEE_SPA,
-  posX: ZONE_POS.TWO.x, posY: 200, posZ: ZONE_POS.TWO.z,
-  rx: 0, ry: 0, rz: 0,
-  scale: 80,
+  posX: ZONE_POS.TWO.x, posY: 300, posZ: ZONE_POS.TWO.z,
+  rx: 0, ry: -Math.PI/3.0, rz: 0,
+  scale: 200,
   type: "monument"
 }
 
@@ -76,6 +81,44 @@ export const MONUMENTS_GLB = [
   excavator
 ]
 
+const robotTiger = {
+  url: ROBOT_TIGER,
+  posX: getRandomInt(ZONE1_X_MIN, ZONE1_X_MAX), posY: 10, posZ: getRandomInt(ZONE1_Z_MIN, ZONE1_Z_MAX),
+  rx: 0, ry: 0, rz: 0,
+  scale: 10,
+  zone: 1
+ }
+
+ const robotBird = {
+  url: ROBOT_BIRD,
+  posX: getRandomInt(ZONE1_X_MIN, ZONE1_X_MAX), posY: 10, posZ: getRandomInt(ZONE1_Z_MIN, ZONE1_Z_MAX),
+  rx: 0, ry: 0, rz: 0,
+  scale: 10,
+  zone: 1
+ }
+
+ const tradeNeon = {
+  url: TRADE_NEON,
+  posX: getRandomInt(ZONE1_X_MIN, ZONE1_X_MAX), posY: 10, posZ: getRandomInt(ZONE1_Z_MIN, ZONE1_Z_MAX),
+  rx: 0, ry: 0, rz: 0,
+  scale: 10,
+  zone: 1
+ }
+
+ const robotChip = {
+  url: ROBOT_CHIP,
+  posX: getRandomInt(ZONE1_X_MIN, ZONE1_X_MAX), posY: 10, posZ: getRandomInt(ZONE1_Z_MIN, ZONE1_Z_MAX),
+  rx: 0, ry: 0, rz: 0,
+  scale: 10,
+  zone: 1
+ }
+ const robotCrane = {
+  url: ROBOT_CRANE,
+  posX: getRandomInt(ZONE1_X_MIN, ZONE1_X_MAX), posY: 10, posZ: getRandomInt(ZONE1_Z_MIN, ZONE1_Z_MAX),
+  rx: 0, ry: 0, rz: 0,
+  scale: 10,
+  zone: 1
+ }
 const purpleCone = {
  url: PURPLE_CONE,
  posX: getRandomInt(ZONE1_X_MIN, ZONE1_X_MAX), posY: 10, posZ: getRandomInt(ZONE1_Z_MIN, ZONE1_Z_MAX),
@@ -185,11 +228,12 @@ const worker2 = {
 
 export const DISTRICT_ONE_GLB = [
  purpleCone, blueCone, pinkCone,
- //bird1, bird2, cctv, birdBot,
- metalPan, 
-//  metalStick,
- //ozRobot, robotGuide, rocket,
- worker1, worker2
+ bird1, bird2, cctv, birdBot,
+ metalPan, metalStick,
+ ozRobot, robotGuide, rocket,
+ robotBird, robotTiger, tradeNeon,
+ worker1, worker2,
+ robotChip, robotCrane
 ]
 
 const ZONE2_X_MIN = ZONE_POS.TWO.x - 300;

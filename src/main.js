@@ -15,27 +15,17 @@ import { WEBGL } from 'three/examples/jsm/WebGL';
 import { Loader, Mesh, PlaneGeometry } from 'three';
 import { statSync } from 'fs';
 import { getRandomArbitrary, getRandomInt } from './utils.js';
-import { ZONE_NAMES, ZONE_POS, ZONE_RESET_POS } from './globalConstants.js';
+import { ZONE_NAMES, ZONE_POS, ZONE_RADIUS, ZONE_RESET_POS } from './globalConstants.js';
 
 // import model urls
 import { MONUMENTS_GLB } from './models/glbLoader.js';
 
-import { generateGround } from './models/ground.js';
-import vertexShader from './shaders/vertex.glsl.js';
-import fogFragment from './shaders/fog.frag.js';
-import coffeeRiverFragment from './shaders/coffee.frag.js';
-import turbulenceFragment from './shaders/turbulence.frag.js';
-import metallicFrag from './shaders/metallic.frag.js';
 import { updateStepProgress, updateLoadingProgress, updateStepNum } from './utils';
 import { loadAssets, loadZoneOneGLB, loadZoneThreeGLB, loadZoneTwoGLB, onLoadAnimation } from './loadAssets.js';
-import CircleGround from './models/CircleGround'
 import { generateDistrictGardenObjects } from './renderDistrictGarden.js';
 import { makeSteps, renderBuildings } from './renderZone3.js';
-import { renderEntranceTrees, renderGrass } from './renderGlobal.js';
 import { renderShutter } from './renderZone1.js';
-import cloudsFragment from './shaders/clouds.frag.js';
-import skyVertex from './shaders/skyVertex.glsl.js';
-import skyFrag from './shaders/skyFrag.glsl.js';
+import { renderInstanceTrees, renderSkyDome, renderGrounds } from './renderGlobal';
 
 let stats, camera, renderer, pointerControls;
 
@@ -106,7 +96,7 @@ camera.lookAt(new THREE.Vector3(750, 0, -750));
 
 // Scene
 const scene = new THREE.Scene()
-scene.background = new THREE.Color(0xFFD580);
+scene.background = new THREE.Color(0x040404);
 scene.fog = new THREE.FogExp2( 0xeeeeee, 0.002 );
 //scene.overrideMaterial = new THREE.MeshPhongMaterial({ color: 0xFFD580})
 
@@ -356,6 +346,11 @@ function tick() {
       // console.log(obj)
       obj.position.y += Math.sin(time*0.001)*0.5
     }
+    if(obj.name === "animate") {
+      obj.scale.x = Math.cos(time*0.0001) * 20
+      obj.scale.y = Math.cos(time*0.0001) * 20
+      obj.scale.z = Math.cos(time*0.0001) * 20
+    }
     if(obj.name.includes('apt')) {
       const rand = obj.randomNoise;
       obj.position.y += Math.sin(time*0.0005)*rand
@@ -396,7 +391,7 @@ function checkCameraLoadAssets(currentPos)  {
 
   const centerX1 = ZONE_POS.ONE.x
   const centerZ1 = ZONE_POS.ONE.z
-  const radius1 = 610
+  const radius1 = ZONE_RADIUS.ONE
 
   const dx1 = Math.abs(currentPos.x - centerX1)
   const dz1 = Math.abs(currentPos.z - centerZ1)
@@ -406,6 +401,8 @@ function checkCameraLoadAssets(currentPos)  {
   // let inZone1 = window.GROUNDS[0]?.boundingSphere?.containsPoint(currentPos)
   if(inZone1) {
     window.ZONE = "ONE"
+    console.log("inside : ", window.ZONE)
+
     loadZones(window.ZONE)
     return;
   }
@@ -420,7 +417,7 @@ function checkCameraLoadAssets(currentPos)  {
 
   const centerX2 = ZONE_POS.TWO.x
   const centerZ2 = ZONE_POS.TWO.z
-  const radius2 = 610
+  const radius2 = ZONE_RADIUS.TWO
 
   const dx2 = Math.abs(currentPos.x - centerX2)
   const dz2 = Math.abs(currentPos.z - centerZ2)
@@ -428,13 +425,15 @@ function checkCameraLoadAssets(currentPos)  {
   let inZone2 = dx2*dx2 + dz2*dz2 <= radius2*radius2
   if(inZone2) {
     window.ZONE = "TWO"
+    console.log("inside : ", window.ZONE)
+
     loadZones(window.ZONE)
     return;
   }
 
   const centerX3 = ZONE_POS.THREE.x
   const centerZ3 = ZONE_POS.THREE.z
-  const radius3 = 610
+  const radius3 = ZONE_RADIUS.THREE
 
   const dx3 = Math.abs(currentPos.x - centerX3)
   const dz3 = Math.abs(currentPos.z - centerZ3)
@@ -442,6 +441,8 @@ function checkCameraLoadAssets(currentPos)  {
   let inZone3 = dx3*dx3 + dz3*dz3 <= radius3*radius3
   if(inZone3) {
     window.ZONE = "THREE"
+    console.log("inside : ", window.ZONE)
+
     loadZones(window.ZONE)
     return;
   }
@@ -449,6 +450,8 @@ function checkCameraLoadAssets(currentPos)  {
   // GARDEN
   if(inZone1 + inZone2 + inZone3 == 0) {
     window.ZONE = "GARDEN"
+    console.log("inside : ", window.ZONE)
+    window.DYNAMIC_LOADED = false;
 
     scene.fog = new THREE.FogExp2(0xeeeeee, 0.001)
 
@@ -528,132 +531,62 @@ function main() {
   // scene.add(light)
 
   const dirLight2 = new THREE.DirectionalLight( 0xB97A20 );  //0x002288
-  dirLight2.position.set( -800, 400, -100 );
+  dirLight2.position.set( -3000, 2000, -800 );
   dirLight2.intensity = 2.0
+  const target2 = new THREE.Object3D()
+  target2.position.set(ZONE_POS.ONE.x, ZONE_POS.ONE.y, ZONE_POS.ONE.z)
+  dirLight2.target = target2
   scene.add( dirLight2 );
+  scene.add(target2)
+  scene.add(dirLight2.target)
   const helper2 = new THREE.DirectionalLightHelper( dirLight2, 50 );
   scene.add( helper2 );
 
   const dirLight3 = new THREE.DirectionalLight( 0xB97A20 );
-  dirLight3.position.set( 600, 400, 1 );
+  dirLight3.position.set( 2000, 2000, 1000 );
   scene.add( dirLight3 );
   const helper3 = new THREE.DirectionalLightHelper( dirLight3, 50 );
   scene.add( helper3 );
 
   const ambientLight = new THREE.AmbientLight( 0x777777 );
+  ambientLight.intensity = 0.5;
   scene.add( ambientLight );
 
-  // const dirLight1 = new THREE.DirectionalLight( 0x0000ff );
-  // dirLight1.position.set( 1, 1, 1 );
-  // scene.add( dirLight1 );
-
   loadDefaultEnvironment()
-
-  /*
-  testRenderTarget()
-
-  initPostprocessing();
-
-  const effectController = {
-    focus: 500.0,
-    aperture: 5,
-    maxblur: 0.01
-  };
-  postprocessing.bokeh.uniforms[ "focus" ].value = effectController.focus;
-  postprocessing.bokeh.uniforms[ "aperture" ].value = effectController.aperture * 0.00001;
-  postprocessing.bokeh.uniforms[ "maxblur" ].value = effectController.maxblur;
-
-  */
 }
 
 function loadDefaultEnvironment() {
-
-  // Center Object
-  const geometry = new THREE.BoxGeometry(50, 50, 50)
-  const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 })
-  const mesh = new THREE.Mesh(geometry, material)
-  mesh.position.y = 200
-
-  scene.add(mesh)
-
-  {
-    const hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.6 );
-    hemiLight.color.setHSL( 0.6, 1.0, 0.6 );
-    hemiLight.groundColor.setHSL( 0.095, 1, 0.35 );
-    hemiLight.position.set( 0, 50, 0 );
-
-    const uniforms = {
-      "topColor": { value: new THREE.Color( 0xcccccc ) },
-      "bottomColor": { value: new THREE.Color( 0xffffff ) },
-      "offset": { value: 33 },
-      "exponent": { value: 0.6 }
-    }
-    const skyGeo = new THREE.SphereGeometry( 6000, 32, 32 );
-    const skyMat = new THREE.ShaderMaterial( {
-      uniforms: uniforms,
-      vertexShader: skyVertex,
-      fragmentShader: skyFrag,
-      side: THREE.BackSide
-    } );
-    // uniforms[ "topColor" ].value.copy( hemiLight.color );
-    const sky = new THREE.Mesh( skyGeo, skyMat );
-    sky.name = "sky"
-    sky.rotateY(Math.PI);
-    sky.position.x += 900
-    scene.add( sky );
-  }
-
-  // ZONE 1 GROUND
-  const metallicShader = new THREE.ShaderMaterial({
-    uniforms: {
-      u_time: { value: 1.0 },
-      u_resolution: { value: new THREE.Vector2(0.0, 0.0) },
-      u_alpha: { value: 0.9 }
-    },
-    vertexShader: vertexShader,
-    fragmentShader: metallicFrag,
-    side: THREE.DoubleSide,
-      side: THREE.DoubleSide,  
-    side: THREE.DoubleSide,
-    transparent: true
-  })
-  const ground1 = new CircleGround(ZONE_POS["ONE"], 1200, metallicShader, "shader ground")
-
-  scene.add(ground1);
-
-  {
-    const geom = new THREE.PlaneGeometry(1200, 3000)
-    const planeGround1 = new THREE.Mesh(geom, metallicShader)
-    planeGround1.name = "shader ground"
-    planeGround1.rotateY(Math.PI/2)
-    planeGround1.rotateX(Math.PI/2)
-    planeGround1.position.set(4500, 0, 0)
-    scene.add(planeGround1) 
-  }
-
+  
+  renderGrounds(scene)
   renderShutter(scene, 50);
   renderShutter(scene, -50);
 
-  // ZONE 2 GROUND
-  const coffeeShader = new THREE.ShaderMaterial( {
-    uniforms: {
-      u_time: { value: 1.0 },
-      u_resolution: { value: new THREE.Vector2() }
-    },
-      vertexShader: vertexShader,
-      fragmentShader: coffeeRiverFragment,
-      side: THREE.DoubleSide
-  } );
-
-  const ground2 = new CircleGround(ZONE_POS["TWO"], 1200, coffeeShader, "shader ground");
-  scene.add(ground2)
-
-  // ZONE 3 GROUND
-  const ground3Mat = new THREE.MeshPhongMaterial({ color: 0x77777, side: THREE.DoubleSide });
-  const ground3 = new CircleGround(ZONE_POS["THREE"], 1200, ground3Mat, "ground");;
-  scene.add(ground3)
-
+  const objects = generateDistrictGardenObjects()
   
+  for(let i = 0; i < objects.length; i++){
+    scene.add(objects[i])
+  }
+
+  renderSkyDome(scene)
+  renderInstanceTrees(
+    50, // num
+    {x: 1500, y: 0, z: 1000},  // range
+    {x: 5500, y: -2, z: 1100}, // translate
+    50, // scale
+    // "rgb(233, 245, 219)",
+    "rgb(216, 243, 220)",
+    scene
+  )
+  renderInstanceTrees(
+    50, // num
+    {x: 1500, y: 0, z: 1000},  // range
+    {x: 5500, y: -2, z: -1200}, // translate
+    50, // scale
+    // "rgb(233, 245, 219)",
+    "rgb(245, 202, 195)",
+    scene
+  )
+
   const posArr1 = [
     new THREE.Vector3(400, 0, 100),
     new THREE.Vector3(200, 0, -300),
@@ -665,35 +598,10 @@ function loadDefaultEnvironment() {
     new THREE.Vector3(-300, 0, -200),
     new THREE.Vector3(400, 0, -200)
   ]
+
   renderBuildings(scene, -1, posArr1)
   renderBuildings(scene, 2, posArr2)
   makeSteps(scene)
-
-  // ZONE PARK GROUND
-  const parkShader = new THREE.ShaderMaterial( {
-    uniforms: {
-      u_time: { value: 1.0 },
-      u_resolution: { value: new THREE.Vector2() }
-    },
-    vertexShader: vertexShader,  
-    fragmentShader: turbulenceFragment, 
-    side: THREE.DoubleSide
-  } ); 
-
-  const ground4Mat = new THREE.MeshPhongMaterial({ color: 0x679436, side: THREE.DoubleSide });
-  const ground4 = new CircleGround(ZONE_POS["GARDEN"], 6000, ground4Mat, "garden")
-  scene.add(ground4)
-
-  window.GROUNDS = [ground1.geom, ground2.geom, ground3.geom, ground4.geom];
-
-  // add garden objects
-  // renderGrass(scene)
-
-  const objects = generateDistrictGardenObjects()
-  
-  for(let i = 0; i < objects.length; i++){
-    scene.add(objects[i])
-  }
 
   // monument gltf
   for (let i = 0; i < MONUMENTS_GLB.length; i++) {
@@ -744,40 +652,26 @@ function checkPointerControls() {
 
     const onObject = intersections.length > 0;
 
-    // if(onObject){
-    //   for ( let i = 0; i < intersections.length; i ++ ) {
-    //     // console.log("INTERSECT?? ", intersections[i].object.name)
-    //     // intersections[ i ].object.material.wireframe = true;
-    //     console.log('intersect')
-    //     goBack()
-    //   }
-    // } 
-    // else {
-      if(enableRaycast && window.GROUNDS.length > 0 && window.ZONE){
-        // let contains = window.GROUNDS[0]?.boundingSphere?.containsPoint(camera.position)  // or ground's geom
-        
-        const centerX1 = ZONE_POS[window.ZONE].x
-        const centerZ1 = ZONE_POS[window.ZONE].z
-        const radius1 = 600
+    if(enableRaycast && window.GROUNDS.length > 0 && window.ZONE){
+      
+      const centerX1 = ZONE_POS[window.ZONE].x
+      const centerZ1 = ZONE_POS[window.ZONE].z
+      const radius1 = ZONE_RADIUS[window.ZONE]
 
-        const dx1 = Math.abs(currentPosition.x - centerX1)
-        const dz1 = Math.abs(currentPosition.z - centerZ1)
+      const dx1 = Math.abs(currentPosition.x - centerX1)
+      const dz1 = Math.abs(currentPosition.z - centerZ1)
 
-        let insideZone = dx1*dx1 + dz1*dz1 <= radius1*radius1
+      let insideZone = dx1*dx1 + dz1*dz1 <= radius1*radius1
 
-        // console.log(contains)
-        if(insideZone === undefined || null) return
+      if(insideZone === undefined || null) return
 
-        if(!insideZone) {
-          console.log("contains? ", insideZone)
-          // goBack();
-        }
+      if(!insideZone) {
+        console.log("contains? ", window.ZONE, insideZone)
       }
-    // }
-
+    }
 
     // control speed of movement
-    const delta = ( time - prevTime ) / 500;  // larger dividend, slower
+    const delta = ( time - prevTime ) / 250;  // larger dividend, slower
 
     velocity.x -= velocity.x * 10.0 * delta;
     velocity.z -= velocity.z * 10.0 * delta;
@@ -828,7 +722,7 @@ function render() {
     // console.log(window.ACC_STEPS, window.ZONE)
   
     if(window.ACC_STEPS <= -5 ) {  // force move to garden
-      goBack(gardenTarget)
+      // goBack(gardenTarget)
       disableRaycastIntersect()
     }
 

@@ -14,6 +14,7 @@ import { generateLsystemTree } from './lsystem/wrapper.js';
 import { floorPowerOfTwo } from 'three/src/math/mathutils';
 import AnimatedFlower from './models/AnimatedFlower.js';
 import { ZONE_POS } from './globalConstants.js';
+import { Mesh } from 'three';
 
 export function generateDistrictGardenObjects() {
   const arr = []
@@ -43,14 +44,15 @@ export function generateDistrictGardenObjects() {
   //  }
 
   const torusKnotGeom = new THREE.TorusKnotGeometry( 10, 6, 100, 20 );
+  torusKnotGeom.scale(10, 10, 10)
 
    const torusKnotMat = new THREE.MeshPhongMaterial( {color: 0x00d4ff });
 
    const torusMesh = new THREE.InstancedMesh(torusKnotGeom, torusKnotMat, 30)
    
-   for(let i = 0; i < 30; i++)
+   for(let i = 0; i < 50; i++)
    {
-       const position = new THREE.Vector3(getRandomInt(-800, 800), 500, getRandomInt(-800, 800))
+       const position = new THREE.Vector3(getRandomInt(-800, 800), getRandomInt(500, 2000), getRandomInt(-800, 800))
 
        const quaternion = new THREE.Quaternion()
        quaternion.setFromEuler(new THREE.Euler((Math.random() - 0.5) * Math.PI * 2, (Math.random() - 0.5) * Math.PI * 2, 0))
@@ -97,17 +99,22 @@ export function generateDistrictGardenObjects() {
   
   // tree object
   for(let i = 0; i < 50; i++){
-    const x = getRandomArbitrary(500, 1000)
-    const tree = generateTree(x, -1, getRandomArbitrary(-300, 300))
+    const position = {
+      x: getRandomArbitrary(1000, -2000), 
+      y: 0, 
+      z: getRandomArbitrary(-3000, 3000)
+    }
+    const tree = generateTree(position)
     arr.push(tree);  
   }
   /*
   for(let i = 0; i < 100; i++){
-    const x = getRandomArbitrary(1500, 2500)
-    const tree = generateTree(x + ZONE_POS.ONE.x, -1, getRandomArbitrary(-500, 500), 20)
+    const x = getRandomArbitrary(2000, 3000)
+    const tree = generateTree(x + ZONE_POS.ONE.x, 0, getRandomArbitrary(-5000, 50))
     arr.push(tree);  
   }
   */
+  
 
  {
    const skyColor = 0xB1E1FF;  // light blue

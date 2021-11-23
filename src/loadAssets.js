@@ -137,7 +137,7 @@ export function onLoadAnimation(model, data, scene) {
   if(model){
     model.scene.position.set(posX, posY, posZ);
     model.scene.rotation.set(rx, ry, rz);
-    model.scene.rotation.y = Math.PI/2.0; // face front  
+    model.scene.rotation.y += Math.PI/2.0; // face front  
   }
 
   if(data.scale) {

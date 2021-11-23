@@ -3,6 +3,7 @@ import vertexShader from '../shaders/vertex.glsl.js'
 import waterSampleFragment from '../shaders/water.frag.js'
 import { getRandomArbitrary, getRandomInt } from '../utils.js';
 import cloudsFragment from '../shaders/clouds.frag.js';
+import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils'
 
 const trunkGeometry = new THREE.CylinderGeometry(1, 2, 6, 12)
 
@@ -11,8 +12,9 @@ const grassGeometry2 = new THREE.DodecahedronGeometry(getRandomArbitrary(4.0, 10
 const grassGeometry3 = new THREE.DodecahedronGeometry(getRandomArbitrary(4.0, 10.0), getRandomInt(0, 3))
 const randGeom = [grassGeometry1, grassGeometry2, grassGeometry3]
 
-export function generateTree(xpos, ypos, zpos, scale) {
+export function generateTree(position, scale) {
 
+  const { x, y, z } = position;
  const tree = new THREE.Object3D();
  
  let rand = getRandomInt(0, randGeom.length)
@@ -24,18 +26,22 @@ export function generateTree(xpos, ypos, zpos, scale) {
  const grassMaterial = new THREE.MeshPhongMaterial( { color: grassColors[grassInd] } );
  
  const grassMesh = new THREE.Mesh( grassGeom, grassMaterial );
- grassMesh.position.x = xpos
- grassMesh.position.y = ypos + 10
- grassMesh.position.z = zpos
+ grassMesh.position.x = x
+ grassMesh.position.y = y + 20 * 10
+ grassMesh.position.z = z
+ grassMesh.scale.set(20, 20, 20)
+ grassMesh.name = "animate"
  tree.add(grassMesh)
 
  const trunkColors = [ "rgb(232, 174, 183)", "rgb(115, 72, 48)", "rgb(94, 116, 127)", "rgb(197, 152, 73)", "rgb(156, 179, 128)" ]
  const colorIndex = getRandomInt(0, trunkColors.length)
  const trunkMaterial = new THREE.MeshPhongMaterial({ color: trunkColors[colorIndex] })
  const trunkMesh = new THREE.Mesh( trunkGeometry, trunkMaterial );
- trunkMesh.position.x = xpos
- trunkMesh.position.y = ypos
- trunkMesh.position.z = zpos
+ trunkMesh.position.x = x
+ trunkMesh.position.y = y + 20 + 20
+ trunkMesh.position.z = z
+ trunkMesh.scale.set(20, 20, 20)
+ trunkMesh.name = "animate";
  tree.add(trunkMesh);
 
  return tree

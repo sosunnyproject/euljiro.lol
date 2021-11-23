@@ -30,6 +30,7 @@ import { updateStepProgress, updateLoadingProgress, updateStepNum } from './util
 import { loadAssets, loadZoneOneGLB, loadZoneThreeGLB, loadZoneTwoGLB, onLoadAnimation } from './loadAssets.js';
 import CircleGround from './models/CircleGround'
 import { generateDistrictGardenObjects } from './renderDistrictGarden.js';
+import { renderBuildings } from './renderZone3.js';
 
 let stats, camera, renderer, pointerControls;
 
@@ -570,6 +571,8 @@ function loadDefaultEnvironment() {
   const ground3Mat = new THREE.MeshPhongMaterial({ color: 0x77777, side: THREE.DoubleSide });
   const ground3 = new CircleGround(ZONE_POS["THREE"], 600, ground3Mat, "ground");;
   scene.add(ground3)
+
+  renderBuildings(scene)
 
   // ZONE PARK GROUND
   const parkShader = new THREE.ShaderMaterial( {

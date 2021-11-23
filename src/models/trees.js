@@ -5,20 +5,28 @@ import { getRandomArbitrary, getRandomInt } from '../utils.js';
 import cloudsFragment from '../shaders/clouds.frag.js';
 
 const trunkGeometry = new THREE.CylinderGeometry(1, 2, 6, 12)
-const grassGeometry = new THREE.DodecahedronGeometry(getRandomArbitrary(4.0, 10.0), getRandomInt(0, 3))
+
+const grassGeometry1 = new THREE.DodecahedronGeometry(getRandomArbitrary(4.0, 10.0), getRandomInt(0, 3))
+const grassGeometry2 = new THREE.DodecahedronGeometry(getRandomArbitrary(4.0, 10.0), getRandomInt(0, 3))
+const grassGeometry3 = new THREE.DodecahedronGeometry(getRandomArbitrary(4.0, 10.0), getRandomInt(0, 3))
+const randGeom = [grassGeometry1, grassGeometry2, grassGeometry3]
 
 export function generateTree(xpos, ypos, zpos) {
 
  const tree = new THREE.Object3D();
  
+ let rand = getRandomInt(0, randGeom.length)
+ const grassGeom = randGeom[rand]
+
  const grassColors = ["rgb(227, 101, 91)", "rgb(220, 214, 247)", "rgb(217, 237, 146)", "rgb(181,228,140)", "rgb(153,217,140)", "rgb(118,200,147)", "rgb(82,182,154)", "rgb(52,160,164)"]
  const grassInd = getRandomInt(0, grassColors.length)
+ 
  const grassMaterial = new THREE.MeshPhongMaterial( { color: grassColors[grassInd] } );
- const grassMesh = new THREE.Mesh( grassGeometry, grassMaterial );
+ 
+ const grassMesh = new THREE.Mesh( grassGeom, grassMaterial );
  grassMesh.position.x = xpos
  grassMesh.position.y = ypos
  grassMesh.position.z = zpos
-//  grassMesh.castShadow = true;
  tree.add(grassMesh)
 
  const trunkColors = [ "rgb(232, 174, 183)", "rgb(115, 72, 48)", "rgb(94, 116, 127)", "rgb(197, 152, 73)", "rgb(156, 179, 128)" ]
@@ -28,7 +36,6 @@ export function generateTree(xpos, ypos, zpos) {
  trunkMesh.position.x = xpos
  trunkMesh.position.y = ypos - 10
  trunkMesh.position.z = zpos
-//  trunkMesh.castShadow = true;
  tree.add(trunkMesh);
 
  return tree

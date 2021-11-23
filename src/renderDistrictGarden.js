@@ -84,7 +84,7 @@ export function generateDistrictGardenObjects() {
   }
   
   // tree object
-  for(let i = 0; i < 20; i++){
+  for(let i = 0; i < 40; i++){
    const x = getRandomArbitrary(-300, 300)
    const tree = generateTree(x, 5, getRandomArbitrary(-300, 300))
    arr.push(tree);  

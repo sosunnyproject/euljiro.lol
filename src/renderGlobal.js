@@ -110,7 +110,7 @@ export function renderGrounds(scene) {
   scene.add(ground1);
 
   {
-    const geom = new THREE.PlaneGeometry(100, 3000)
+    const geom = new THREE.PlaneGeometry(500, 3000)
     const planeGround1 = new THREE.Mesh(geom, metallicShader)
     planeGround1.name = "shader ground"
     planeGround1.rotateY(Math.PI/2)

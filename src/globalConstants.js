@@ -8,7 +8,7 @@ export const ZONE_POS = {
 }
 
 export const ZONE_RADIUS = {
-  ONE: 1200, 
+  ONE: 1800, 
   TWO: 1200, 
   THREE: 1200, 
   GARDEN: 6000

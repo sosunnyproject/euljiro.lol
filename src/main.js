@@ -89,7 +89,7 @@ function makeCamera() {
   return new THREE.PerspectiveCamera(fov, aspect, zNear, zFar);
 }
 camera = makeCamera();
-camera.position.x = 6800;
+camera.position.x = 6000;
 camera.position.y = 10;
 camera.position.z = 0;
 camera.lookAt(new THREE.Vector3(750, 0, -750));
@@ -403,7 +403,7 @@ function checkCameraLoadAssets(currentPos)  {
     window.ZONE = "ONE"
     console.log("inside : ", window.ZONE)
 
-    loadZones(window.ZONE)
+    // loadZones(window.ZONE)
     return;
   }
 
@@ -427,7 +427,7 @@ function checkCameraLoadAssets(currentPos)  {
     window.ZONE = "TWO"
     console.log("inside : ", window.ZONE)
 
-    loadZones(window.ZONE)
+    // loadZones(window.ZONE)
     return;
   }
 
@@ -443,7 +443,7 @@ function checkCameraLoadAssets(currentPos)  {
     window.ZONE = "THREE"
     console.log("inside : ", window.ZONE)
 
-    loadZones(window.ZONE)
+    // loadZones(window.ZONE)
     return;
   }
 
@@ -456,15 +456,18 @@ function checkCameraLoadAssets(currentPos)  {
     scene.fog = new THREE.FogExp2(0xeeeeee, 0.001)
 
     // unload all gltf
-    try {
-      scene.traverse(obj => {
-        if (typeof obj.zone === 'number') {
-            scene.remove(obj)
-          }
-      })
-    } catch (err) {
-     console.log(err)
-    }
+    // try {
+    //   scene.traverse(obj => {
+    //     if (typeof obj.zone === 'number') {
+    //         scene.remove(obj)
+    //       }
+    //   })
+    // } catch (err) {
+    //  console.log(err)
+    // }
+
+    // loadZoneOneGLB(scene)
+
   } 
 
 }
@@ -612,6 +615,8 @@ function loadDefaultEnvironment() {
       console.log(err)
     }
   }
+
+  loadZoneOneGLB(scene)
 
 }
 

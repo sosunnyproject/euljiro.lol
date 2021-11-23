@@ -44,7 +44,7 @@ export function generateDistrictGardenObjects() {
   //  }
 
   const torusKnotGeom = new THREE.TorusKnotGeometry( 10, 6, 100, 20 );
-  torusKnotGeom.scale(10, 10, 10)
+  torusKnotGeom.scale(2, 2, 2)
 
    const torusKnotMat = new THREE.MeshPhongMaterial( {color: 0x00d4ff });
 

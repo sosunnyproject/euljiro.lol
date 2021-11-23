@@ -44,6 +44,7 @@ rayDirection.normalize()
 let raycaster = new THREE.Raycaster(rayOrigin, rayDirection, 0, 10);
 // raycaster.set(rayOrigin, rayDirection)
 let rayObjects = []
+let enableRaycast = true;
 let cubeRenderTarget2, cubeCamera2;
 const postprocessing = {};
 
@@ -101,17 +102,7 @@ camera.lookAt(new THREE.Vector3(750, 0, -750));
 // Scene
 const scene = new THREE.Scene()
 scene.background = new THREE.Color(0xf9f9f9);
-
-// Light
-const skyColor = 0xB1E1FF;  // light blue
-const groundColor = 0xB97A20;  // brownish orange
-const intensity = 1;
-const light = new THREE.HemisphereLight(skyColor, groundColor, intensity);
-scene.add(light)
-
-// const dirLight1 = new THREE.DirectionalLight( 0x0000ff );
-// dirLight1.position.set( 1, 1, 1 );
-// scene.add( dirLight1 );
+scene.fog = new THREE.FogExp2( 0xcccccc, 0.002 );
 
 // Orbit Controls
 const controls = new OrbitControls( camera, renderer.domElement);
@@ -151,6 +142,14 @@ pointerControls.addEventListener( 'unlock', function () {
   // instructions.style.display = '';
 
 } );
+
+// GamePad Interaction
+window.gamepadConnected = false;
+let moveForward = false;
+let moveBackward = false;
+let moveLeft = false;
+let moveRight = false;
+let canJump = true;
 
 // Key Controls
 const onKeyDown = function ( event ) {
@@ -214,23 +213,15 @@ const onKeyUp = function ( event ) {
 document.addEventListener( 'keydown', onKeyDown );
 document.addEventListener( 'keyup', onKeyUp );
 
-// GamePad Interaction
-let gamepadConnected = false;
-let moveForward = false;
-let moveBackward = false;
-let moveLeft = false;
-let moveRight = false;
-let canJump = true;
-
 window.addEventListener("gamepadconnected", function(e) {
   console.log("Gamepad connected at index %d: %s. %d buttons, %d axes.",
     e.gamepad.index, e.gamepad.id,
     e.gamepad.buttons.length, e.gamepad.axes.length);
-  gamepadConnected = true; 
+    window.gamepadConnected = true; 
 });
 window.addEventListener("gamepaddisconnected", function(e) {
   console.log("Gamepad DISconnected")
-  gamepadConnected = false;
+  window.gamepadConnected = false;
 })
 
 function xboxKeyPressed (gamepad) {
@@ -320,7 +311,7 @@ function tick() {
   const time = performance.now();
 
   // gamepad
-  if (gamepadConnected) {
+  if (window.gamepadConnected) {
     const gamepad = navigator.getGamepads()[0];
     
     if(!gamepad) {
@@ -342,9 +333,6 @@ function tick() {
     if(obj.name.includes("shader")) {
       obj.material.uniforms.u_time.value = time * 0.0002; 
     }
-    // if(!rayObjects.length && obj.name.includes("dome")){
-    //   obj.material.uniforms.u_alpha.value -= time * 0.001;
-    // }
   })
 
   render();
@@ -425,6 +413,17 @@ function checkCameraLoadAssets(currentPos)  {
   // GARDEN
   if(inZone1 + inZone2 + inZone3 == 0) {
     window.ZONE = "GARDEN"
+
+    // unload all gltf
+    try {
+      scene.traverse(obj => {
+        if (typeof obj.zone === 'number') {
+            scene.remove(obj)
+          }
+      })
+    } catch (err) {
+     console.log(err)
+    }
   } 
 
 }
@@ -437,28 +436,22 @@ function loadZones(zone) {
   switch(zone) {
     case "ONE":
       loadZoneOneGLB(scene)
-      updateFogDome(zone)
+      enableRaycast = true;
+
       break;
 
     case "TWO":
       loadZoneTwoGLB(scene)
-      updateFogDome(zone)
+      enableRaycast = true;
+
       break;
 
     case "THREE":
       loadZoneThreeGLB(scene)
-      updateFogDome(zone)
+      enableRaycast = true;
+
       break;
   }
-}
-
-function updateFogDome(zone) {
-  if(!window.FOG_DOME) return;
-
-  window.FOG_DOME?.position.set(ZONE_POS[zone].x, 100, ZONE_POS[zone].z)
-  window.FOG_DOME.material.uniforms.u_alpha.value = 0.5;
-
-  rayObjects.push(window.FOG_DOME)
 }
 
 function init() {
@@ -477,10 +470,8 @@ function init() {
 function disableRaycastIntersect() {
   console.log("raycast disabled")
 
-  console.log(window.FOG_DOME.material.uniforms.u_alpha.value)
-  window.FOG_DOME.material.uniforms.u_alpha.value = 0;
-
-  rayObjects = []
+  // rayObjects = []
+  enableRaycast = false;
 
   window.DYNAMIC_LOADED = false;
 }
@@ -488,22 +479,34 @@ function disableRaycastIntersect() {
 function main() {
   renderer.autoClear = true;
 
-  // const pointLight1 = new THREE.PointLight( 0xffffff );
-  // pointLight1.position.set(700, 10, -600 );
-  // pointLight1.castShadow = false;
+  // Light
+  // const skyColor = 0xB1E1FF;  // light blue
+  // const groundColor = 0xB97A20;  // brownish orange
+  // const intensity = 1;
+  // const light = new THREE.HemisphereLight(skyColor, groundColor, intensity);
+  // scene.add(light)
 
-  // const spot2 = new THREE.SpotLight( 0x0000ff );
-  // spot2.position.set(1500, 5, -900 );
-  // spot2.intensity = 2.0;
-  // spot2.castShadow = false;
-  // scene.add( spot2 )
+  const dirLight2 = new THREE.DirectionalLight( 0xB97A20 );  //0x002288
+  dirLight2.position.set( -800, 400, -100 );
+  dirLight2.intensity = 2.0
+  scene.add( dirLight2 );
+  const helper2 = new THREE.DirectionalLightHelper( dirLight2, 50 );
+  scene.add( helper2 );
 
-  // const ambientLight = new THREE.AmbientLight( 0x404040 ); // soft white light
-  // scene.add(ambientLight)
+  const dirLight3 = new THREE.DirectionalLight( 0xB97A20 );
+  dirLight3.position.set( 600, 400, 1 );
+  scene.add( dirLight3 );
+  const helper3 = new THREE.DirectionalLightHelper( dirLight3, 50 );
+  scene.add( helper3 );
+
+  const ambientLight = new THREE.AmbientLight( 0x777777 );
+  scene.add( ambientLight );
+
+  // const dirLight1 = new THREE.DirectionalLight( 0x0000ff );
+  // dirLight1.position.set( 1, 1, 1 );
+  // scene.add( dirLight1 );
 
   loadDefaultEnvironment()
-
-  drawDomeWall()
 
   /*
   testRenderTarget()
@@ -520,43 +523,6 @@ function main() {
   postprocessing.bokeh.uniforms[ "maxblur" ].value = effectController.maxblur;
 
   */
-}
-
-function drawDomeWall() {
-
-   const currentZoneCenter = ZONE_POS[window.ZONE]
-
-   // walls
-    const fogShader = new THREE.ShaderMaterial( {
-      uniforms: {
-        u_time: { value: 1.0 },
-        u_resolution: { value: new THREE.Vector2(0.0, 0.0) },
-        u_alpha: { value: 0.5 }
-      },
-      vertexShader: vertexShader,
-      fragmentShader: fogFragment,
-      side: THREE.BackSide,
-      transparent: true
-    });  
-
-    const points = [];
-    for ( let i = 0; i < 10; i ++ ) {
-      points.push( new THREE.Vector2( Math.sin( i * 0.2 ) * 10 + 2, ( i - 5 ) * 1 ) );
-    }
-    const latheTop = new THREE.LatheGeometry( points, 35, 0, 2 * Math.PI );
-
-    const domeWall = new THREE.Mesh(latheTop, fogShader)
-    domeWall.name = "shader dome"
-    domeWall.rotateX(Math.PI)
-    domeWall.scale.set(60, 30, 60)
-    domeWall.position.set(750, 100, -750)
-
-    // const hasDome = scene.children.find(obj => obj.name==="shader dome")
-    window.FOG_DOME = domeWall;
-
-    scene.add( domeWall );
-    rayObjects.push(domeWall)
-
 }
 
 function loadDefaultEnvironment() {
@@ -683,7 +649,7 @@ function checkPointerControls() {
     //   }
     // } 
     // else {
-      if(rayObjects.length && window.GROUNDS.length > 0 && window.ZONE){
+      if(enableRaycast && window.GROUNDS.length > 0 && window.ZONE){
         // let contains = window.GROUNDS[0]?.boundingSphere?.containsPoint(camera.position)  // or ground's geom
         
         const centerX1 = ZONE_POS[window.ZONE].x

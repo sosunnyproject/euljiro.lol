@@ -71,7 +71,7 @@ export async function loadAssets(gltfLoader, fontLoader, textureLoader) {
 
 export async function loadZoneOneGLB(scene) {
   console.log("loadZoneOneGLB")
-
+  
   for (let i = 0; i < DISTRICT_ONE_GLB.length; i++) {
     const model = DISTRICT_ONE_GLB[i]
     try {
@@ -80,25 +80,13 @@ export async function loadZoneOneGLB(scene) {
       console.log(err)
     }
   }
-  try {
-    scene.traverse(obj => {
-      if (typeof obj.zone === 'number') {
-
-       if(obj.zone !== 1) {
-        //  console.log("TRAVERSE ONE: ", obj)
-        scene.remove(obj)
-       }
-     } 
-   });
-  } catch (err) {
-   console.log(err)
-  }
 
   window.DYNAMIC_LOADED = true;  
 }
 
 export async function loadZoneTwoGLB(scene) {
   console.log("loadZoneTwoGLB")
+
   for (let i = 0; i < DISTRICT_TWO_GLB.length; i++) {
     const model = DISTRICT_TWO_GLB[i]
     try {
@@ -106,20 +94,6 @@ export async function loadZoneTwoGLB(scene) {
     } catch (err) {
       console.log(err)
     }
-  }
-
-  try {
-    scene.traverse(obj => {
-      if (typeof obj.zone === 'number') {
-
-        if(obj.zone !== 2) {
-          // console.log("TRAVERSE TWO: ", obj)
-          scene.remove(obj)
-        }
-      }
-    })
-  } catch (err) {
-   console.log(err)
   }
 
   window.DYNAMIC_LOADED = true;  

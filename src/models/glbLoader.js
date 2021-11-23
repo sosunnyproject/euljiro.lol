@@ -185,7 +185,8 @@ const worker2 = {
 export const DISTRICT_ONE_GLB = [
  purpleCone, blueCone, pinkCone,
  bird1, bird2, cctv, birdBot,
- metalPan, metalStick,
+ metalPan, 
+//  metalStick,
  ozRobot, robotGuide, rocket,
  worker1, worker2
 ]

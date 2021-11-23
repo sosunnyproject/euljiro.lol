@@ -86,7 +86,7 @@ export function generateDistrictGardenObjects() {
   // tree object
   for(let i = 0; i < 20; i++){
    const x = getRandomArbitrary(-300, 300)
-   const tree = generateTree(x, 15, getRandomArbitrary(-300, 300))
+   const tree = generateTree(x, 5, getRandomArbitrary(-300, 300))
    arr.push(tree);  
   }
 
@@ -117,12 +117,12 @@ export function generateDistrictGardenObjects() {
   lsystemTree2.position.set(0, 0, 0);
   lsystemTree2.scale.set(5, 5, 5);
 
-  for(let i = 0; i < 10; i++){
-    const ltreeClone =lsystemTree.clone()
+  // for(let i = 0; i < 10; i++){
+  //   const ltreeClone =lsystemTree.clone()
   
-    ltreeClone.position.set(getRandomInt(-1000, 1000), 0, getRandomInt(-1000, 1000))
-    arr.push(ltreeClone)
-   }
+  //   ltreeClone.position.set(getRandomInt(-1000, 1000), 0, getRandomInt(-1000, 1000))
+  //   arr.push(ltreeClone)
+  //  }
 
   arr.push(lsystemTree, lsystemTree1, lsystemTree2)
   }

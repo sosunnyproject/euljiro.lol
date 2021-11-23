@@ -4,6 +4,7 @@ import { updateLoadingProgress } from './utils.js';
 import uhbeeFont from "../assets/fonts/uhbeeRiceRegular.json"
 import euljiro10years from "../assets/fonts/bmEuljiro10years.json"
 import euljiroRegular from "../assets/fonts/bmEuljiroRegular.json"
+import { DynamicDrawUsage } from 'three';
 
 export async function loadAssets(gltfLoader, fontLoader, textureLoader) {
 
@@ -148,6 +149,10 @@ export function onLoadAnimation(model, data, scene) {
     model.scene.scale.set(25, 25, 25);
   }
 
+  if(data.name) {
+    model.scene.name = data.name
+  }
+
   if(model.animations.length) {
     let mixer = new THREE.AnimationMixer(model.scene);
     window.MIXERS.push(mixer)
@@ -159,6 +164,8 @@ export function onLoadAnimation(model, data, scene) {
   if(data.zone) {
     model.scene.zone = data.zone
   }
+
+  window.RAYOBJ.push(model.scene)
 
   scene.add(model.scene)
 

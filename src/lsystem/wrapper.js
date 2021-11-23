@@ -2,6 +2,9 @@ import * as THREE from 'three';
 // import { ruleOne, ruleTwo, branchInsert } from "./app.js";
 import { toRadians, toDegrees } from './utils.js';
 import { getRandomArbitrary, getRandomInt } from '../utils.js';
+import cloudsFragment from '../shaders/clouds.frag.js';
+import vertexShader from '../shaders/vertex.glsl.js';
+import fogFragment from '../shaders/fog.frag.js';
 
 const mixers = [];
 const clock = new THREE.Clock();
@@ -40,10 +43,28 @@ export function generateLsystemTree(axiom, rule1, rule2, iter, radiusRed, branch
 
     // result
     var totalGeometry = new THREE.BoxGeometry(4, 4, 4);
+    var cloudMat = new THREE.ShaderMaterial({
+        uniforms: {
+            u_time: { value: 1.0 },
+            u_resolution: { value: new THREE.Vector2() }
+          },
+          vertexShader: vertexShader,  
+          fragmentShader: cloudsFragment
+    })
+    var whiteMat = new THREE.ShaderMaterial({
+        uniforms: {
+            u_time: { value: 1.0 },
+            u_alpha: { value : 0.8 },
+            u_brightness: { value: 0.85 }, 
+            u_tone: {value: new THREE.Vector3(55.0/255.0, 240.0/255.0, 254.0/255.0)},
+            u_resolution: { value: new THREE.Vector2() }
+          },
+          vertexShader: vertexShader,  
+          fragmentShader: fogFragment
+    })
     var totalMat = new THREE.MeshPhongMaterial({color: 0xC0B9DD })
-    var totalMesh = new THREE.Mesh(totalGeometry, totalMat)
+    var totalMesh = new THREE.Mesh(totalGeometry, whiteMat)
     let topPoint = new THREE.Vector3(0, -1.0, 0);
-    
 
     // Funzione che sbriga l'assioma
     for (let i = 0; i < axiom.length; i++) {
@@ -133,7 +154,8 @@ export function generateLsystemTree(axiom, rule1, rule2, iter, radiusRed, branch
             branchMesh = new THREE.Mesh(petalGeom, randomMat);
 
         } else {
-            branchMesh = new THREE.Mesh(branchCylinder, pinkMat);
+            branchMesh = new THREE.Mesh(branchCylinder, whiteMat);
+            branchMesh.name = "shader"
         }
  
       

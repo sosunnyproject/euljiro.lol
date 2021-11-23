@@ -47,15 +47,16 @@ const ZONE1_Z_MAX = ZONE_POS.ONE.z + 300;
 
 const robotFace = {
  url: ROBOT_FACE,
- posX: ZONE_POS.ONE.x, posY: 80, posZ: ZONE_POS.ONE.z,
+ posX: ZONE_POS.ONE.x, posY: 200, posZ: ZONE_POS.ONE.z + 50,
  rx: 0, ry: 0, rz: 0,
  scale: 120,
- type: "monument"
+ type: "monument",
+ name: "robotFace"
 }
 
 const excavator = {
   url: EXCAVATOR,
-  posX: ZONE_POS.THREE.x, posY: 80, posZ: ZONE_POS.THREE.z,
+  posX: ZONE_POS.THREE.x, posY: 200, posZ: ZONE_POS.THREE.z,
   rx: 0, ry: Math.PI/3, rz: 0,
   scale: 120,
   type: "monument"
@@ -63,7 +64,7 @@ const excavator = {
 
  const coffeeSpa = {
   url: COFFEE_SPA,
-  posX: ZONE_POS.TWO.x, posY: 80, posZ: ZONE_POS.TWO.z,
+  posX: ZONE_POS.TWO.x, posY: 200, posZ: ZONE_POS.TWO.z,
   rx: 0, ry: 0, rz: 0,
   scale: 80,
   type: "monument"
@@ -184,10 +185,10 @@ const worker2 = {
 
 export const DISTRICT_ONE_GLB = [
  purpleCone, blueCone, pinkCone,
- bird1, bird2, cctv, birdBot,
+ //bird1, bird2, cctv, birdBot,
  metalPan, 
 //  metalStick,
- ozRobot, robotGuide, rocket,
+ //ozRobot, robotGuide, rocket,
  worker1, worker2
 ]
 
@@ -304,8 +305,8 @@ const cheese = {
 
 export const DISTRICT_TWO_GLB = [ 
   tape, bear, fork, knife, lion, 
-  purpleSunglass, greenSunglass, orangeSunglass, 
-  weedRainbow, spaSign, coffeeCup,
+  //purpleSunglass, greenSunglass, orangeSunglass, 
+  //weedRainbow, spaSign, coffeeCup,
   camera, cheese, ipod, oldPhone
  ]
  

@@ -11,7 +11,7 @@ const grassGeometry2 = new THREE.DodecahedronGeometry(getRandomArbitrary(4.0, 10
 const grassGeometry3 = new THREE.DodecahedronGeometry(getRandomArbitrary(4.0, 10.0), getRandomInt(0, 3))
 const randGeom = [grassGeometry1, grassGeometry2, grassGeometry3]
 
-export function generateTree(xpos, ypos, zpos) {
+export function generateTree(xpos, ypos, zpos, scale) {
 
  const tree = new THREE.Object3D();
  
@@ -25,7 +25,7 @@ export function generateTree(xpos, ypos, zpos) {
  
  const grassMesh = new THREE.Mesh( grassGeom, grassMaterial );
  grassMesh.position.x = xpos
- grassMesh.position.y = ypos
+ grassMesh.position.y = ypos + 10
  grassMesh.position.z = zpos
  tree.add(grassMesh)
 
@@ -34,7 +34,7 @@ export function generateTree(xpos, ypos, zpos) {
  const trunkMaterial = new THREE.MeshPhongMaterial({ color: trunkColors[colorIndex] })
  const trunkMesh = new THREE.Mesh( trunkGeometry, trunkMaterial );
  trunkMesh.position.x = xpos
- trunkMesh.position.y = ypos - 10
+ trunkMesh.position.y = ypos
  trunkMesh.position.z = zpos
  tree.add(trunkMesh);
 

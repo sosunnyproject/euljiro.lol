@@ -7,12 +7,12 @@ uniform vec2 u_resolution;
 uniform float u_time;
 varying vec2 vUv;
 
-float cloudscale = 10.1;
-float speed = 0.03;
-float clouddark = 0.9;
+float cloudscale = 1.1;
+float speed = 0.3;
+float clouddark = 0.5;
 float cloudlight = 0.3;
-float cloudcover = -0.2;
-float cloudalpha = 1.0;
+float cloudcover = 0.2;
+float cloudalpha = 8.0;
 float skytint = 0.5;
 vec3 skycolour1 = vec3(0.2, 0.4, 0.6);
 vec3 skycolour2 = vec3(0.4, 0.7, 1.0);
@@ -72,7 +72,7 @@ void main( ) {
     uv = p*vec2(vUv.x/vUv.y,1.0);
 	uv *= cloudscale;
     uv -= q - time;
-    weight = 0.17;
+    weight = 0.7;
     for (int i=0; i<8; i++){
 		f += weight*noise( uv );
         uv = m*uv + time;

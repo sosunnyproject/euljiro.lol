@@ -12,9 +12,9 @@ import { BokehPass } from 'three/examples/jsm/postprocessing/BokehPass.js';
 import Stats from 'three/examples/jsm/libs/stats.module';
 import { WEBGL } from 'three/examples/jsm/WebGL';
 
-import { Loader } from 'three';
+import { Loader, Mesh, PlaneGeometry } from 'three';
 import { statSync } from 'fs';
-import { getRandomArbitrary } from './utils.js';
+import { getRandomArbitrary, getRandomInt } from './utils.js';
 import { ZONE_NAMES, ZONE_POS, ZONE_RESET_POS } from './globalConstants.js';
 
 // import model urls
@@ -30,7 +30,12 @@ import { updateStepProgress, updateLoadingProgress, updateStepNum } from './util
 import { loadAssets, loadZoneOneGLB, loadZoneThreeGLB, loadZoneTwoGLB, onLoadAnimation } from './loadAssets.js';
 import CircleGround from './models/CircleGround'
 import { generateDistrictGardenObjects } from './renderDistrictGarden.js';
-import { renderBuildings } from './renderZone3.js';
+import { makeSteps, renderBuildings } from './renderZone3.js';
+import { renderEntranceTrees, renderGrass } from './renderGlobal.js';
+import { renderShutter } from './renderZone1.js';
+import cloudsFragment from './shaders/clouds.frag.js';
+import skyVertex from './shaders/skyVertex.glsl.js';
+import skyFrag from './shaders/skyFrag.glsl.js';
 
 let stats, camera, renderer, pointerControls;
 
@@ -40,21 +45,20 @@ const direction = new THREE.Vector3();
 
 // raycaster
 const rayOrigin = new THREE.Vector3()
-const rayDirection = new THREE.Vector3( 10, 0, 10 )
+const rayDirection = new THREE.Vector3( 0, -1, 0 )
 rayDirection.normalize()
 let raycaster = new THREE.Raycaster(rayOrigin, rayDirection, 0, 10);
 // raycaster.set(rayOrigin, rayDirection)
-let rayObjects = []
-let enableRaycast = true;
+let enableRaycast = false;
 let cubeRenderTarget2, cubeCamera2;
 const postprocessing = {};
 
 // Zones
-window.STEP_LIMIT = 200 
+window.STEP_LIMIT = 500
 window.ZONE = "ONE"
 window.DYNAMIC_LOADED = false;
 window.ACC_STEPS = window.STEP_LIMIT;
-
+window.RAYOBJ = []
 
 // Clock: autoStart, elapsedTime, oldTime, running, startTime
 var clock = new THREE.Clock();
@@ -85,25 +89,26 @@ renderer.setSize(WIDTH, HEIGHT);
 
 // Camera
 const params = {
-  fov: 45,
+  fov: 30,
   aspect: 2.5, 
-  zNear: 10,
-  zFar: 6000
+  zNear: 1,
+  zFar: 20000
 }
 function makeCamera() {
   const { fov, aspect, zNear, zFar} = params;  // the canvas default
   return new THREE.PerspectiveCamera(fov, aspect, zNear, zFar);
 }
 camera = makeCamera();
-camera.position.x = 1300;
-camera.position.y = 2;
-camera.position.z = -800;
+camera.position.x = 6800;
+camera.position.y = 10;
+camera.position.z = 0;
 camera.lookAt(new THREE.Vector3(750, 0, -750));
 
 // Scene
 const scene = new THREE.Scene()
-scene.background = new THREE.Color(0xf9f9f9);
-scene.fog = new THREE.FogExp2( 0xcccccc, 0.002 );
+scene.background = new THREE.Color(0xFFD580);
+scene.fog = new THREE.FogExp2( 0xeeeeee, 0.002 );
+//scene.overrideMaterial = new THREE.MeshPhongMaterial({ color: 0xFFD580})
 
 // Orbit Controls
 const controls = new OrbitControls( camera, renderer.domElement);
@@ -150,7 +155,7 @@ let moveForward = false;
 let moveBackward = false;
 let moveLeft = false;
 let moveRight = false;
-let canJump = true;
+let canJump = false;
 
 // Key Controls
 const onKeyDown = function ( event ) {
@@ -332,7 +337,37 @@ function tick() {
   // update shader material
   scene.traverse(obj => {
     if(obj.name.includes("shader")) {
-      obj.material.uniforms.u_time.value = time * 0.0002; 
+      obj.material.uniforms.u_time.value = time * 0.002; 
+    }
+    if(obj.name.includes("sky")){
+      const deltaValue = 0.001
+      const currRgb = obj.material.uniforms.topColor.value
+      //console.log(obj.material.uniforms.topColor.value)
+      if(currRgb.r > 0.3) {
+        const newR = currRgb.r - deltaValue;
+        const newG = currRgb.g - deltaValue;
+        const newB = currRgb.b - deltaValue;
+        const newRgb = new THREE.Color(newR, newG, newB)
+        obj.material.uniforms.topColor.value = newRgb;
+        //console.log(obj.material.uniforms.topColor.value)  
+      }
+    }
+    if(obj.name === "robotFace") {
+      // console.log(obj)
+      obj.position.y += Math.sin(time*0.001)*0.5
+    }
+    if(obj.name.includes('apt')) {
+      const rand = obj.randomNoise;
+      obj.position.y += Math.sin(time*0.0005)*rand
+      // for(let i = 0; i < 10; i++) {
+      //   const matrix = new THREE.Matrix4()
+      //   const position = new THREE.Vector3(getRandomInt(-300, 300), 100, getRandomInt(-300, 300))
+      //   matrix.setPosition(position)
+
+      //   matrix.makeScale(getRandomInt(1, 3), 1, getRandomInt(1, 3))
+      //   obj.setMatrixAt(i, matrix)
+      // }
+
     }
   })
 
@@ -344,8 +379,8 @@ function tick() {
 };
 
 window.addEventListener('click', function () {
-  console.log(scene.children)
-  // console.log("check position:", pointerControls.getObject().position) 
+  // console.log(scene.children)
+  console.log("check position:", pointerControls.getObject().position) 
   // console.log("check rotation:", pointerControls.getObject().rotation)
 })
 
@@ -415,6 +450,8 @@ function checkCameraLoadAssets(currentPos)  {
   if(inZone1 + inZone2 + inZone3 == 0) {
     window.ZONE = "GARDEN"
 
+    scene.fog = new THREE.FogExp2(0xeeeeee, 0.001)
+
     // unload all gltf
     try {
       scene.traverse(obj => {
@@ -438,18 +475,21 @@ function loadZones(zone) {
     case "ONE":
       loadZoneOneGLB(scene)
       enableRaycast = true;
+      scene.fog = new THREE.FogExp2( 0xcccccc, 0.002 );
 
       break;
 
     case "TWO":
       loadZoneTwoGLB(scene)
       enableRaycast = true;
+      scene.fog = new THREE.FogExp2( 0xcccccc, 0.002 );
 
       break;
 
     case "THREE":
       loadZoneThreeGLB(scene)
       enableRaycast = true;
+      scene.fog = new THREE.FogExp2( 0xcccccc, 0.002 );
 
       break;
   }
@@ -536,6 +576,33 @@ function loadDefaultEnvironment() {
 
   scene.add(mesh)
 
+  {
+    const hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.6 );
+    hemiLight.color.setHSL( 0.6, 1.0, 0.6 );
+    hemiLight.groundColor.setHSL( 0.095, 1, 0.35 );
+    hemiLight.position.set( 0, 50, 0 );
+
+    const uniforms = {
+      "topColor": { value: new THREE.Color( 0xcccccc ) },
+      "bottomColor": { value: new THREE.Color( 0xffffff ) },
+      "offset": { value: 33 },
+      "exponent": { value: 0.6 }
+    }
+    const skyGeo = new THREE.SphereGeometry( 6000, 32, 32 );
+    const skyMat = new THREE.ShaderMaterial( {
+      uniforms: uniforms,
+      vertexShader: skyVertex,
+      fragmentShader: skyFrag,
+      side: THREE.BackSide
+    } );
+    // uniforms[ "topColor" ].value.copy( hemiLight.color );
+    const sky = new THREE.Mesh( skyGeo, skyMat );
+    sky.name = "sky"
+    sky.rotateY(Math.PI);
+    sky.position.x += 900
+    scene.add( sky );
+  }
+
   // ZONE 1 GROUND
   const metallicShader = new THREE.ShaderMaterial({
     uniforms: {
@@ -550,8 +617,22 @@ function loadDefaultEnvironment() {
     side: THREE.DoubleSide,
     transparent: true
   })
-  const ground1 = new CircleGround(ZONE_POS["ONE"], 600, metallicShader, "shader ground")
+  const ground1 = new CircleGround(ZONE_POS["ONE"], 1200, metallicShader, "shader ground")
+
   scene.add(ground1);
+
+  {
+    const geom = new THREE.PlaneGeometry(1200, 3000)
+    const planeGround1 = new THREE.Mesh(geom, metallicShader)
+    planeGround1.name = "shader ground"
+    planeGround1.rotateY(Math.PI/2)
+    planeGround1.rotateX(Math.PI/2)
+    planeGround1.position.set(4500, 0, 0)
+    scene.add(planeGround1) 
+  }
+
+  renderShutter(scene, 50);
+  renderShutter(scene, -50);
 
   // ZONE 2 GROUND
   const coffeeShader = new THREE.ShaderMaterial( {
@@ -564,15 +645,29 @@ function loadDefaultEnvironment() {
       side: THREE.DoubleSide
   } );
 
-  const ground2 = new CircleGround(ZONE_POS["TWO"], 600, coffeeShader, "shader ground");
+  const ground2 = new CircleGround(ZONE_POS["TWO"], 1200, coffeeShader, "shader ground");
   scene.add(ground2)
 
   // ZONE 3 GROUND
   const ground3Mat = new THREE.MeshPhongMaterial({ color: 0x77777, side: THREE.DoubleSide });
-  const ground3 = new CircleGround(ZONE_POS["THREE"], 600, ground3Mat, "ground");;
+  const ground3 = new CircleGround(ZONE_POS["THREE"], 1200, ground3Mat, "ground");;
   scene.add(ground3)
 
-  renderBuildings(scene)
+  
+  const posArr1 = [
+    new THREE.Vector3(400, 0, 100),
+    new THREE.Vector3(200, 0, -300),
+    new THREE.Vector3(-300, 0, 100)
+  ]
+
+  const posArr2 = [
+    new THREE.Vector3(250, 0, -50),
+    new THREE.Vector3(-300, 0, -200),
+    new THREE.Vector3(400, 0, -200)
+  ]
+  renderBuildings(scene, -1, posArr1)
+  renderBuildings(scene, 2, posArr2)
+  makeSteps(scene)
 
   // ZONE PARK GROUND
   const parkShader = new THREE.ShaderMaterial( {
@@ -584,12 +679,16 @@ function loadDefaultEnvironment() {
     fragmentShader: turbulenceFragment, 
     side: THREE.DoubleSide
   } ); 
-  const ground4 = new CircleGround(ZONE_POS["GARDEN"], 3000, parkShader, "shader park")
+
+  const ground4Mat = new THREE.MeshPhongMaterial({ color: 0x679436, side: THREE.DoubleSide });
+  const ground4 = new CircleGround(ZONE_POS["GARDEN"], 6000, ground4Mat, "garden")
   scene.add(ground4)
 
   window.GROUNDS = [ground1.geom, ground2.geom, ground3.geom, ground4.geom];
 
   // add garden objects
+  // renderGrass(scene)
+
   const objects = generateDistrictGardenObjects()
   
   for(let i = 0; i < objects.length; i++){
@@ -637,9 +736,11 @@ function checkPointerControls() {
 
   if ( pointerControls.isLocked === true ) {
 
+    // jump on raycaster objects
     raycaster.ray.origin.copy(currentPosition);
+    raycaster.ray.origin.y -= 10;
 
-    const intersections = raycaster.intersectObjects( rayObjects, false );
+    const intersections = raycaster.intersectObjects( window.RAYOBJ , false );
 
     const onObject = intersections.length > 0;
 
@@ -669,8 +770,7 @@ function checkPointerControls() {
 
         if(!insideZone) {
           console.log("contains? ", insideZone)
-
-          goBack();
+          // goBack();
         }
       }
     // }
@@ -692,7 +792,7 @@ function checkPointerControls() {
     if ( moveLeft || moveRight ) velocity.x -= direction.x * 400.0 * delta;
 
     if ( onObject === true ) {
-
+      console.log("JUMP YES")
       velocity.y = Math.max( 0, velocity.y);
       canJump = true;
 
@@ -706,7 +806,7 @@ function checkPointerControls() {
     if ( pointerControls.getObject().position.y < 10 ) {
 
       velocity.y = 0;
-      pointerControls.getObject().position.y = 5;
+      pointerControls.getObject().position.y = 10;
 
       canJump = true;
 

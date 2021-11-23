@@ -10,6 +10,8 @@ uniform vec2 u_resolution;
 uniform float u_time;
 varying vec2 vUv;
 uniform float u_alpha;
+uniform float u_brightness;
+uniform vec3 u_tone;
 
 float random (in vec2 _st) {
   return fract(sin(dot(_st.xy, vec2(12.9898,78.233))) * 43758.5453123);
@@ -66,19 +68,19 @@ void main() {
 
     float f = fbm(st+r);
 
-    color = mix(vec3(0.15,0.15,0.1),
+    color = mix(vec3(0.6, 0.6, 0.6),
                 vec3(0.8,0.9,0.8),
                 clamp((f*f)*4.0,0.0,1.0));
 
     color = mix(color,
-                vec3(0.2,0.2,0.2),
+                vec3(0.4,0.4,0.4),
                 clamp(length(q),0.0,1.0));
 
     color = mix(color,
-                vec3(1.000,0.980,0.980),
+                u_tone,
                 clamp(length(r.x),0.0,1.0));
 
-    gl_FragColor = vec4((f*f*f+.6*f*f+.5*f)*color, u_alpha);
+    gl_FragColor = vec4((f*f*f+.6*f*f+.5*f+u_brightness)*color, u_alpha);
 }
 
 `

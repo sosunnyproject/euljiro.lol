@@ -290,6 +290,11 @@ function xboxKeyPressed (gamepad) {
   if(!buttons[14].touched){
     moveLeft = false;
   }
+  if(buttons[3].pressed) {
+    if ( canJump === true ) velocity.y += 650;
+    canJump = false;
+    return;
+  }
   if(buttons[0].pressed) {
     console.log(buttons[0].value)
     if(buttons[0].value) {

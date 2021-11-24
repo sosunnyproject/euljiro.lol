@@ -6,6 +6,9 @@ import euljiro10years from "../assets/fonts/bmEuljiro10years.json"
 import euljiroRegular from "../assets/fonts/bmEuljiroRegular.json"
 import { DynamicDrawUsage } from 'three';
 
+const box = new THREE.BoxGeometry(5, 5, 5, 100, 100)
+const mat = new THREE.MeshBasicMaterial({ color: 0xffffff, opacity: 0.0, transparent: true })
+
 export async function loadAssets(gltfLoader, fontLoader, textureLoader) {
 
  const loadNum = 1 + MONUMENTS_GLB.length + DISTRICT_TWO_GLB.length + DISTRICT_ONE_GLB.length + DISTRICT_THREE_GLB.length;
@@ -165,7 +168,22 @@ export function onLoadAnimation(model, data, scene) {
     model.scene.zone = data.zone
   }
 
-  window.RAYOBJ.push(model.scene)
+  // model.scene.children[0].geometry.computeBoundingBox();
+  // console.log("gltf", model.scene) // object3d
+  // console.log("gltf bounding box: ", model.scene, model.scene.children[0].geometry.boundingBox) // mesh
+
+  const dummy = new THREE.Mesh(box, mat)
+  dummy.position.set(posX, 0, posZ)
+  dummy.scale.set(data.scale*1.5 || 1, data.scale || 1, data.scale*1.5 || 1)
+  // scene.add(dummy)
+  dummy.name = data.name;
+  console.log("dummy for bounding box", dummy)
+  // const boxhelper = new THREE.BoxHelper( dummy, 0xff0000 );
+  // boxhelper.setFromObject(dummy)
+  // boxhelper.name = data.name;
+
+  scene.add(dummy)
+  window.RAYOBJ.push(dummy)
 
   scene.add(model.scene)
 

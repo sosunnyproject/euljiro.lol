@@ -5,16 +5,16 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/examples/jsm/loaders/dracoloader';
 import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls.js';
 import { FontLoader } from 'three/examples/jsm/loaders/FontLoader';
-import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
-import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
-import { BokehPass } from 'three/examples/jsm/postprocessing/BokehPass.js';
+// import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
+// import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
+// import { BokehPass } from 'three/examples/jsm/postprocessing/BokehPass.js';
 
 import Stats from 'three/examples/jsm/libs/stats.module';
 import { WEBGL } from 'three/examples/jsm/WebGL';
 
 import { Loader, Mesh, PlaneGeometry } from 'three';
 import { statSync } from 'fs';
-import { getRandomArbitrary, getRandomInt } from './utils.js';
+import { getRandomArbitrary, getRandomInt, retrieveEnergy, warnLowEnergy } from './utils.js';
 import { ZONE_NAMES, ZONE_POS, ZONE_RADIUS, ZONE_RESET_POS } from './globalConstants.js';
 
 // import model urls
@@ -33,18 +33,20 @@ let prevTime = performance.now();
 const velocity = new THREE.Vector3();
 const direction = new THREE.Vector3();
 
+let popupOpen = false;
+
 // raycaster
 const rayOrigin = new THREE.Vector3()
-const rayDirection = new THREE.Vector3( 0, -1, 0 )
+const rayDirection = new THREE.Vector3( -1, 0, 0 )
 rayDirection.normalize()
-let raycaster = new THREE.Raycaster(rayOrigin, rayDirection, 0, 10);
+let raycaster = new THREE.Raycaster(rayOrigin, rayDirection, 0, 100); // rayOrigin, rayDirection, 0, 10
 // raycaster.set(rayOrigin, rayDirection)
 let enableRaycast = false;
 let cubeRenderTarget2, cubeCamera2;
 const postprocessing = {};
 
 // Zones
-window.STEP_LIMIT = 500
+window.STEP_LIMIT = 1000
 window.ZONE = "ONE"
 window.DYNAMIC_LOADED = false;
 window.ACC_STEPS = window.STEP_LIMIT;
@@ -89,15 +91,15 @@ function makeCamera() {
   return new THREE.PerspectiveCamera(fov, aspect, zNear, zFar);
 }
 camera = makeCamera();
-camera.position.x = 6000;
+camera.position.x = 3000;
 camera.position.y = 10;
 camera.position.z = 0;
 camera.lookAt(new THREE.Vector3(750, 0, -750));
 
 // Scene
 const scene = new THREE.Scene()
-scene.background = new THREE.Color(0x040404);
-scene.fog = new THREE.FogExp2( 0xeeeeee, 0.002 );
+scene.background = new THREE.Color(0x000000);
+scene.fog = new THREE.FogExp2( 0xcccccc, 0.002 );
 //scene.overrideMaterial = new THREE.MeshPhongMaterial({ color: 0xFFD580})
 
 // Orbit Controls
@@ -177,6 +179,12 @@ const onKeyDown = function ( event ) {
       if ( canJump === true ) velocity.y += 650;
       canJump = false;
       break;
+    
+    case 'KeyI':
+      popupOpen = !popupOpen;
+      console.log(popupOpen)
+      togglePopup()
+      break;
   }
 };
 
@@ -220,6 +228,15 @@ window.addEventListener("gamepaddisconnected", function(e) {
   window.gamepadConnected = false;
 })
 
+function togglePopup () {
+  var popup = document.querySelector(".popup");
+  if(popupOpen) {
+    popup.classList.toggle("show");
+  } else {
+    popup.classList.remove("show")
+  }
+}
+
 function xboxKeyPressed (gamepad) {
   if(!gamepad) {
     console.log("ERROR: XBOX CONNECTION LOST")
@@ -234,8 +251,14 @@ function xboxKeyPressed (gamepad) {
   const buttons = gamepad.buttons;
 
   if(buttons[1].touched) {  // B button
-    if(!pointerControls.isLocked) {
-      pointerControls.lock();
+    if(!pointerControls?.isLocked) {
+      console.log(pointerControls)
+      console.log(pointerControls.isLocked)
+      try {
+        pointerControls?.lock();
+      } catch (err) {
+        console.log(err)
+      }
     }
   }
 
@@ -266,6 +289,22 @@ function xboxKeyPressed (gamepad) {
   }
   if(!buttons[14].touched){
     moveLeft = false;
+  }
+  if(buttons[0].pressed) {
+    console.log(buttons[0].value)
+    if(buttons[0].value) {
+      popupOpen = true;
+      console.log(popupOpen)
+      togglePopup()
+    }
+    return;
+  }
+  if(buttons[2].pressed) {
+    console.log(buttons[2].value)
+    popupOpen = false;
+    console.log(popupOpen)
+    togglePopup()
+    return;
   }
 }
 
@@ -301,11 +340,39 @@ function xboxAxesPressed(gamepad) {
 
   prevAxisX = movementX;
   prevAxisY = movementY;
+
+  // control for instruction popup slide
+  if(popupOpen){
+    console.log("popup? ", popupOpen)
+    const btnVal = gamepad.axes[0];
+    console.log(btnVal)
+    const contentWindow = document.querySelector(".popupContent")
+    if(btnVal === -1) {
+      contentWindow.innerText = "hello prev"
+      console.log(contentWindow)
+      return;
+    } else if (btnVal === 1) {
+      contentWindow.innerText = "hello next"
+      console.log(contentWindow)
+    
+      return;
+    }
+  }
 }
 
 function tick() {
   const time = performance.now();
+  var delta = clock.getDelta();
 
+  // check energy progress
+  let energyPercent = ((window.ACC_STEPS/window.STEP_LIMIT)*100) 
+  if( energyPercent < 50 ) {
+    warnLowEnergy(scene, delta)
+  } else if ( energyPercent > 50 ) {
+    retrieveEnergy(scene)
+  }
+
+  
   // gamepad
   if (window.gamepadConnected) {
     const gamepad = navigator.getGamepads()[0];
@@ -329,21 +396,7 @@ function tick() {
     if(obj.name.includes("shader")) {
       obj.material.uniforms.u_time.value = time * 0.002; 
     }
-    if(obj.name.includes("sky")){
-      const deltaValue = 0.001
-      const currRgb = obj.material.uniforms.topColor.value
-      //console.log(obj.material.uniforms.topColor.value)
-      if(currRgb.r > 0.3) {
-        const newR = currRgb.r - deltaValue;
-        const newG = currRgb.g - deltaValue;
-        const newB = currRgb.b - deltaValue;
-        const newRgb = new THREE.Color(newR, newG, newB)
-        obj.material.uniforms.topColor.value = newRgb;
-        //console.log(obj.material.uniforms.topColor.value)  
-      }
-    }
     if(obj.name === "robotFace") {
-      // console.log(obj)
       obj.position.y += Math.sin(time*0.001)*0.5
     }
     if(obj.name === "animate") {
@@ -374,7 +427,7 @@ function tick() {
 };
 
 window.addEventListener('click', function () {
-  // console.log(scene.children)
+  console.log(scene.children)
   console.log("check position:", pointerControls.getObject().position) 
   // console.log("check rotation:", pointerControls.getObject().rotation)
 })
@@ -453,7 +506,7 @@ function checkCameraLoadAssets(currentPos)  {
     console.log("inside : ", window.ZONE)
     window.DYNAMIC_LOADED = false;
 
-    scene.fog = new THREE.FogExp2(0xeeeeee, 0.001)
+    scene.fog = new THREE.FogExp2(0xeeeeee, 0.002)
 
     // unload all gltf
     // try {
@@ -527,18 +580,13 @@ function main() {
   renderer.autoClear = true;
 
   // Light
-  // const skyColor = 0xB1E1FF;  // light blue
-  // const groundColor = 0xB97A20;  // brownish orange
-  // const intensity = 1;
-  // const light = new THREE.HemisphereLight(skyColor, groundColor, intensity);
-  // scene.add(light)
-
   const dirLight2 = new THREE.DirectionalLight( 0xB97A20 );  //0x002288
   dirLight2.position.set( -3000, 2000, -800 );
   dirLight2.intensity = 2.0
   const target2 = new THREE.Object3D()
   target2.position.set(ZONE_POS.ONE.x, ZONE_POS.ONE.y, ZONE_POS.ONE.z)
   dirLight2.target = target2
+  dirLight2.name = "light"
   scene.add( dirLight2 );
   scene.add(target2)
   scene.add(dirLight2.target)
@@ -547,12 +595,14 @@ function main() {
 
   const dirLight3 = new THREE.DirectionalLight( 0xB97A20 );
   dirLight3.position.set( 2000, 2000, 1000 );
+  dirLight3.name = "light"
   scene.add( dirLight3 );
   const helper3 = new THREE.DirectionalLightHelper( dirLight3, 50 );
   scene.add( helper3 );
 
   const ambientLight = new THREE.AmbientLight( 0x777777 );
   ambientLight.intensity = 0.5;
+  ambientLight.name = "light"
   scene.add( ambientLight );
 
   loadDefaultEnvironment()
@@ -604,7 +654,7 @@ function loadDefaultEnvironment() {
 
   renderBuildings(scene, -1, posArr1)
   renderBuildings(scene, 2, posArr2)
-  makeSteps(scene)
+  // makeSteps(scene)
 
   // monument gltf
   for (let i = 0; i < MONUMENTS_GLB.length; i++) {
@@ -620,29 +670,6 @@ function loadDefaultEnvironment() {
 
 }
 
-function goBack(target) {
-
-  if(target) {
-      console.log(target)
-      camera.position.x = target.x;
-      camera.position.z = target.z ;
-      camera.lookAt(target.lx, 15, target.lz)
-  } else {
-  //   canJump = true;
-  //   const jumpCode = {code: "Space"}
-  //   onKeyDown(jumpCode)
-  //   velocity.y += 100 
-
-  //   setTimeout(function () {
-      camera.position.x = ZONE_RESET_POS[window.ZONE].x;
-      camera.position.z = ZONE_RESET_POS[window.ZONE].z;
-      camera.lookAt(ZONE_POS[window.ZONE].x, 15, ZONE_POS[window.ZONE].z)
-  //   }, 10)
-  }
- 
-}
-
-
 function checkPointerControls() {
   const time = performance.now();
   const currentPosition = pointerControls.getObject().position
@@ -651,13 +678,18 @@ function checkPointerControls() {
 
     // jump on raycaster objects
     raycaster.ray.origin.copy(currentPosition);
-    raycaster.ray.origin.y -= 10;
+    raycaster.ray.origin.x += 10;
+    raycaster.ray.origin.z += 10;
 
     const intersections = raycaster.intersectObjects( window.RAYOBJ , false );
 
     const onObject = intersections.length > 0;
+    // console.log(window.RAYOBJ)
+    if(onObject) {
+      console.log("raycast? ", onObject, intersections[0].object.name)
+    }
 
-    if(enableRaycast && window.GROUNDS.length > 0 && window.ZONE){
+    if(window.GROUNDS.length > 0 && window.ZONE){
       
       const centerX1 = ZONE_POS[window.ZONE].x
       const centerZ1 = ZONE_POS[window.ZONE].z
@@ -718,24 +750,6 @@ function checkPointerControls() {
 // including animation loop
 function render() {
 
-  const gardenTarget = {
-    x: 100, z: 0,
-    lx: 0, lz: 0
-  }
-
-  if(window.ZONE !== "GARDEN") {
-    // console.log(window.ACC_STEPS, window.ZONE)
-  
-    if(window.ACC_STEPS <= -5 ) {  // force move to garden
-      // goBack(gardenTarget)
-      disableRaycastIntersect()
-    }
-
-  } 
-  // else if (window.ACC_STEPS >= stepLimit ) {  // open to zone 1, 2, 3
-  //   disableRaycastIntersect()
-  // }
-
   const canvas = renderer.domElement;
   camera.aspect = canvas.clientWidth / canvas.clientHeight;
   camera.updateProjectionMatrix();     
@@ -747,37 +761,10 @@ function render() {
     // mixer.update(delta);
   }  
 
-  // cubeCamera2.update( renderer, scene );  // render target
-
-  // postprocessing.composer.render( 0.9 );
-
   renderer.clear();
   renderer.render( scene, camera );
   stats.update()
 }
-
-function initPostprocessing() {
-
-  const renderPass = new RenderPass( scene, camera );
-
-  const bokehPass = new BokehPass( scene, camera, {
-    focus: 1.0,
-    aperture: 0.025,
-    maxblur: 0.01,
-
-    width: window.innerWidth,
-    height: window.innerHeight
-  } );
-
-  const composer = new EffectComposer( renderer );
-
-  composer.addPass( renderPass );
-  composer.addPass( bokehPass );
-
-  postprocessing.composer = composer;
-  postprocessing.bokeh = bokehPass;
-}
-
 
 function initStats() {
   stats = new Stats();
@@ -787,36 +774,4 @@ function initStats() {
   stats.domElement.style.top = '0px';
   document.querySelector("#stats-output").append(stats.domElement);
   return stats;
-}
-
-function testRenderTarget() {
-  
-  // rtt test
-  cubeRenderTarget2 = new THREE.WebGLCubeRenderTarget( 256, {
-    format: THREE.RGBFormat,
-    generateMipmaps: true,
-    minFilter: THREE.LinearMipmapLinearFilter,
-    encoding: THREE.sRGBEncoding
-  } );
-
-  cubeCamera2 = new THREE.CubeCamera( 1, 1000, cubeRenderTarget2 );
-  cubeCamera2.position.set(1200, 0, -800)
-
-  const rttMat = new THREE.MeshBasicMaterial( {
-    envMap: cubeRenderTarget2.texture,
-    combine: THREE.MultiplyOperation,
-    reflectivity: 1,
-    side: THREE.DoubleSide
-  } );
-
-  const reflectiveMat = new THREE.MeshPhongMaterial({
-    color: 0xffffff,
-    shininess: 100.0,
-    emissive: 0x000000,
-    specular: 0xffffff,
-    side: THREE.DoubleSide,
-    reflectivity: 1.0,
-    envMap: cubeRenderTarget2.texture,
-    combine: THREE.MultiplyOperation,
-  })
 }

@@ -1,3 +1,5 @@
+import * as THREE from 'three';
+
 export function getRandomArbitrary(min, max) {
  return Math.random() * (max - min) + min;
 }
@@ -21,31 +23,35 @@ export function updateStepNum() {
   updateStepProgress(per)
 }
 
-export function updateStepProgress(value) {
+// https://stackoverflow.com/questions/56421795/how-to-change-the-color-of-progressvalue-webkit-progress-value-property
+
+export function updateStepProgress(stepPercent) {
   // Step Counter Bar
-  var stepCounter = document.querySelector('#stepCounter')
-  var stepLeftBar = stepCounter.querySelector('.left .bar');
-  var stepRightBar = stepCounter.querySelector('.right .bar');
-  var stepPer = stepCounter.querySelector('.value');
-  stepPer.innerHTML=value +'%';
-   if (value <= 50) {
-     var degree = 18*value/5;
-     stepRightBar.style.transform = "rotate("+degree+"deg)";
-     stepLeftBar.style.transform = "rotate(0deg)";
-   } else {
-     var degree = 18*(value-50)/5;
-     stepRightBar.style.transform = "rotate(180deg)";
-     stepLeftBar.style.transform = "rotate("+degree+"deg)";
-   }
+  var progress = document.querySelector("progress");
+  // console.log(progress)
+
+  progress.setAttribute('value', stepPercent)
+  // console.log("stepPercent: ", stepPercent)
+
+  var n = 2 * parseInt(progress.getAttribute("value"));
+
+  n += stepPercent
+  // console.log("rgb: ", n)
+  
+  progress.style.setProperty("--c", "rgb(" + (255-n) + "," + n + "," + n + ")");
 }
 
 export function updateLoadingProgress(value) {
   // Load Progress Bar
   var leftBar = document.querySelector('.left .bar');
   var rightBar = document.querySelector('.right .bar');
-  var per = document.querySelector('.value');
+  var per = document.querySelector('#loadValue');
 
-  per.innerHTML=value +'%';
+  if(value < 100) {
+    per.innerHTML='Loading...';
+  } else if (value >= 100) {
+    per.innerHTML='Ready to Play'
+  }
   if (value <= 50) {
     var degree = 18*value/5;
     rightBar.style.transform = "rotate("+degree+"deg)";
@@ -55,4 +61,54 @@ export function updateLoadingProgress(value) {
     rightBar.style.transform = "rotate(180deg)";
     leftBar.style.transform = "rotate("+degree+"deg)";
   }
+}
+
+const deltaValue = 0.01
+
+export function retrieveEnergy(scene) {
+  scene.traverse(obj => {
+    if(obj.name.includes("light")) {
+      // console.log(obj)
+      if(obj.intensity <= 1.0) {
+        obj.intensity += deltaValue
+      }
+    }
+    if(obj.name.includes("sky")){
+      const currRgb = obj.material.uniforms.topColor.value
+      //console.log(obj.material.uniforms.topColor.value)
+      if(currRgb.r <= 0.6) {
+        const newR = currRgb.r + deltaValue;
+        const newG = currRgb.g + deltaValue;
+        const newB = currRgb.b + deltaValue;
+        const newRgb = new THREE.Color(newR, newG, newB)
+        obj.material.uniforms.topColor.value = newRgb;
+        //console.log(obj.material.uniforms.topColor.value)  
+      }
+    }
+  })
+}
+
+export function warnLowEnergy(scene, delta) {
+  // dim the lights
+
+  scene.traverse(obj => {
+    if(obj.name.includes("light")) {
+      // console.log(obj)
+      if(obj.intensity >= 0) {
+        obj.intensity -= deltaValue
+      }
+    }
+    if(obj.name.includes("sky")){
+      const currRgb = obj.material.uniforms.topColor.value
+      //console.log(obj.material.uniforms.topColor.value)
+      if(currRgb.r >= -2.0) {
+        const newR = currRgb.r - deltaValue;
+        const newG = currRgb.g - deltaValue;
+        const newB = currRgb.b - deltaValue;
+        const newRgb = new THREE.Color(newR, newG, newB)
+        obj.material.uniforms.topColor.value = newRgb;
+        //console.log(obj.material.uniforms.topColor.value)  
+      }
+    }
+  })
 }

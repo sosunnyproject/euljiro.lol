@@ -4,123 +4,41 @@
 		<meta charset="utf-8">
 		<!-- <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests"> -->
 		<title>EULJIRO HAS NO PARK</title>
-		<style>
-			html, body { margin: 0; overflow: hidden }
-			canvas {
-				width: 100%;
-				height: 100%;
-				display: block;
-			}
-			#blocker {
-				position: absolute;
-				width: 100%;
-				height: 100%;
-				background-color: rgba(0,0,0,0.5);
-			}
-			#instructions {
-				width: 100%;
-				height: 100%;
-
-				display: flex;
-				flex-direction: column;
-				justify-content: center;
-				align-items: center;
-
-				text-align: center;
-				font-size: 24px;
-				font-weight: 700;
-				cursor: pointer;
-				color: white;
-			}
-
-			#loadWrapper {
-				display: flex;
-				justify-content: center;
-			}
-
-			/* https://wit.nts-corp.com/2021/04/23/6338 */
-			.circle_progress {
-				position: relative;
-				width: 200px;
-				height: 200px;
-				margin-bottom: 20px;
-			}
-			.circle_progress::after {
-					position: absolute;
-					top: 0;
-					left: 0;
-					right: 0;
-					bottom: 0;
-					border-radius: 50%;
-					border: 20px solid #fff;
-					box-sizing: border-box;
-					content: "";
-			}
-			.left, .right {
-			position: absolute;
-			top: 0;
-			width: 100px;
-			height: 200px;
-			overflow: hidden;
-			z-index: 10;
-			}
-			.bar {
-					position: absolute;
-					top: 0;
-					width: 100px;
-					height: 200px;
-					border: 20px solid  #03c75a;
-					box-sizing: border-box;
-			}
-  
-  .left {
-    left: 0;
-  	}
-		.left .bar {
-					left: 100px;
-					border-top-right-radius: 200px;
-					border-bottom-right-radius: 200px;
-					border-left: 0;
-					transform-origin: center left;
-		}
-  .right {
-    right: 0;
-  }
-		.right .bar {
-					right: 100px;
-					border-top-left-radius: 200px;
-					border-bottom-left-radius: 200px;
-					border-right: 0;
-					transform-origin: center right;
-		}
-
-  .value {
-    width: 200px;
-    height: 200px;
-    border-radius: 50%;
-    font-size: 20px;
-    color: #888;
-    line-height: 200px;
-    text-align: center;
-    position: absolute;
-  }
-
-		#stepCounter{
-			position: absolute;
-			top: 0;
-			right: 0;
-			z-index: 10;
-		}
-		</style>
+		<link rel="stylesheet" href="style.css">
 		<script type="module" src="src/main.js">
 		</script>
 	</head>
   <body>
 			<div id="stats-output"></div>
 			<div id="container"></div>
+			<div class="popup">Click Here
+				<div class="popupContent">
+					instruction!
+					<p>
+						Move: WASD 혹은 화살표 // 
+						Jump: SPACE //
+						Look: MOUSE
+				</p>
+				</div>
+			</div>
 			<div id="blocker">
 				 
 					<div id="instructions">
+							<p style="font-size:24px">
+									로딩이 완료될 때까지 기다려주세요.<br />
+									게임패드의 A 버튼 (키보드 i) 을 누르면 <br />
+									플레이 중에도 안내 설명을 읽을 수 있습니다. <br />
+									게임 패드의 X 버튼을 누르면 안내창이 사라집니다. <br />
+									게임 패드의 A 버튼을 눌러도 안내창이 나타나지 않으면 <br />
+									여러 번 클릭을 시도해주세요. <br />
+							</p>
+							<p>
+									시작하려면 마우스로 화면을 클릭하거나
+									게임패드의 B 버튼을 눌러주세요. <br />
+									B 버튼을 눌러도 시작되지 않는 경우, 
+									새로고침을 하거나 도우미를 불러주세요. <br />
+							</p>
+							<div id="loadValue"></div>
 							<div id="loadWrapper">
 								<div class="circle_progress"> 
 									<span class="left"> 
@@ -129,36 +47,19 @@
 									<span class="right"> 
 											<span class="bar"></span> 
 									</span>
-									<div class="value"></div>
 							</div>
 							</div>
-
-							<p style="font-size:36px">
-									Click to play <br/> 시작하려면 클릭하세요.<br/>
-									ESC를 누르면 마우스로 탑뷰가능 <br/>
-									새로고침하면 다시 마우스 키보드로 이동가능 </br/>
-							</p>
-							<p>
-									Move: WASD 혹은 화살표<br/>
-									Jump: SPACE<br/>
-									Look: MOUSE<br/>
-									<h1> 500 걸음 채우기전까지는 이동불가. 그 이후, 방어벽 해제</h1>
-									<br/>
-							</p>
 					</div>	
 			</div>
-			<div id="stepCounter">
-					<div class="circle_progress"> 
-						<span class="left"> 
-								<span class="bar"></span> 
-						</span> 
-						<span class="right"> 
-								<span class="bar"></span> 
-						</span>
-						<div class="value"></div>
-				</div>
-			</div>
 
+			<div class="energyContainer">
+					<div class="energyBar label">
+						ENERGY 체력
+					</div>
+					<div class="energyBar">
+						<progress id="energy" max="100" value="100"></progress>
+					</div>
+			</div>
    <canvas id="c" ></canvas>
   </body>
 </html>

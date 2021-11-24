@@ -14,7 +14,7 @@ import { WEBGL } from 'three/examples/jsm/WebGL';
 
 import { Loader, Mesh, PlaneGeometry } from 'three';
 import { statSync } from 'fs';
-import { getRandomArbitrary, getRandomInt, retrieveEnergy, warnLowEnergy } from './utils.js';
+import { getRandomArbitrary, getRandomInt, retrieveEnergy, showDescription, warnLowEnergy } from './utils.js';
 import { ZONE_NAMES, ZONE_POS, ZONE_RADIUS, ZONE_RESET_POS } from './globalConstants.js';
 
 // import model urls
@@ -231,7 +231,7 @@ window.addEventListener("gamepaddisconnected", function(e) {
 function togglePopup () {
   var popup = document.querySelector(".popup");
   if(popupOpen) {
-    popup.classList.toggle("show");
+    popup.classList.add("show");
   } else {
     popup.classList.remove("show")
   }
@@ -351,7 +351,7 @@ function xboxAxesPressed(gamepad) {
     console.log("popup? ", popupOpen)
     const btnVal = gamepad.axes[0];
     console.log(btnVal)
-    const contentWindow = document.querySelector(".popupContent")
+    const contentWindow = document.querySelector("#howtoContent")
     if(btnVal === -1) {
       contentWindow.innerText = "hello prev"
       console.log(contentWindow)
@@ -691,7 +691,7 @@ function checkPointerControls() {
     const onObject = intersections.length > 0;
     // console.log(window.RAYOBJ)
     if(onObject) {
-      console.log("raycast? ", onObject, intersections[0].object.name)
+      showDescription( intersections[0].object.name )
     }
 
     if(window.GROUNDS.length > 0 && window.ZONE){

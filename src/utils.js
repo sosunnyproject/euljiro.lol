@@ -112,3 +112,18 @@ export function warnLowEnergy(scene, delta) {
     }
   })
 }
+
+export function showDescription ( objName ) {
+  var popup = document.querySelector(".descPopup");
+  if(!window.DESC_POP) popup.classList.add("show");
+  window.DESC_POP = true;
+
+  const descPopup = document.querySelector("#descContent")
+  descPopup.innerText = "This is " + objName
+  console.log(descPopup, objName)
+
+  setTimeout(() => {
+    popup.classList.remove("show")
+    window.DESC_POP = false;
+  }, 3000)
+}

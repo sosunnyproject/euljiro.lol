@@ -14,6 +14,7 @@ import { floorPowerOfTwo } from 'three/src/math/mathutils';
 import AnimatedFlower from './models/AnimatedFlower.js';
 import { ZONE_POS, ZONE_RADIUS } from './globalConstants.js';
 import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils'
+import fogFragment from './shaders/fog.frag.js';
 
 export function instantiateParkObj(scene) {
 
@@ -60,44 +61,70 @@ export function instantiateParkObj(scene) {
 
   {
     // lsystem trees
-    
-    const lsystemTree = generateLsystemTree("ffBAf>A", "^fB++fB<<fvB", "f<f>B>f--AvA", 5, 0.08, 2.0);
-    lsystemTree.position.set(30, 0, -60)
+    var cloudMat = new THREE.ShaderMaterial({
+      uniforms: {
+          u_time: { value: 1.0 },
+          u_resolution: { value: new THREE.Vector2() }
+        },
+        vertexShader: vertexShader,  
+        fragmentShader: cloudsFragment
+    })
+    cloudMat.name = "shader"
+    var neonMat = new THREE.ShaderMaterial({
+        uniforms: {
+            u_time: { value: 1.0 },
+            u_alpha: { value : 0.8 },
+            u_brightness: { value: 0.85 }, 
+            u_tone: {value: new THREE.Vector3(55.0/255.0, 240.0/255.0, 254.0/255.0)},
+            u_resolution: { value: new THREE.Vector2() }
+          },
+          vertexShader: vertexShader,  
+          fragmentShader: fogFragment
+    })
+    neonMat.name = "shader"
+    var plainMat = new THREE.MeshPhongMaterial({color: 0xC0B9DD })
 
-    const lsystemTree1 = generateLsystemTree("ffAf>B", "^fB++fAvvB", "f<B+f--vA", 5, 0.05, 1.5);
-    lsystemTree1.position.set(-60, 0, 60)
+    const Ltree1 = generateLsystemTree(plainMat, "ffBAf>A", "^fB++fB<<fvB", "f<f>B>f--AvA", 5, 0.08, 2.0);
+    Ltree1.position.set(-800, 0, -100)
+    Ltree1.scale.set(10, 10, 10)
+
+    const Ltree2 = generateLsystemTree(plainMat, "ffAf>B", "^fB++fAvvB", "f<B+f--vA", 5, 0.08, 2.0);
+    Ltree2.position.set(-600, 0, 1200)
+    Ltree2.scale.set(18, 18, 18)
+
+    const Ltree3 = generateLsystemTree(plainMat, "f--f++A++B----A", "^^fv++<f-->Bf<^^f<B", "f-->Af++++fA<A", 5, 0.07, 2.0);
+    Ltree3.position.set(1000, 0, -1200)
+    Ltree3.scale.set(18, 18, 18)
+
+    const Ltree4 = Ltree3.clone()
+    Ltree4.position.set(-1500, 0, 1000)
+    // Ltree4.scale.set(1/2, 1/2, 1/2)
 
     // const lsystemTree2 = generateLsystemTree("ffBAf>A", "^ffAvvfB+fv--B", "f<A>B<f--A+B", 4, 0.1, 1.8);
-    const CenterTree = generateLsystemTree("ffBAf>AB", "^ffA<<fB+fvB", "f<B>ff>++A", 7, 0.08, 2.5);
+    const CenterTree = generateLsystemTree(neonMat, "ffBAf>AB", "^ffA<<fB+fvB", "f<B>ff>++A", 7, 0.08, 2.5);
     CenterTree.position.set(0, 0, 0);
     CenterTree.scale.set(80, 80, 80);
 
-    arr.push(CenterTree)
+    arr.push(CenterTree, Ltree1, Ltree2, Ltree3, Ltree4)
   }
-
-  // math rose   
-  const flower1 = new FlowerPetals(4, 12)
-  flower1.position.set(70, 20, 20)
-  // arr.push(flower1)
   
   const flower3 = new AnimatedFlower({
     numerator: 4, 
-    denominator: 7
+    denominator: 7,
+    size: 5
   })
-  flower3.position.set(300, 100, -200)
-  arr.push(flower3)
+  flower3.position.set(1883, 150, 220)
 
-  let petalN = 4, petalD = 9;
-  // const flower2 = new FlowerPetals(6.5, 7.4)
-  const flower2 = new AnimatedFlower({
-    numerator: 6.5, 
-    denominator: 7.4,
-    angleGap: 0.8
+  const f2 = new AnimatedFlower({
+    numerator: 4, 
+    denominator: 7,
+    size: 3
   })
-  flower2.position.set(700, 100, -20)
+  f2.position.set(1910, 150, -510)
 
-  arr.push(flower2)
+  arr.push(flower3, f2)
 
+  // add all to scene
   for(let i = 0; i < arr.length; i++ ){
       scene.add(arr[i])
   }

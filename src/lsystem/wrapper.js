@@ -18,7 +18,7 @@ var season = 4;
 var barkTexture = 3;
 
 
-export function generateLsystemTree(axiom, rule1, rule2, iter, radiusRed, branchRad, branchRadiusThreshold) {
+export function generateLsystemTree(material, axiom, rule1, rule2, iter, radiusRed, branchRad, branchRadiusThreshold) {
     // Geometria composta dell'albero
     // setting
     var axiom = axiom // "ffBAf>A";
@@ -43,27 +43,8 @@ export function generateLsystemTree(axiom, rule1, rule2, iter, radiusRed, branch
 
     // result
     var totalGeometry = new THREE.BoxGeometry(4, 4, 4);
-    var cloudMat = new THREE.ShaderMaterial({
-        uniforms: {
-            u_time: { value: 1.0 },
-            u_resolution: { value: new THREE.Vector2() }
-          },
-          vertexShader: vertexShader,  
-          fragmentShader: cloudsFragment
-    })
-    var whiteMat = new THREE.ShaderMaterial({
-        uniforms: {
-            u_time: { value: 1.0 },
-            u_alpha: { value : 0.8 },
-            u_brightness: { value: 0.85 }, 
-            u_tone: {value: new THREE.Vector3(55.0/255.0, 240.0/255.0, 254.0/255.0)},
-            u_resolution: { value: new THREE.Vector2() }
-          },
-          vertexShader: vertexShader,  
-          fragmentShader: fogFragment
-    })
-    var totalMat = new THREE.MeshPhongMaterial({color: 0xC0B9DD })
-    var totalMesh = new THREE.Mesh(totalGeometry, whiteMat)
+    
+    var totalMesh = new THREE.Mesh(totalGeometry, material)
     let topPoint = new THREE.Vector3(0, -1.0, 0);
 
     // Funzione che sbriga l'assioma
@@ -154,8 +135,8 @@ export function generateLsystemTree(axiom, rule1, rule2, iter, radiusRed, branch
             branchMesh = new THREE.Mesh(petalGeom, randomMat);
 
         } else {
-            branchMesh = new THREE.Mesh(branchCylinder, whiteMat);
-            branchMesh.name = "shader"
+            branchMesh = new THREE.Mesh(branchCylinder, material);
+            if(material.name === "shader") branchMesh.name = "shader"
         }
  
       

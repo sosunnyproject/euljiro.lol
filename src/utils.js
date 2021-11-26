@@ -11,7 +11,7 @@ export function getRandomInt(min, max) {
 }
 
 export function updateStepNum() {
-  console.log(window.ACC_STEPS)
+  // console.log(window.ACC_STEPS)
   if(window.ZONE === "GARDEN") {
     if(window.ACC_STEPS <= window.STEP_LIMIT) {
       window.ACC_STEPS++;
@@ -127,7 +127,7 @@ export function showDescription ( objName ) {
 
   const descPopup = document.querySelector("#descContent")
   descPopup.innerText = "This is " + objName
-  console.log(descPopup, objName)
+  // console.log(descPopup, objName)
 
   setTimeout(() => {
     popup.classList.remove("show")

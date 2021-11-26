@@ -431,9 +431,8 @@ function tick() {
       obj.scale.y = Math.cos(time*0.0001) * 15
       obj.scale.z = Math.cos(time*0.0001) * 15
     }
-    if(obj.tick) { // tick AnimatedFlower
-      console.log("tick? ", obj)
-      obj.tick(time)
+    if (typeof obj.tick === 'function') {   // tick AnimatedFlower
+      obj.tick(time);
     }
     if(obj.name.includes('apt')) { 
       const rand = obj.randomNoise;

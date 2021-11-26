@@ -53,9 +53,9 @@ export function updateLoadingProgress(value) {
   var per = document.querySelector('#loadValue');
 
   if(value < 100) {
-    per.innerHTML='Loading...';
+    per.innerHTML='로딩중... Loading...';
   } else if (value >= 100) {
-    per.innerHTML='Ready to Play'
+    per.innerHTML='시작하려면 B 버튼을 눌러주세요.'
   }
   if (value <= 50) {
     var degree = 18*value/5;

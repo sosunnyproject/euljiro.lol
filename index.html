@@ -5,6 +5,7 @@
 		<!-- <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests"> -->
 		<title>EULJIRO HAS NO PARK</title>
 		<link rel="stylesheet" href="style.css">
+		<link rel="stylesheet" href="animate.scss">
 		<script type="module" src="src/main.js">
 		</script>
 	</head>
@@ -29,32 +30,27 @@
 			<div id="blocker">
 				 
 					<div id="instructions">
-						<div id="instLeft">
-							<p style="font-size:1.8rem;color:green">
-								자연을 점점 잃어버린 을지로는 천재지변으로 인해<br/> 3개의 구역으로 쪼개졌습니다 <br />
-								그 구역들의 중심에는 공원이 자라났습니다. <br />
-								보행자는 오직 공원을 거쳐서만 <br /> 
-								다른 구역으로 이동할 수 있게 되었고 <br />
-								공원을 걸어다니며 에너지를 충전합니다. <br />
-								충전한 에너지로 <br /> 
-								테크JIRO, 힙JIRO, 빌딩JIRO를 <br /> 
-								걸어다닐 수 있습니다. <br /> 
-							</p>
-						</div>
-						<div id="instCenter">
-							<p style="font-size:1.8rem;">
-									로딩이 완료될 때까지 기다려주세요.<br />
+						synopsis<br />
+						
+								
+								<!-- <p>
+									자연을 점점 잃어버린 미래의 을지로는 천재지변으로 인해 <br/> 3개의 구역으로 쪼개졌습니다 <br />
+									그 구역들의 중심에는 공원이 자라났습니다. <br />
+									보행자는 오직 공원을 거쳐서만 <br /> 
+									다른 구역으로 이동할 수 있게 되었고 <br />
+									공원을 걸어다니며 에너지를 충전합니다. <br />
+									그렇게 충전한 에너지로 <br /> 
+									테크🤖JIRO, 힙🕶️JIRO, 빌딩🏗️JIRO를 <br /> 
+									걸어다닐 수 있습니다. <br /> 
+								</p>
 
-									게임패드 A 버튼 (키보드 i) 을 누르면 <br />
-									플레이 중에도 안내 설명을 읽을 수 있습니다. <br />
-							</p>
-							<p style="font-size:1.8rem">
-									시작하려면 게임패드 B 버튼을 누르거나
-									마우스로 화면을 클릭하세요. <br />
-									B 버튼을 눌러도 시작되지 않는 경우, 
-									새로고침을 하거나 도우미를 불러주세요. <br />
-							</p>
-							<div id="loadValue"></div>
+								게임패드 A 버튼 (키보드 i) 을 누르면 <br />
+								플레이 중에도 안내 설명을 읽을 수 있습니다. <br />
+								시작하려면 게임패드 B 버튼을 누르거나
+								마우스로 화면을 클릭하세요. <br />
+								B 버튼을 눌러도 시작되지 않는 경우, 
+								새로고침을 하거나 도우미를 불러주세요. <br /> -->
+						<div id="loadingContainer">
 							<div id="loadWrapper">
 								<div class="circle_progress"> 
 									<span class="left"> 
@@ -63,16 +59,22 @@
 									<span class="right"> 
 											<span class="bar"></span> 
 									</span>
+								</div>
 							</div>
-							</div>
+							<div id="loadValue"></div>
+							B 버튼을 눌러도 시작되지 않는 경우 <br/>
+							도우미를 불러주세요.
 						</div>
-						<div id="instRight">
-							<p style="font-size:1.8rem">
-								로딩이 완료될 때까지 기다려주세요.<br />
-
-								게임패드 A 버튼 (키보드 i) 을 누르면 <br />
-								플레이 중에도 안내 설명을 읽을 수 있습니다. <br />
-						</p>
+						<div class="animation-wrapper">
+							<span class="animate animate-1">자연을 잃어버린 미래의 을지로는 천재지변으로 인해</span>
+							<span class="animate animate-2">3개 구역으로 쪼개졌고, 그 중심에 공원이 생겼다.</span>
+							<span class="animate animate-3">보행자는 오직 공원을 통해 이동하고, 에너지를 충전한다.</span>
+							<span class="animate animate-4">테크🤖JIRO, 힙🕶️JIRO, 빌딩🏗️JIRO를 유람할 수 있다.</span>
+							<span class="animate animate-5">...</span>
+							<span class="animate animate-6">컨트롤러 A 버튼 (키보드 i) 을 누르면</span>
+							<span class="animate animate-7">플레이 중에도 작동 방법과 설명을 볼 수 있다.</span>
+							<span class="animate animate-8">시작하려면 B 버튼!!을 누르거나 마우스로 화면을 클릭한다.</span>
+							<span class="animate animate-9">...</span>
 						</div>
 
 					</div>

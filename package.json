@@ -12,5 +12,8 @@
     "socket.io-client": "^4.3.2",
     "three": "^0.133.1",
     "three-buffer-geometry-utils": "^1.0.0"
+  },
+  "devDependencies": {
+    "@parcel/transformer-sass": "^2.0.1"
   }
 }

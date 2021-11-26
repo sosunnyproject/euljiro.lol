@@ -8,6 +8,8 @@ import { FontLoader } from 'three/examples/jsm/loaders/FontLoader';
 // import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 // import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 // import { BokehPass } from 'three/examples/jsm/postprocessing/BokehPass.js';
+import { NodePass } from 'three/examples/jsm/nodes/postprocessing/NodePass.js';
+import * as Nodes from 'three/examples/jsm/nodes/Nodes.js';
 
 import Stats from 'three/examples/jsm/libs/stats.module';
 import { WEBGL } from 'three/examples/jsm/WebGL';
@@ -27,6 +29,11 @@ import { instantiateParkObj } from './renderZonePark.js';
 
 let stats, camera, renderer, pointerControls;
 
+// render pass
+let composer, nodepass, screen, blurScreen;
+const frame = new Nodes.NodeFrame();
+// screen = new Nodes.ScreenNode();
+
 let prevTime = performance.now();
 const velocity = new THREE.Vector3();
 const direction = new THREE.Vector3();
@@ -44,11 +51,9 @@ let raycaster2 = new THREE.Raycaster(rayOrigin, rayZ, 0, 100); // rayOrigin, ray
 
 // raycaster.set(rayOrigin, rayDirection)
 let enableRaycast = false;
-let cubeRenderTarget2, cubeCamera2;
-const postprocessing = {};
 
 // Zones
-window.STEP_LIMIT = 5000
+window.STEP_LIMIT = 2000
 window.ZONE = "ONE"
 window.DYNAMIC_LOADED = false;
 window.ACC_STEPS = window.STEP_LIMIT;
@@ -77,9 +82,14 @@ const WIDTH = window.innerWidth, HEIGHT = window.innerHeight
 renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
 renderer.outputEncoding = THREE.sRGBEncoding;
 renderer.setClearColor(new THREE.Color(0x000, 1.0));
+renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setSize(WIDTH, HEIGHT);
+
 // renderer.shadowMap.enabled = true;
 // renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+// Node Pass
+nodepost = new Nodes.NodePostProcessing( renderer );
 
 // Camera
 const params = {
@@ -93,7 +103,7 @@ function makeCamera() {
   return new THREE.PerspectiveCamera(fov, aspect, zNear, zFar);
 }
 camera = makeCamera();
-camera.position.x = 5550;
+camera.position.x = 6550;
 camera.position.y = 100;
 camera.position.z = 0;  
 camera.lookAt(new THREE.Vector3(750, 0, -750));
@@ -101,7 +111,7 @@ camera.lookAt(new THREE.Vector3(750, 0, -750));
 // Scene
 const scene = new THREE.Scene()
 scene.background = new THREE.Color(0xbababa);
-// scene.fog = new THREE.FogExp2( 0xcdcdcd, 0.0008 );
+scene.fog = new THREE.FogExp2( 0xcdcdcd, 0.0008 );
 //scene.overrideMaterial = new THREE.MeshPhongMaterial({ color: 0xFFD580})
 window.SCENE = scene;
 
@@ -246,7 +256,7 @@ function resetPosition() {
   camera.position.y = 100;
   camera.position.z = 0;
 
-  if(window.ACC_STEPS <= 0) {
+  if(window.ACC_STEPS <= 5) {
     console.log("체력소모")
     showDescription("체력이 소모되었습니다. 처음 위치로 돌아갑니다. 공원으로 이동해서 에너지를 채워주세요.")
     window.ACC_STEPS = window.STEP_LIMIT
@@ -391,10 +401,13 @@ function tick() {
 
   // check energy progress
   let energyPercent = ((window.ACC_STEPS/window.STEP_LIMIT)*100) 
-  if( energyPercent < 20 ) {
+  if( energyPercent < 50 ) {
     warnLowEnergy(scene)
-  } else if ( energyPercent > 20 ) {
+    gradientBlurScreen(0.005)
+  } else if ( energyPercent > 50 ) {
     retrieveEnergy(scene)
+    gradientBlurScreen(-0.005)
+
   }
 
   
@@ -628,6 +641,9 @@ function init() {
     const energyHtml = document.querySelector( '.energyContainer' );
     energyHtml.style.visibility = 'visible';
   }
+
+  window.addEventListener( 'resize', onWindowResize );
+
 }
 
 function disableRaycastIntersect() {
@@ -669,6 +685,56 @@ function main() {
   scene.add( ambientLight );
 
   loadDefaultEnvironment()
+  // initPostprocessing()  // use nodes, pass
+  updateBlurMaterial() // use nodes
+}
+
+function initPostprocessing() {
+  // Blur Pass
+  // postprocessing
+  composer = new EffectComposer( renderer );
+  composer.addPass( new RenderPass( scene, camera ) );
+  nodepass = new NodePass();
+  composer.addPass( nodepass );
+  updateBlurMaterial()
+}
+
+function updateBlurMaterial() {
+  // Blur Nodes
+  let size = renderer.getDrawingBufferSize( new THREE.Vector2() );
+
+  blurScreen = new Nodes.BlurNode( new Nodes.ScreenNode() );
+  blurScreen.size = new THREE.Vector2( size.width, size.height );
+
+  nodepost.output = blurScreen;
+  blurScreen.radius.x = 0;
+  blurScreen.radius.y = 0;
+  console.log("init -------------- ", blurScreen)
+  // const bufferSize = renderer.getDrawingBufferSize( new THREE.Vector2() );
+  // console.log("updateBlurMaterial buffersize? ", bufferSize)
+  // const blurScreen = new Nodes.BlurNode( new Nodes.ScreenNode() );
+  // blurScreen.size = new THREE.Vector2( bufferSize.width, bufferSize.height );
+  // nodepass.input = blurScreen;
+  // blurScreen.radius.x = -10;
+  // blurScreen.radius.y = -10;
+  nodepost.needsUpdate = true;
+}
+
+function gradientBlurScreen(delta) {
+  if(delta < 0) {  // to CLEAR
+    while(blurScreen.radius.x >= 0) {
+      blurScreen.radius.x += delta
+      blurScreen.radius.y += delta
+    }
+    return;
+  }
+  if(delta > 0) {  // to BLUR
+    while(blurScreen.radius.x <= 5) {
+      blurScreen.radius.x += delta
+      blurScreen.radius.y += delta 
+    }
+  }
+  console.log("blur nodes", blurScreen, blurScreen.radius.x)
 }
 
 function loadDefaultEnvironment() {
@@ -760,7 +826,7 @@ function checkPointerControls() {
   prevTime = time;
 }
 
-// including animation loop
+// part of animation loop
 function render() {
 
   const canvas = renderer.domElement;
@@ -775,8 +841,9 @@ function render() {
     })
   }  
 
-  renderer.clear();
-  renderer.render( scene, camera );
+  frame.update(delta)
+  nodepost.render( scene, camera, frame );
+
   stats.update()
 }
 
@@ -788,4 +855,16 @@ function initStats() {
   stats.domElement.style.top = '0px';
   document.querySelector("#stats-output").append(stats.domElement);
   return stats;
+}
+
+function onWindowResize() {
+
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+
+  // renderer.setSize( window.innerWidth, window.innerHeight );
+  nodepost.setSize( window.innerWidth, window.innerHeight );
+
+  // composer.setSize( window.innerWidth, window.innerHeight );
+
 }

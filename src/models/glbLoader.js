@@ -7,15 +7,15 @@ import BIRD_2 from "../../assets/bird_2.glb"
 import CCTV from "../../assets/cctv.glb"
 import METAL_PAN from "../../assets/districtOne/metalPan.glb"
 import METAL_STICK from "../../assets/districtOne/metalStick.glb"
-import OZ_ROBOT from "../../assets/districtOne/ozRobot.glb"
+import OZ_ROBOT from "../../assets/districtOne/Ozrobot45.glb"
 import ROBOT_GUIDE from "../../assets/districtOne/robotGuide.glb"
 import ROCKET from "../../assets/districtOne/rocket.glb"
 import WORKER_1 from "../../assets/districtOne/worker1.glb"
-import WORKER_2 from "../../assets/districtOne/worker2.glb"
+import WORKER_2 from "../../assets/districtOne/Worker2-89.glb"
 import BIRD_BOT from "../../assets/districtOne/bird_bot.glb"
 import ROBOT_TIGER from "../../assets/districtOne/robotTiger.glb"
 import ROBOT_BIRD from "../../assets/districtOne/robotBird.glb"
-import TRADE_NEON from "../../assets/districtOne/tradeNeon.glb"
+import TRADE_NEON from "../../assets/districtOne/NeonTrade131.glb"
 import ROBOT_CRANE from "../../assets/districtOne/robotCrane.glb"
 import ROBOT_CHIP from "../../assets/districtOne/robotChip.glb"
 
@@ -36,7 +36,14 @@ import IPOD from "../../assets/districtTwo/ipod.glb"
 import CAMERA from "../../assets/districtTwo/camera.glb"
 import OLD_PHONE from "../../assets/districtTwo/oldPhone.glb"
 import CHEESE from "../../assets/districtTwo/cheese.glb"
+import PABLO_SHUTTER from "../../assets/districtTwo/Pablo25.glb"
+import DIAMOND_SHUTTER from "../../assets/districtTwo/Diamond34.glb"
+import CATFISH_SHUTTER from "../../assets/districtTwo/Catfish25.glb"
+import OCTOPUS_SHUTTER from "../../assets/districtTwo/Octopus33.glb"
+
+// district 3
 import BNB from "../../assets/districtThree/bnb.glb"
+import BNBstatic from "../../assets/districtThree/Bnbstatic.glb"
 import BTC from "../../assets/districtThree/btc.glb"
 import ETH from "../../assets/districtThree/eth.glb"
 import EXCAVATOR from "../../assets/districtThree/construction.glb"
@@ -54,7 +61,7 @@ const robotFace = {
  url: ROBOT_FACE,
  posX: ZONE_POS.ONE.x, posY: 200, posZ: ZONE_POS.ONE.z + 50,
  rx: 0, ry: 0, rz: 0,
- scale: 120,
+ scale: 130,
  type: "monument",
  name: "robotFace"
 }
@@ -63,16 +70,16 @@ const excavator = {
   url: EXCAVATOR,
   posX: ZONE_POS.THREE.x, posY: 300, posZ: ZONE_POS.THREE.z,
   rx: 0, ry: Math.PI/3.0, rz: 0,
-  scale: 200,
+  scale: 170,
   type: "monument",
   name: "excavator"
 }
 
  const coffeeSpa = {
   url: COFFEE_SPA,
-  posX: ZONE_POS.TWO.x, posY: 250, posZ: ZONE_POS.TWO.z,
+  posX: ZONE_POS.TWO.x, posY: 280, posZ: ZONE_POS.TWO.z,
   rx: 0, ry: -Math.PI/3.0, rz: 0,
-  scale: 150,
+  scale: 120,
   type: "monument",
   name: "coffeeSpa"
 }
@@ -123,17 +130,26 @@ const rocket = {
  }
  const robotGuide = {
   url: ROBOT_GUIDE,
-  posX: 3800, posY: 80, posZ: 95, 
+  posX: 3800, posY: 100, posZ: 95, 
   // posX: getRandomInt(ZONE1_X_MIN, ZONE1_X_MAX), posY: 40, posZ: getRandomInt(ZONE1_Z_MIN, ZONE1_Z_MAX),
   rx: 0, ry: Math.PI/4.0, rz: 0,
-  scale: 25,
+  scale: 35,
   zone: 1,
   name: "robotGuide"
  }
- 
+ const cctv = {
+  name: "cctv",
+  url: CCTV,
+  posX: 4400, posY: 80, posZ: -800, 
+ //  posX: getRandomInt(ZONE1_X_MIN, ZONE1_X_MAX), posY: 10, posZ: getRandomInt(ZONE1_Z_MIN, ZONE1_Z_MAX),
+  rx: 0, ry: Math.PI/6.0, rz: 0,
+  scale: 60,
+  zone: 1
+ }
+
 const bird1 = {
   url: BIRD_1,
-  posX: 3400, posY: 120, posZ: -955,
+  posX: 3500, posY: 120, posZ: -1280,
   // posX: getRandomInt(ZONE1_X_MIN, ZONE1_X_MAX), posY: 10, posZ: getRandomInt(ZONE1_Z_MIN, ZONE1_Z_MAX),
   rx: 0, ry: 0, rz: 0,
   scale: 80,
@@ -142,27 +158,35 @@ const bird1 = {
 }
 const bird2 = {
   url: BIRD_2,
-  posX: 3200, posY: 100, posZ: -1155,
+  posX: 3400, posY: 100, posZ: -1355,
   // posX: getRandomInt(ZONE1_X_MIN, ZONE1_X_MAX), posY: 10, posZ: getRandomInt(ZONE1_Z_MIN, ZONE1_Z_MAX),
   rx: 0, ry: 0, rz: 0,
   scale: 60,
   zone: 1,
   name: "bird2"
- 
+ }
+ const robotCrane = {
+  url: ROBOT_CRANE,
+  posX: 2800, posY: 80, posZ: -850,
+  // posX: getRandomInt(ZONE1_X_MIN, ZONE1_X_MAX), posY: 50, posZ: getRandomInt(ZONE1_Z_MIN, ZONE1_Z_MAX),
+  rx: 0, ry: -Math.PI/4.0, rz: 0,
+  scale: 60,
+  zone: 1,
+  name: "robotCrane"
  }
  const ozRobot = {
   url: OZ_ROBOT,
-  posX: 2000, posY: 85, posZ: -805,
+  posX: 2000, posY: 35, posZ: -805,
   // posX: getRandomInt(ZONE1_X_MIN, ZONE1_X_MAX), posY: 10, posZ: getRandomInt(ZONE1_Z_MIN, ZONE1_Z_MAX),
   rx: 0, ry: -Math.PI/6.0, rz: 0,
-  scale: 70,
+  scale: 120,
   zone: 1,
   name: "ozRobot"
  }
  
 const blueCone = {
   url: BLUE_CONE,
-  posX: 1800, posY: 70, posZ: -205,
+  posX: 1500, posY: 70, posZ: -105,
   // posX: getRandomInt(ZONE1_X_MIN, ZONE1_X_MAX), posY: 10, posZ: getRandomInt(ZONE1_Z_MIN, ZONE1_Z_MAX),
   rx: 0, ry: Math.PI/6.0, rz: 0,
   scale: 40,
@@ -170,20 +194,9 @@ const blueCone = {
   name: "blueCone"
  }
 
- 
-const robotTiger = {
-  url: ROBOT_TIGER,
-  posX: 2200, posY: 70, posZ: 55,
-  // posX: getRandomInt(ZONE1_X_MIN, ZONE1_X_MAX), posY: 50, posZ: getRandomInt(ZONE1_Z_MIN, ZONE1_Z_MAX),
-  rx: 0, ry: 0, rz: 0,
-  scale: 40,
-  zone: 1,
-  name: "robotTiger"
- }
-
  const worker2 = {
   url: WORKER_2,
-  posX: 1600, posY: 100, posZ: 955,
+  posX: 1700, posY: 100, posZ: 955,
   // posX: getRandomInt(ZONE1_X_MIN, ZONE1_X_MAX), posY: 10, posZ: getRandomInt(ZONE1_Z_MIN, ZONE1_Z_MAX),
   rx: 0, ry: Math.PI/3, rz: 0,
   scale: 70,
@@ -194,7 +207,7 @@ const robotTiger = {
   url: ROBOT_BIRD,
   posX: 2400, posY: 200, posZ: 355,
   // posX: getRandomInt(ZONE1_X_MIN, ZONE1_X_MAX), posY: 200, posZ: getRandomInt(ZONE1_Z_MIN, ZONE1_Z_MAX),
-  rx: 0, ry: 0, rz: 0,
+  rx: 0, ry: -Math.PI/4.0, rz: 0,
   scale: 50,
   zone: 1,
   name: "robotBird"
@@ -202,57 +215,54 @@ const robotTiger = {
 
  const tradeNeon = {
   url: TRADE_NEON,
-  posX: getRandomInt(ZONE1_X_MIN, ZONE1_X_MAX), posY: 10, posZ: getRandomInt(ZONE1_Z_MIN, ZONE1_Z_MAX),
-  rx: 0, ry: 0, rz: 0,
-  scale: 10,
+  posX: 3800, posY: 100, posZ: 1200,
+  // posX: getRandomInt(ZONE1_X_MIN, ZONE1_X_MAX), posY: 10, posZ: getRandomInt(ZONE1_Z_MIN, ZONE1_Z_MAX),
+  rx: 0, ry: -Math.PI/4.0, rz: 0,
+  scale: 50,
   zone: 1,
   name: "tradeNeon"
  }
 
  const robotChip = {
   url: ROBOT_CHIP,
-  posX: getRandomInt(ZONE1_X_MIN, ZONE1_X_MAX), posY: 50, posZ: getRandomInt(ZONE1_Z_MIN, ZONE1_Z_MAX),
-  rx: 0, ry: 0, rz: 0,
+  posX: 3500, posY: 200, posZ: 755,
+  // posX: getRandomInt(ZONE1_X_MIN, ZONE1_X_MAX), posY: 50, posZ: getRandomInt(ZONE1_Z_MIN, ZONE1_Z_MAX),
+  rx: 0, ry: -Math.PI/4, rz: 0,
   scale: 40,
   zone: 1,
   name: "robotChip"
  }
- const robotCrane = {
-  url: ROBOT_CRANE,
-  posX: getRandomInt(ZONE1_X_MIN, ZONE1_X_MAX), posY: 50, posZ: getRandomInt(ZONE1_Z_MIN, ZONE1_Z_MAX),
-  rx: 0, ry: 0, rz: 0,
-  scale: 40,
+
+ const robotTiger = {
+  url: ROBOT_TIGER,
+  posX: 4300, posY: 70, posZ: 605,
+  // posX: getRandomInt(ZONE1_X_MIN, ZONE1_X_MAX), posY: 50, posZ: getRandomInt(ZONE1_Z_MIN, ZONE1_Z_MAX),
+  rx: 0, ry: -Math.PI/6.0, rz: 0,
+  scale: 60,
   zone: 1,
-  name: "robotCrane"
+  name: "robotTiger"
+ }
+
+ const birdBot = {
+  url: BIRD_BOT,
+  posX: 2700, posY: 150, posZ: 1175,
+  // posX: getRandomInt(ZONE1_X_MIN, ZONE1_X_MAX), posY: 10, posZ: getRandomInt(ZONE1_Z_MIN, ZONE1_Z_MAX),
+  rx: 0, ry: Math.PI/3, rz: 0,
+  scale: 80,
+  zone: 1,
+  name: "birdBot"
  }
 
 const pinkCone = {
  url: PINK_CONE,
- posX: getRandomInt(ZONE1_X_MIN, ZONE1_X_MAX), posY: 10, posZ: getRandomInt(ZONE1_Z_MIN, ZONE1_Z_MAX),
+ posX: 3200, posY: 100, posZ: -200,
+//  posX: getRandomInt(ZONE1_X_MIN, ZONE1_X_MAX), posY: 10, posZ: getRandomInt(ZONE1_Z_MIN, ZONE1_Z_MAX),
  rx: 0, ry: 0, rz: 0,
  scale: 30,
  zone: 1,
  name: "pinkCone"
 }
 
-const cctv = {
- name: "cctv",
- url: CCTV,
- posX: getRandomInt(ZONE1_X_MIN, ZONE1_X_MAX), posY: 10, posZ: getRandomInt(ZONE1_Z_MIN, ZONE1_Z_MAX),
- rx: 0, ry: 0, rz: 0,
- scale: 80,
- zone: 1
-
-}
-
- const birdBot = {
-  url: BIRD_BOT,
-  posX: getRandomInt(ZONE1_X_MIN, ZONE1_X_MAX), posY: 10, posZ: getRandomInt(ZONE1_Z_MIN, ZONE1_Z_MAX),
-  rx: 0, ry: -Math.PI/2, rz: 0,
-  scale: 40,
-  zone: 1,
-  name: "birdBot"
- }
 const metalStick = {
  url: METAL_STICK,
 //  posX: 5800, posY: 10, posZ: 5, 
@@ -267,12 +277,12 @@ const metalStick = {
 
 export const DISTRICT_ONE_GLB = [
  purpleCone, blueCone, pinkCone,
- bird1, bird2, birdBot,
-//  metalPan, metalStick, cctv,
+ bird1, bird2, birdBot, cctv,
+//  metalPan, metalStick,
  ozRobot, robotGuide, rocket,
-//  robotBird, robotTiger, tradeNeon,
+ robotBird, robotTiger, tradeNeon,
  worker1, worker2,
-//  robotChip, robotCrane
+ robotChip, robotCrane
 ]
 
 const ZONE2_X_MIN = ZONE_POS.TWO.x - 300;
@@ -281,10 +291,12 @@ const ZONE2_Z_MIN = ZONE_POS.TWO.z - 300;
 const ZONE2_Z_MAX = ZONE_POS.TWO.z + 300;
 
 // District Two
+// TWO: {x: -100, y: 0, z: -3500},  radius: 900
 
 const tape = {
   url: TAPE,
-  posX: getRandomInt(ZONE2_X_MIN, ZONE2_X_MAX), posY: 10, posZ: getRandomInt(ZONE2_Z_MIN, ZONE2_Z_MAX),
+  posX: -200, posY: 10, posZ: -3700,
+  // posX: getRandomInt(ZONE2_X_MIN, ZONE2_X_MAX), posY: 10, posZ: getRandomInt(ZONE2_Z_MIN, ZONE2_Z_MAX),
   rx: 0, ry: 0, rz: 0,
   scale: 10,
   zone: 2
@@ -292,120 +304,154 @@ const tape = {
 
 const bear = {
   url: BEAR,
-  posX: getRandomInt(ZONE2_X_MIN, ZONE2_X_MAX), posY: 10, posZ: getRandomInt(ZONE2_Z_MIN, ZONE2_Z_MAX),
+  posX: 450, posY: 10, posZ: -3500,
   rx: 0, ry: 0, rz: 0,
-  scale: 10,
+  scale: 30,
   zone: 2
 }
 
 const fork = {
   url: FORK,
-  posX: getRandomInt(ZONE2_X_MIN, ZONE2_X_MAX), posY: 10, posZ: getRandomInt(ZONE2_Z_MIN, ZONE2_Z_MAX),
+  posX: 450, posY: 150, posZ: -3550,
   rx: 0, ry: 0, rz: 0,
-  scale: 10,
-  zone: 2
-}
-
-const knife = {
-  url: KNIFE,
-  posX: getRandomInt(ZONE2_X_MIN, ZONE2_X_MAX), posY: 10, posZ: getRandomInt(ZONE2_Z_MIN, ZONE2_Z_MAX),
-  rx: 0, ry: 0, rz: 0,
-  scale: 10,
-  zone: 2
-}
-
-const spaSign = {
-  url: SPA_SIGN,
-  posX: getRandomInt(ZONE2_X_MIN, ZONE2_X_MAX), posY: 30, posZ: getRandomInt(ZONE2_Z_MIN, ZONE2_Z_MAX),
-  rx: 0, ry: 0, rz: 0,
-  scale: 10,
+  scale: 30,
   zone: 2
 }
 
 const weedRainbow = {
   url: RAINBOW_WEED,
-  posX: getRandomInt(ZONE2_X_MIN, ZONE2_X_MAX), posY: 30, posZ: getRandomInt(ZONE2_Z_MIN, ZONE2_Z_MAX),
-  rx: 0, ry: 0, rz: 0,
-  scale: 10,
+  posX: 250, posY: 80, posZ: -4500,
+  rx: 0, ry: -Math.PI/2, rz: 0,
+  scale: 50,
   zone: 2
 }
 const coffeeCup = {
   url: COFFEE_CUP,
-  posX: getRandomInt(ZONE2_X_MIN, ZONE2_X_MAX), posY: 30, posZ: getRandomInt(ZONE2_Z_MIN, ZONE2_Z_MAX),
+  posX: 40, posY: 120, posZ: -2500,
   rx: 0, ry: 0, rz: 0,
-  scale: 10,
+  scale: 30,
   zone: 2
 }
 
-const lion = {
-  url: LION,
-  posX: getRandomInt(ZONE2_X_MIN, ZONE2_X_MAX), posY: 10, posZ: getRandomInt(ZONE2_Z_MIN, ZONE2_Z_MAX),
+const spaSign = {
+  url: SPA_SIGN,
+  posX: 50, posY: 10, posZ: -2500,
+  // posX: getRandomInt(ZONE2_X_MIN, ZONE2_X_MAX), posY: 30, posZ: getRandomInt(ZONE2_Z_MIN, ZONE2_Z_MAX),
   rx: 0, ry: 0, rz: 0,
-  scale: 10,
+  scale: 30,
   zone: 2
 }
 
 const purpleSunglass = {
   url: PURPLE_SUNGLASS,
-  posX: getRandomInt(ZONE2_X_MIN, ZONE2_X_MAX), posY: 10, posZ: getRandomInt(ZONE2_Z_MIN, ZONE2_Z_MAX),
+  posX: -1600, posY: 70, posZ: -4300,
   rx: 0, ry: 0, rz: 0,
-  scale: 10,
-  zone: 2
-}
-
-const greenSunglass = {
-  url: GREEN_SUNGLASS,
-  posX: getRandomInt(ZONE2_X_MIN, ZONE2_X_MAX), posY: 10, posZ: getRandomInt(ZONE2_Z_MIN, ZONE2_Z_MAX),
-  rx: 0, ry: 0, rz: 0,
-  scale: 10,
-  zone: 2
-}
-
-const orangeSunglass = {
-  url: ORANGE_SUNGLASS,
-  posX: getRandomInt(ZONE2_X_MIN, ZONE2_X_MAX), posY: 10, posZ: getRandomInt(ZONE2_Z_MIN, ZONE2_Z_MAX),
-  rx: 0, ry: 0, rz: 0,
-  scale: 10,
-  zone: 2
-}
-
-const ipod = {
-  url: IPOD,
-  posX: getRandomInt(ZONE2_X_MIN, ZONE2_X_MAX), posY: 10, posZ: getRandomInt(ZONE2_Z_MIN, ZONE2_Z_MAX),
-  rx: 0, ry: 0, rz: 0,
-  scale: 10,
+  scale: 60,
   zone: 2
 }
 
 const camera = {
   url: CAMERA,
-  posX: getRandomInt(ZONE2_X_MIN, ZONE2_X_MAX), posY: 10, posZ: getRandomInt(ZONE2_Z_MIN, ZONE2_Z_MAX),
+  posX: -1400, posY: 30, posZ: -3800,
   rx: 0, ry: 0, rz: 0,
-  scale: 10,
+  scale: 30,
+  zone: 2
+}
+const greenSunglass = {
+  url: GREEN_SUNGLASS,
+  posX: -1200, posY: 70, posZ: -3500,
+  rx: 0, ry: 0, rz: 0,
+  scale: 60,
   zone: 2
 }
 
+const orangeSunglass = {
+  url: ORANGE_SUNGLASS,
+  posX: -800, posY: 70, posZ: -2800,
+  rx: 0, ry: 0, rz: 0,
+  scale: 60,
+  zone: 2
+}
+
+const ipod = {
+  url: IPOD,
+  posX: 400, posY: 60, posZ: -4000,
+  rx: 0, ry: -Math.PI/2, rz: 0,
+  scale: 30,
+  zone: 2
+}
+
+
 const oldPhone = {
   url: OLD_PHONE,
-  posX: getRandomInt(ZONE2_X_MIN, ZONE2_X_MAX), posY: 10, posZ: getRandomInt(ZONE2_Z_MIN, ZONE2_Z_MAX),
+  posX: 200, posY: 30, posZ: -3000,
   rx: 0, ry: 0, rz: 0,
-  scale: 10,
+  scale: 30,
   zone: 2
 }
 
 const cheese = {
   url: CHEESE,
-  posX: getRandomInt(ZONE2_X_MIN, ZONE2_X_MAX), posY: 10, posZ: getRandomInt(ZONE2_Z_MIN, ZONE2_Z_MAX),
+  posX: -800, posY: 50, posZ: -4200,
   rx: 0, ry: 0, rz: 0,
-  scale: 10,
+  scale: 30,
+  zone: 2
+}
+
+const knife = {
+  url: KNIFE,
+  posX: -800, posY: 120, posZ: -4200,
+  rx: Math.PI, ry: -Math.PI/2.0, rz: 0,
+  scale: 30,
+  zone: 2
+}
+
+const pabloShutter = {
+  url: PABLO_SHUTTER,
+  posX: 1200, posY: 90, posZ: -4000,
+  rx: 0, ry: -Math.PI/2.0, rz: 0,
+  scale: 60,
+  zone: 2  
+}
+
+const lionShutter = {
+  url: LION,
+  posX: -600, posY: 100, posZ: -4600,
+  rx: 0, ry: -Math.PI/3, rz: 0,
+  scale: 90,
+  zone: 2
+}
+
+const diamondShutter = {
+  url: DIAMOND_SHUTTER,
+  posX: 700, posY: 120, posZ: -4800,
+  rx: 0, ry: Math.PI/2, rz: 0,
+  scale: 70,
+  zone: 2
+}
+
+const catfishShutter = {
+  url: CATFISH_SHUTTER,
+  posX: 100, posY: -10, posZ: -4800,
+  rx: 0, ry: -Math.PI/3, rz: 0,
+  scale: 100,
+  zone: 2
+}
+
+const octopusShutter = {
+  url: OCTOPUS_SHUTTER,
+  posX: 1150, posY: 50, posZ: -2800,
+  rx: 0, ry: 0, rz: 0,
+  scale: 80,
   zone: 2
 }
 
 export const DISTRICT_TWO_GLB = [ 
-  tape, bear, fork, knife, lion, 
+  tape, bear, fork, knife, 
   purpleSunglass, greenSunglass, orangeSunglass, 
-  // weedRainbow, spaSign, coffeeCup,
-  // camera, cheese, ipod, oldPhone
+  weedRainbow, spaSign, coffeeCup,
+  camera, cheese, ipod, oldPhone,
+  lionShutter, diamondShutter, pabloShutter, octopusShutter, catfishShutter
  ]
  
 // DISTRICT THREE

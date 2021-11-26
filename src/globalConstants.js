@@ -1,24 +1,26 @@
 export const ZONE_NAMES = ["GARDEN", "ONE", "TWO", "THREE"]
 
 export const ZONE_POS = {
-  ONE: {x: 3000, y: 0, z: 0},
-  TWO: {x: -100, y: 0, z: -3500},
-  THREE: {x: -300, y: 0, z: 3500},
-  GARDEN: {x: 800, y: -0.2, z: 0},
+  ONE: {x: 3400, y: 0, z: 0},
+  TWO: {x: -100, y: 0, z: -3400},
+  THREE: {x: -2600, y: 0, z: 1700},
+  GARDEN: {x: 0, y: -0.2, z: 0},
+  BLANK: {x: 0, y: -0.5, z: 0},
 }
 
 export const ZONE_RADIUS = {
-  ONE: 1800, 
-  TWO: 1200, 
-  THREE: 1200, 
-  GARDEN: 6000
+  ONE: 1600, 
+  TWO: 1600, 
+  THREE: 1600, 
+  GARDEN: 2000,
+  BLANK: 8000
 }
 
 export const ZONE_CENTER = {
   ONE: {x: 3000, y: 0, z: 300},
   TWO: {x: -100, y: 0, z: -3500},
   THREE: {x: -300, y: 0, z: 3500},
-  GARDEN: {x: 800, y: -1, z: 0},
+  GARDEN: {x: 0, y: -1, z: 0},
 }
 
 export const ZONE_RANGE = {

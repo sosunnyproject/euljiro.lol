@@ -11,10 +11,15 @@ export function getRandomInt(min, max) {
 }
 
 export function updateStepNum() {
+  console.log(window.ACC_STEPS)
   if(window.ZONE === "GARDEN") {
-   window.ACC_STEPS++;
+    if(window.ACC_STEPS <= window.STEP_LIMIT) {
+      window.ACC_STEPS++;
+    }
   } else {
-   window.ACC_STEPS--;
+    if(window.ACC_STEPS >= 0) {
+      window.ACC_STEPS--;
+    }
   }
 
   // console.log("updateStepNum? ", window.ACC_STEPS)
@@ -63,12 +68,12 @@ export function updateLoadingProgress(value) {
   }
 }
 
-const deltaValue = 0.01
+const deltaValue = 0.001
 
 export function retrieveEnergy(scene) {
   scene.traverse(obj => {
+    if(!obj.name) return;
     if(obj.name.includes("light")) {
-      // console.log(obj)
       if(obj.intensity <= 1.0) {
         obj.intensity += deltaValue
       }
@@ -92,6 +97,8 @@ export function warnLowEnergy(scene, delta) {
   // dim the lights
 
   scene.traverse(obj => {
+    if(!obj.name) return
+    
     if(obj.name.includes("light")) {
       // console.log(obj)
       if(obj.intensity >= 0) {

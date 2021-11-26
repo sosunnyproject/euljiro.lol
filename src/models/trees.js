@@ -4,6 +4,8 @@ import waterSampleFragment from '../shaders/water.frag.js'
 import { getRandomArbitrary, getRandomInt } from '../utils.js';
 import cloudsFragment from '../shaders/clouds.frag.js';
 import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils'
+import { Scene } from 'three';
+import { ZONE_RADIUS } from '../globalConstants.js';
 
 const trunkGeometry = new THREE.CylinderGeometry(1, 2, 6, 12)
 
@@ -12,9 +14,35 @@ const grassGeometry2 = new THREE.DodecahedronGeometry(getRandomArbitrary(4.0, 10
 const grassGeometry3 = new THREE.DodecahedronGeometry(getRandomArbitrary(4.0, 10.0), getRandomInt(0, 3))
 const randGeom = [grassGeometry1, grassGeometry2, grassGeometry3]
 
-export function generateTree(position, scale) {
+export function generateTreeInPark (scene, nums ) {
+  const r = ZONE_RADIUS.GARDEN
 
-  const { x, y, z } = position;
+  for(let i = 0; i < nums; i++) {
+    const t = 2*Math.PI*Math.random()
+    const u = getRandomArbitrary(0, r) + getRandomArbitrary(0, r)
+    let radius;
+    if(u > r) {
+      radius = r*2 - u
+    } else {
+      radius = u 
+    }
+    let lowpolyTree = generateTree()
+    lowpolyTree.position.set( radius * Math.cos(t), 0, radius * Math.sin(t) )
+    // console.log(lowpolyTree, nums, i)
+    scene.add(lowpolyTree)  
+  }
+
+}
+export function generateTree(position) {
+
+  let x = 0, y = 0, z = 0
+
+  if(position) {
+    x = position.x;
+    y = position.y;
+    z = position.z;
+  }
+  // const { x, y, z } = position;
  const tree = new THREE.Object3D();
  
  let rand = getRandomInt(0, randGeom.length)

@@ -25,7 +25,8 @@ import { loadAssets, loadZoneOneGLB, loadZoneThreeGLB, loadZoneTwoGLB, onLoadAni
 import { generateDistrictGardenObjects } from './renderDistrictGarden.js';
 import { makeSteps, renderBuildings } from './renderZone3.js';
 import { renderShutter } from './renderZone1.js';
-import { renderInstanceTrees, renderSkyDome, renderGrounds } from './renderGlobal';
+import { renderInstanceTrees, renderSkyDome, renderGrounds, renderBackgroundTriangle, renderMountain } from './renderGlobal';
+import { generateTreeInPark } from './models/trees.js';
 
 let stats, camera, renderer, pointerControls;
 
@@ -34,19 +35,23 @@ const velocity = new THREE.Vector3();
 const direction = new THREE.Vector3();
 
 let popupOpen = false;
+let myHeight = 50;
 
 // raycaster
 const rayOrigin = new THREE.Vector3()
 const rayDirection = new THREE.Vector3( -1, 0, 0 )
+const rayZ = new THREE.Vector3( 0, 0, 1 )
 rayDirection.normalize()
 let raycaster = new THREE.Raycaster(rayOrigin, rayDirection, 0, 100); // rayOrigin, rayDirection, 0, 10
+let raycaster2 = new THREE.Raycaster(rayOrigin, rayZ, 0, 100); // rayOrigin, rayDirection, 0, 10
+
 // raycaster.set(rayOrigin, rayDirection)
 let enableRaycast = false;
 let cubeRenderTarget2, cubeCamera2;
 const postprocessing = {};
 
 // Zones
-window.STEP_LIMIT = 1000
+window.STEP_LIMIT = 5000
 window.ZONE = "ONE"
 window.DYNAMIC_LOADED = false;
 window.ACC_STEPS = window.STEP_LIMIT;
@@ -81,7 +86,7 @@ renderer.setSize(WIDTH, HEIGHT);
 
 // Camera
 const params = {
-  fov: 30,
+  fov: 60,
   aspect: 2.5, 
   zNear: 1,
   zFar: 20000
@@ -91,16 +96,17 @@ function makeCamera() {
   return new THREE.PerspectiveCamera(fov, aspect, zNear, zFar);
 }
 camera = makeCamera();
-camera.position.x = 3000;
-camera.position.y = 10;
-camera.position.z = 0;
+camera.position.x = 5550;
+camera.position.y = 100;
+camera.position.z = 0;  
 camera.lookAt(new THREE.Vector3(750, 0, -750));
 
 // Scene
 const scene = new THREE.Scene()
-scene.background = new THREE.Color(0x000000);
-scene.fog = new THREE.FogExp2( 0xcccccc, 0.002 );
+scene.background = new THREE.Color(0xbababa);
+// scene.fog = new THREE.FogExp2( 0xcdcdcd, 0.0008 );
 //scene.overrideMaterial = new THREE.MeshPhongMaterial({ color: 0xFFD580})
+window.SCENE = scene;
 
 // Orbit Controls
 const controls = new OrbitControls( camera, renderer.domElement);
@@ -123,13 +129,13 @@ pointerControls.addEventListener('change', function () {
     
 })
 
-instructions.addEventListener( 'click', function () {
+blocker.addEventListener( 'click', function () {
   pointerControls.lock();
 } );
 
 pointerControls.addEventListener( 'lock', function () {
 
-  instructions.style.display = 'none';
+  // instructions.style.display = 'none';
   blocker.style.display = 'none';
 
 } );
@@ -152,6 +158,7 @@ let canJump = false;
 // Key Controls
 const onKeyDown = function ( event ) {
   updateStepNum()
+  if(window.ACC_STEPS <= 0) resetPosition()
 
   switch ( event.code ) {
 
@@ -237,11 +244,26 @@ function togglePopup () {
   }
 }
 
+function resetPosition() {
+  camera.position.x = 6550;
+  camera.position.y = 100;
+  camera.position.z = 0;
+
+  if(window.ACC_STEPS <= 0) {
+    console.log("체력소모")
+    showDescription("체력이 소모되었습니다. 처음 위치로 돌아갑니다. 공원으로 이동해서 에너지를 채워주세요.")
+    window.ACC_STEPS = window.STEP_LIMIT
+  }
+}
+
 function xboxKeyPressed (gamepad) {
   if(!gamepad) {
     console.log("ERROR: XBOX CONNECTION LOST")
     return
   }
+
+  if(window.ACC_STEPS <= 0) resetPosition()
+
 
   let currentPos = pointerControls.getObject().position
   checkCameraLoadAssets(currentPos);
@@ -296,19 +318,21 @@ function xboxKeyPressed (gamepad) {
     return;
   }
   if(buttons[0].pressed) {
-    console.log(buttons[0].value)
     if(buttons[0].value) {
       popupOpen = true;
-      console.log(popupOpen)
       togglePopup()
     }
     return;
   }
   if(buttons[2].pressed) {
-    console.log(buttons[2].value)
     popupOpen = false;
     console.log(popupOpen)
     togglePopup()
+    return;
+  }
+  if(buttons[8].pressed) {
+    console.log("reset")
+    location.reload()
     return;
   }
 }
@@ -367,13 +391,12 @@ function xboxAxesPressed(gamepad) {
 
 function tick() {
   const time = performance.now();
-  var delta = clock.getDelta();
 
   // check energy progress
   let energyPercent = ((window.ACC_STEPS/window.STEP_LIMIT)*100) 
-  if( energyPercent < 50 ) {
-    warnLowEnergy(scene, delta)
-  } else if ( energyPercent > 50 ) {
+  if( energyPercent < 20 ) {
+    warnLowEnergy(scene)
+  } else if ( energyPercent > 20 ) {
     retrieveEnergy(scene)
   }
 
@@ -398,7 +421,9 @@ function tick() {
 
   // update shader material
   scene.traverse(obj => {
-    if(obj.name.includes("shader")) {
+    if(!obj.name) return;
+
+    if(obj?.name?.includes("shader")) {
       obj.material.uniforms.u_time.value = time * 0.002; 
     }
     if(obj.name === "robotFace") {
@@ -447,6 +472,7 @@ function checkCameraLoadAssets(currentPos)  {
 //     }
 //   }
 
+  // circle zone
   const centerX1 = ZONE_POS.ONE.x
   const centerZ1 = ZONE_POS.ONE.z
   const radius1 = ZONE_RADIUS.ONE
@@ -455,13 +481,21 @@ function checkCameraLoadAssets(currentPos)  {
   const dz1 = Math.abs(currentPos.z - centerZ1)
 
   let inZone1 = dx1*dx1 + dz1*dz1 <= radius1*radius1
+
+  // rectangle zone 500(z) x 3000(x), x: 4500
+  if(4500-1500 <= currentPos.x && 4500+1500 >= currentPos.x) {
+    if(currentPos.z <= 250 && currentPos.z >= -250 ) {
+        inZone1 = true;
+    }
+  }
+
   // zone 1
   // let inZone1 = window.GROUNDS[0]?.boundingSphere?.containsPoint(currentPos)
   if(inZone1) {
     window.ZONE = "ONE"
     console.log("inside : ", window.ZONE)
 
-    // loadZones(window.ZONE)
+    loadZones(window.ZONE)
     return;
   }
 
@@ -485,7 +519,7 @@ function checkCameraLoadAssets(currentPos)  {
     window.ZONE = "TWO"
     console.log("inside : ", window.ZONE)
 
-    // loadZones(window.ZONE)
+    loadZones(window.ZONE)
     return;
   }
 
@@ -501,31 +535,51 @@ function checkCameraLoadAssets(currentPos)  {
     window.ZONE = "THREE"
     console.log("inside : ", window.ZONE)
 
-    // loadZones(window.ZONE)
+    loadZones(window.ZONE)
     return;
   }
 
-  // GARDEN
-  if(inZone1 + inZone2 + inZone3 == 0) {
+  // PARK
+  const centerX4 = ZONE_POS.GARDEN.x
+  const centerZ4 = ZONE_POS.GARDEN.z
+  const radius4 = ZONE_RADIUS.GARDEN
+
+  const dx4 = Math.abs(currentPos.x - centerX4)
+  const dz4 = Math.abs(currentPos.z - centerZ4)
+  let inZonePark = dx4*dx4 + dz4*dz4 <= radius4*radius4
+  if(inZonePark) {
+    window.DYNAMIC_LOADED = false;
     window.ZONE = "GARDEN"
     console.log("inside : ", window.ZONE)
-    window.DYNAMIC_LOADED = false;
+  
+    // unload all gltf
+    try {
+      scene.traverse(obj => {
+        if (typeof obj.zone === 'number') {
+            scene.remove(obj)
+          }
+      })
+    } catch (err) {
+      console.log(err)
+    }
+  }
 
-    scene.fog = new THREE.FogExp2(0xeeeeee, 0.002)
+  
+  // OUTSIDE
+  if(inZonePark + inZone1 + inZone2 + inZone3 == 0) {
+    window.DYNAMIC_LOADED = false;
+    console.log("outside zone")
 
     // unload all gltf
-    // try {
-    //   scene.traverse(obj => {
-    //     if (typeof obj.zone === 'number') {
-    //         scene.remove(obj)
-    //       }
-    //   })
-    // } catch (err) {
-    //  console.log(err)
-    // }
-
-    // loadZoneOneGLB(scene)
-
+    try {
+      scene?.traverse(obj => {
+        if (typeof obj?.zone === 'number') {
+            scene.remove(obj)
+          }
+      })
+    } catch (err) {
+     console.log(err)
+    }
   } 
 
 }
@@ -539,21 +593,21 @@ function loadZones(zone) {
     case "ONE":
       loadZoneOneGLB(scene)
       enableRaycast = true;
-      scene.fog = new THREE.FogExp2( 0xcccccc, 0.002 );
+      // scene.fog = new THREE.FogExp2( 0xcccccc, 0.002 );
 
       break;
 
     case "TWO":
       loadZoneTwoGLB(scene)
       enableRaycast = true;
-      scene.fog = new THREE.FogExp2( 0xcccccc, 0.002 );
+      // scene.fog = new THREE.FogExp2( 0xcccccc, 0.002 );
 
       break;
 
     case "THREE":
       loadZoneThreeGLB(scene)
       enableRaycast = true;
-      scene.fog = new THREE.FogExp2( 0xcccccc, 0.002 );
+      // scene.fog = new THREE.FogExp2( 0xcccccc, 0.002 );
 
       break;
   }
@@ -569,6 +623,9 @@ function init() {
     initStats();
     main()
     tick();
+
+    const energyHtml = document.querySelector( '.energyContainer' );
+    energyHtml.style.visibility = 'visible';
   }
 }
 
@@ -619,13 +676,18 @@ function loadDefaultEnvironment() {
   renderShutter(scene, 50);
   renderShutter(scene, -50);
 
+  renderMountain(scene)
+  generateTreeInPark(scene, 100)
+
   const objects = generateDistrictGardenObjects()
   
   for(let i = 0; i < objects.length; i++){
     scene.add(objects[i])
   }
 
-  renderSkyDome(scene)
+  // renderSkyDome(scene)
+  
+  /*
   renderInstanceTrees(
     50, // num
     {x: 1500, y: 0, z: 1000},  // range
@@ -644,6 +706,7 @@ function loadDefaultEnvironment() {
     "rgb(245, 202, 195)",
     scene
   )
+  */
 
   const posArr1 = [
     new THREE.Vector3(400, 0, 100),
@@ -671,8 +734,8 @@ function loadDefaultEnvironment() {
     }
   }
 
-  loadZoneOneGLB(scene)
-
+  // loadZoneTwoGLB(scene)
+  // loadZoneThreeGLB(scene)
 }
 
 function checkPointerControls() {
@@ -684,14 +747,18 @@ function checkPointerControls() {
     // jump on raycaster objects
     raycaster.ray.origin.copy(currentPosition);
     raycaster.ray.origin.x += 10;
-    raycaster.ray.origin.z += 10;
 
-    const intersections = raycaster.intersectObjects( window.RAYOBJ , false );
+    raycaster2.ray.origin.copy(currentPosition);
+    raycaster2.ray.origin.z += 10;
 
+    const interX = raycaster.intersectObjects( window.RAYOBJ , false )
+    const interZ = raycaster2.intersectObjects(window.RAYOBJ, false)
+    const intersections = interX.concat(interZ)
+    // console.log("x or z ray: ",  intersections)
     const onObject = intersections.length > 0;
     // console.log(window.RAYOBJ)
     if(onObject) {
-      showDescription( intersections[0].object.name )
+      showDescription( intersections[0].object?.name )
     }
 
     if(window.GROUNDS.length > 0 && window.ZONE){
@@ -708,7 +775,7 @@ function checkPointerControls() {
       if(insideZone === undefined || null) return
 
       if(!insideZone) {
-        console.log("contains? ", window.ZONE, insideZone)
+        // console.log("contains? ", window.ZONE, insideZone)
       }
     }
 
@@ -739,10 +806,10 @@ function checkPointerControls() {
 
     pointerControls.getObject().position.y += ( velocity.y * delta ); // new behavior
 
-    if ( pointerControls.getObject().position.y < 10 ) {
+    if ( pointerControls.getObject().position.y < myHeight ) {
 
       velocity.y = 0;
-      pointerControls.getObject().position.y = 10;
+      pointerControls.getObject().position.y = myHeight;
 
       canJump = true;
 
@@ -762,8 +829,9 @@ function render() {
   var delta = clock.getDelta();
 
   if(window.MIXERS.length > 0) {
-    window.MIXERS.forEach(mixer => mixer.update(delta))
-    // mixer.update(delta);
+    window.MIXERS.forEach(mixer => {
+      mixer.update(delta)
+    })
   }  
 
   renderer.clear();

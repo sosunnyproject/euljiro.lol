@@ -3,6 +3,7 @@
 	"transformers": {
 		"*.png": ["@parcel/transformer-raw"],
    "*.glb": ["@parcel/transformer-raw"],
-   "*.json": ["@parcel/transformer-raw"],
+   "*.gltf": ["@parcel/transformer-raw"],
+   "*.json": ["@parcel/transformer-raw"]
 	}
 }

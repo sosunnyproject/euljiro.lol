@@ -5,9 +5,12 @@ import uhbeeFont from "../assets/fonts/uhbeeRiceRegular.json"
 import euljiro10years from "../assets/fonts/bmEuljiro10years.json"
 import euljiroRegular from "../assets/fonts/bmEuljiroRegular.json"
 import { DynamicDrawUsage } from 'three';
+import { ZONE_POS } from './globalConstants.js';
 
-const box = new THREE.BoxGeometry(5, 5, 5, 100, 100)
-const mat = new THREE.MeshBasicMaterial({ color: 0xffffff, opacity: 0.0, transparent: true })
+const box = new THREE.BoxGeometry(5, 40, 5, 10, 10)
+const cylinderRay = new THREE.CylinderGeometry(2, 2, 60, 8)
+const mat = new THREE.MeshBasicMaterial({ color: 0xff00ff, opacity: 0.0, transparent: true })
+ //  opacity: 0.0, transparent: true
 
 export async function loadAssets(gltfLoader, fontLoader, textureLoader) {
 
@@ -52,11 +55,13 @@ export async function loadAssets(gltfLoader, fontLoader, textureLoader) {
     (gltf) => {
     model.gltf = gltf;
     count++;
-    console.log("loaded")
+    console.log("loaded 3", model.gltf)
     let per = Math.floor((count / loadNum) * 100)
     updateLoadingProgress(per);
   })
 })
+
+
 
  // Load Font for TextGeometry
  fontLoader.load(
@@ -133,10 +138,31 @@ export async function loadZoneThreeGLB(scene) {
   window.DYNAMIC_LOADED = true;  
 }
 
+export async function loadParkAnimals(scene, gltfLoader) {
+  let dummy = {
+    posX: ZONE_POS.GARDEN.x, posY: 100, posZ: ZONE_POS.GARDEN + 500,
+    rx: 0, ry: 0, rz: 0,
+    scale: 1,
+    name: "animals"
+   }
+
+  // gltfLoader.load(Buffalo,
+  //   (gltf) => {
+  //     console.log(gltf)
+  //     console.log("buffalo : ", gltf.scene.children[0])
+  //     console.log("buffalo onloadanim? : ", gltf.scene.children[0].scene)
+  //     try {
+  //       onLoadAnimation(gltf.scene.children[0], dummy, scene)
+  //     } catch (err) {
+  //       console.log(err)
+  //     }
+  //   })
+}
 
 export function onLoadAnimation(model, data, scene) {
   // console.log("load animated models: ", data)
   const { posX, posY, posZ, rx, ry, rz } = data
+
   if(model){
     model.scene.position.set(posX, posY, posZ);
     model.scene.rotation.set(rx, ry, rz);
@@ -156,6 +182,20 @@ export function onLoadAnimation(model, data, scene) {
     model.scene.name = data.name
   }
 
+  // add dummy 
+  const dummy = new THREE.Mesh(cylinderRay, mat)
+  dummy.position.set(posX, 60, posZ)
+  dummy.scale.set(data.scale*1.2 || 1, 1, data.scale*1.2 || 1)
+  // scene.add(dummy)
+  dummy.name = data.name;
+  // console.log("dummy for bounding box", dummy)
+  // const boxhelper = new THREE.BoxHelper( dummy, 0xff0000 );
+  // boxhelper.setFromObject(dummy)
+  // boxhelper.name = data.name;
+
+  scene.add(dummy)
+  window.RAYOBJ.push(dummy)
+
   if(model.animations.length) {
     let mixer = new THREE.AnimationMixer(model.scene);
     window.MIXERS.push(mixer)
@@ -171,19 +211,6 @@ export function onLoadAnimation(model, data, scene) {
   // model.scene.children[0].geometry.computeBoundingBox();
   // console.log("gltf", model.scene) // object3d
   // console.log("gltf bounding box: ", model.scene, model.scene.children[0].geometry.boundingBox) // mesh
-
-  const dummy = new THREE.Mesh(box, mat)
-  dummy.position.set(posX, 0, posZ)
-  dummy.scale.set(data.scale*1.5 || 1, data.scale || 1, data.scale*1.5 || 1)
-  // scene.add(dummy)
-  dummy.name = data.name;
-  console.log("dummy for bounding box", dummy)
-  // const boxhelper = new THREE.BoxHelper( dummy, 0xff0000 );
-  // boxhelper.setFromObject(dummy)
-  // boxhelper.name = data.name;
-
-  scene.add(dummy)
-  window.RAYOBJ.push(dummy)
 
   scene.add(model.scene)
 

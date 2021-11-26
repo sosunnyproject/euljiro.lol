@@ -10,7 +10,7 @@ uniform vec2 u_resolution;
 uniform float u_time;
 varying vec2 vUv;
 
-float cloudscale = 50.1;
+float cloudscale = 1.1;
 float speed = 0.3;
 float clouddark = 0.5;
 float cloudlight = 0.3;

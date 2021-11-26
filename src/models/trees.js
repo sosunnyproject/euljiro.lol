@@ -69,7 +69,7 @@ export function generateTree(position) {
  trunkMesh.position.y = y + 20 + 20
  trunkMesh.position.z = z
  trunkMesh.scale.set(20, 20, 20)
- trunkMesh.name = "animate";
+ trunkMesh.name = "trees";
  tree.add(trunkMesh);
 
  return tree

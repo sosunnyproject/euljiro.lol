@@ -12,8 +12,6 @@ import { FontLoader } from 'three/examples/jsm/loaders/FontLoader';
 import Stats from 'three/examples/jsm/libs/stats.module';
 import { WEBGL } from 'three/examples/jsm/WebGL';
 
-import { Loader, Mesh, PlaneGeometry } from 'three';
-import { statSync } from 'fs';
 import { getRandomArbitrary, getRandomInt, retrieveEnergy, showDescription, warnLowEnergy } from './utils.js';
 import { ZONE_NAMES, ZONE_POS, ZONE_RADIUS, ZONE_RESET_POS } from './globalConstants.js';
 
@@ -22,11 +20,10 @@ import { MONUMENTS_GLB } from './models/glbLoader.js';
 
 import { updateStepProgress, updateLoadingProgress, updateStepNum } from './utils';
 import { loadAssets, loadZoneOneGLB, loadZoneThreeGLB, loadZoneTwoGLB, onLoadAnimation } from './loadAssets.js';
-import { generateDistrictGardenObjects } from './renderDistrictGarden.js';
-import { makeSteps, renderBuildings } from './renderZone3.js';
+import { instantiateZone3 } from './renderZone3.js';
 import { renderShutter } from './renderZone1.js';
-import { renderInstanceTrees, renderSkyDome, renderGrounds, renderBackgroundTriangle, renderMountain } from './renderGlobal';
-import { generateTreeInPark } from './models/trees.js';
+import { renderSkyDome, renderGrounds, renderBackgroundTriangle, renderMountain } from './renderGlobal';
+import { instantiateParkObj } from './renderZonePark.js';
 
 let stats, camera, renderer, pointerControls;
 
@@ -429,12 +426,16 @@ function tick() {
     if(obj.name === "robotFace") {
       obj.position.y += Math.sin(time*0.001)*0.5
     }
-    if(obj.name === "animate") {
-      obj.scale.x = Math.cos(time*0.0001) * 20
-      obj.scale.y = Math.cos(time*0.0001) * 20
-      obj.scale.z = Math.cos(time*0.0001) * 20
+    if(obj.name === "trees") {  // animate tree's scale
+      obj.scale.x = Math.cos(time*0.0001) * 15
+      obj.scale.y = Math.cos(time*0.0001) * 15
+      obj.scale.z = Math.cos(time*0.0001) * 15
     }
-    if(obj.name.includes('apt')) {
+    if(obj.tick) { // tick AnimatedFlower
+      console.log("tick? ", obj)
+      obj.tick(time)
+    }
+    if(obj.name.includes('apt')) { 
       const rand = obj.randomNoise;
       obj.position.y += Math.sin(time*0.0005)*rand
       // for(let i = 0; i < 10; i++) {
@@ -606,6 +607,7 @@ function loadZones(zone) {
 
     case "THREE":
       loadZoneThreeGLB(scene)
+      instantiateZone3(scene)
       enableRaycast = true;
       // scene.fog = new THREE.FogExp2( 0xcccccc, 0.002 );
 
@@ -677,53 +679,11 @@ function loadDefaultEnvironment() {
   renderShutter(scene, -50);
 
   renderMountain(scene)
-  generateTreeInPark(scene, 100)
 
-  const objects = generateDistrictGardenObjects()
-  
-  for(let i = 0; i < objects.length; i++){
-    scene.add(objects[i])
-  }
+  instantiateParkObj(scene)
 
   // renderSkyDome(scene)
   
-  /*
-  renderInstanceTrees(
-    50, // num
-    {x: 1500, y: 0, z: 1000},  // range
-    {x: 5500, y: -2, z: 1100}, // translate
-    50, // scale
-    // "rgb(233, 245, 219)",
-    "rgb(216, 243, 220)",
-    scene
-  )
-  renderInstanceTrees(
-    50, // num
-    {x: 1500, y: 0, z: 1000},  // range
-    {x: 5500, y: -2, z: -1200}, // translate
-    50, // scale
-    // "rgb(233, 245, 219)",
-    "rgb(245, 202, 195)",
-    scene
-  )
-  */
-
-  const posArr1 = [
-    new THREE.Vector3(400, 0, 100),
-    new THREE.Vector3(200, 0, -300),
-    new THREE.Vector3(-300, 0, 100)
-  ]
-
-  const posArr2 = [
-    new THREE.Vector3(250, 0, -50),
-    new THREE.Vector3(-300, 0, -200),
-    new THREE.Vector3(400, 0, -200)
-  ]
-
-  renderBuildings(scene, -1, posArr1)
-  renderBuildings(scene, 2, posArr2)
-  // makeSteps(scene)
-
   // monument gltf
   for (let i = 0; i < MONUMENTS_GLB.length; i++) {
     const monuments = MONUMENTS_GLB[i]
@@ -759,24 +719,6 @@ function checkPointerControls() {
     // console.log(window.RAYOBJ)
     if(onObject) {
       showDescription( intersections[0].object?.name )
-    }
-
-    if(window.GROUNDS.length > 0 && window.ZONE){
-      
-      const centerX1 = ZONE_POS[window.ZONE].x
-      const centerZ1 = ZONE_POS[window.ZONE].z
-      const radius1 = ZONE_RADIUS[window.ZONE]
-
-      const dx1 = Math.abs(currentPosition.x - centerX1)
-      const dz1 = Math.abs(currentPosition.z - centerZ1)
-
-      let insideZone = dx1*dx1 + dz1*dz1 <= radius1*radius1
-
-      if(insideZone === undefined || null) return
-
-      if(!insideZone) {
-        // console.log("contains? ", window.ZONE, insideZone)
-      }
     }
 
     // control speed of movement

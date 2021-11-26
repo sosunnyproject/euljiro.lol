@@ -1,18 +1,18 @@
 import * as THREE from 'three';
-import { getRandomArbitrary, getRandomInt } from './utils.js';
-import { generateTriangleCat, generateTriangleGround, generateFloorNeons } from './models/catRoads.js';
+import { getRandomArbitrary, getRandomInt } from '../utils.js';
+import { generateTriangleCat, generateTriangleGround, generateFloorNeons } from '../models/catRoads.js';
 import { FontLoader } from 'three/examples/jsm/loaders/FontLoader';
 import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js'
 // import HelveticaSample from 'three/examples/fonts/helvetiker_bold.typeface.json'
 import gardenImg from '../assets/png/gardenSquare.png'
-import vertexShader from './shaders/vertex.glsl.js'
-import fragmentShader from './shaders/fragment.glsl.js'
-import glowFragment from './shaders/glow.frag.js';
-import glowGroundFragment from './shaders/glowBottom.frag.js';
+import vertexShader from '../shaders/vertex.glsl.js'
+import fragmentShader from '../shaders/fragment.glsl.js'
+import glowFragment from '../shaders/glow.frag.js';
+import glowGroundFragment from '../shaders/glowBottom.frag.js';
 import { MeshSurfaceSampler } from 'three/examples/jsm/math/MeshSurfaceSampler.js';
-import FarBackground from './models/FarBackground.js';
-import { generateGround } from './models/ground.js';
-import { generateTerrain } from './models/Terrain.js';
+import FarBackground from '../models/FarBackground.js';
+import { generateGround } from '../models/ground.js';
+import { generateTerrain } from '../models/Terrain.js';
 
 export function generateDistrictOneObjects() {
 

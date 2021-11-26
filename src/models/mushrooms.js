@@ -24,6 +24,7 @@ export function generateMushroom() {
  lathe.position.y = 80;
  lathe.position.x = 120;
  lathe.rotation.z = 60
+ lathe.name = "shader lathe"
 
  mushroom.add(lathe)
 

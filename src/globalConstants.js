@@ -3,7 +3,7 @@ export const ZONE_NAMES = ["GARDEN", "ONE", "TWO", "THREE"]
 export const ZONE_POS = {
   ONE: {x: 3400, y: 0, z: 0},
   TWO: {x: -100, y: 0, z: -3400},
-  THREE: {x: -2600, y: 0, z: 1700},
+  THREE: {x: -2800, y: 0, z: 1800},
   GARDEN: {x: 0, y: -0.2, z: 0},
   BLANK: {x: 0, y: -0.5, z: 0},
 }

@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { ZONE_POS } from "./globalConstants"
+import { ZONE_POS, ZONE_RADIUS } from "./globalConstants"
 import { getRandomArbitrary, getRandomInt } from './utils';
 import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils'
 
@@ -7,6 +7,41 @@ const ZONE3_X_MIN = ZONE_POS.THREE.x - 300;
 const ZONE3_X_MAX = ZONE_POS.THREE.x + 300;
 const ZONE3_Z_MIN = ZONE_POS.THREE.z - 300;
 const ZONE3_Z_MAX = ZONE_POS.THREE.z + 300;
+
+
+export function instantiateZone3 (scene) {
+    
+  const posArr1 = [
+    new THREE.Vector3(400, 0, 100),
+    new THREE.Vector3(200, 0, -300),
+    new THREE.Vector3(-300, 0, 100)
+  ]
+
+  const posArr2 = [
+    new THREE.Vector3(250, 0, -50),
+    new THREE.Vector3(-300, 0, -200),
+    new THREE.Vector3(400, 0, -200)
+  ]
+
+  renderBuildings(scene, -1, posArr1)
+  renderBuildings(scene, 2, posArr2)
+
+  let ringPosArr = []
+  for(let i = 30; i < 360; i+= 30) {
+    const r = ZONE_RADIUS.THREE-(Math.random()*1000);
+    const theta = THREE.MathUtils.degToRad(i)
+    const tx = r * Math.cos(theta)
+    const ty = r * Math.sin(theta)
+    const ry =  THREE.MathUtils.degToRad(90-i)
+    ringPosArr.push(new THREE.Vector3(tx, 0, ty))
+  }
+  console.log("render buildings ? ", ringPosArr)
+  renderBuildings(scene, 3, ringPosArr)
+
+  makeSteps(scene, {x: ZONE_POS.THREE.x - 1000, z: ZONE_POS.THREE.z })
+  makeSteps(scene, {x: ZONE_POS.THREE.x - 2000, z: ZONE_POS.THREE.z - 1000 })
+  makeSteps(scene, {x: ZONE_POS.THREE.x - 2000, z: ZONE_POS.THREE.z + 1000 })
+}
 
 export function renderBuildings (scene, randNum, posArr) {
     
@@ -52,7 +87,7 @@ export function renderBuildings (scene, randNum, posArr) {
 
     const mesh = new THREE.InstancedMesh(mergedGeometry, material, 10)
 
-    for(let i = 0; i < 3; i++)
+    for(let i = 0; i < posArr.length; i++)
     {
         const position = posArr[i] 
         //new THREE.Vector3(getRandomInt(-300, 300), 100, getRandomInt(-300, 300))
@@ -77,20 +112,23 @@ export function renderBuildings (scene, randNum, posArr) {
     mesh.translateX(ZONE_POS.THREE.x)
     mesh.translateZ(ZONE_POS.THREE.z)
 
+    mesh.zone = 3
     window.RAYOBJ.push(mesh)
     scene.add(mesh)
 
 }
 
-export function makeSteps(scene) {
+export function makeSteps(scene, pos) {
 
+    console.log("makeSteps? ", pos)
     const size = 60
     const height = 20
     const g1 = new THREE.BoxGeometry(size, height, size)
     const gmat = new THREE.MeshPhongMaterial({ color: 0x222222 })
     const boxTest = new THREE.Mesh(g1, gmat)
-    boxTest.translateX(ZONE_POS.THREE.x - 600)
-    boxTest.translateZ(ZONE_POS.THREE.z)
+    boxTest.translateX(pos.x)
+    boxTest.translateZ(pos.z)
+    boxTest.zone = 3
     window.RAYOBJ.push(boxTest)        
     scene.add(boxTest)
 
@@ -98,6 +136,7 @@ export function makeSteps(scene) {
         const box2 = boxTest.clone();
         box2.position.x += size * i;
         box2.position.y += height * i;
+        box2.zone = 3
         window.RAYOBJ.push(box2)
         scene.add(box2)
     }

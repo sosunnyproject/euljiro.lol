@@ -14,7 +14,7 @@ import * as Nodes from 'three/examples/jsm/nodes/Nodes.js';
 import Stats from 'three/examples/jsm/libs/stats.module';
 import { WEBGL } from 'three/examples/jsm/WebGL';
 
-import { getRandomArbitrary, getRandomInt, retrieveEnergy, showDescription, warnLowEnergy } from './utils.js';
+import { getRandomArbitrary, getRandomInt, retrieveEnergy, showDescription, showHowto, warnLowEnergy } from './utils.js';
 import { ZONE_NAMES, ZONE_POS, ZONE_RADIUS, ZONE_RESET_POS } from './globalConstants.js';
 
 // import model urls
@@ -38,7 +38,7 @@ let prevTime = performance.now();
 const velocity = new THREE.Vector3();
 const direction = new THREE.Vector3();
 
-let popupOpen = false;
+let popupOpen = true;
 let myHeight = 50;
 
 // raycaster
@@ -58,6 +58,7 @@ window.ZONE = "ONE"
 window.DYNAMIC_LOADED = false;
 window.ACC_STEPS = window.STEP_LIMIT;
 window.RAYOBJ = []
+window.HOWTOPAGE = 1;
 
 // Clock: autoStart, elapsedTime, oldTime, running, startTime
 var clock = new THREE.Clock();
@@ -89,7 +90,7 @@ renderer.setSize(WIDTH, HEIGHT);
 // renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
 // Node Pass
-nodepost = new Nodes.NodePostProcessing( renderer );
+let nodepost = new Nodes.NodePostProcessing( renderer );
 
 // Camera
 const params = {
@@ -138,6 +139,10 @@ pointerControls.addEventListener('change', function () {
 
 blocker.addEventListener( 'click', function () {
   pointerControls.lock();
+
+  const howtoPopup = document.querySelector(".popup");
+  howtoPopup.classList.add("show");
+
 } );
 
 pointerControls.addEventListener( 'lock', function () {
@@ -252,13 +257,12 @@ function togglePopup () {
 }
 
 function resetPosition() {
-  camera.position.x = 6550;
-  camera.position.y = 100;
-  camera.position.z = 0;
+  camera.position.x = 300;
+  camera.position.y = 10;
+  camera.position.z = 100;
 
-  if(window.ACC_STEPS <= 5) {
-    console.log("체력소모")
-    showDescription("체력이 소모되었습니다. 처음 위치로 돌아갑니다. 공원으로 이동해서 에너지를 채워주세요.")
+  if(window.ACC_STEPS <= 50) {
+    showDescription("체력이 얼마 남지 않았습니다. 에너지를 채우기 위해 공원으로 곧 이동합니다.")
     window.ACC_STEPS = window.STEP_LIMIT
   }
 }
@@ -283,6 +287,10 @@ function xboxKeyPressed (gamepad) {
     if(!pointerControls?.isLocked) {
       console.log(pointerControls)
       console.log(pointerControls.isLocked)
+
+      // start howto popup in the beginning
+      const howtoPopup = document.querySelector(".popup");
+      howtoPopup.classList.add("show");
       try {
         pointerControls?.lock();
       } catch (err) {
@@ -324,17 +332,25 @@ function xboxKeyPressed (gamepad) {
     canJump = false;
     return;
   }
-  if(buttons[0].pressed) {
-    if(buttons[0].value) {
+  if(buttons[0].pressed) {  // open popup
+    if(!popupOpen && buttons[0].value) {
       popupOpen = true;
       togglePopup()
     }
+    // control for howto popup slide
+    if(popupOpen){
+      console.log("popup? ", popupOpen)
+      // const btnVal = buttons[0].pressed;
+      
+      setTimeout(showHowto(), 2000)
+    }
     return;
   }
-  if(buttons[2].pressed) {
+  if(buttons[2].pressed) { // close popup
     popupOpen = false;
     console.log(popupOpen)
     togglePopup()
+    window.HOWTOPAGE = 1;
     return;
   }
   if(buttons[8].pressed) {
@@ -376,24 +392,6 @@ function xboxAxesPressed(gamepad) {
 
   prevAxisX = movementX;
   prevAxisY = movementY;
-
-  // control for instruction popup slide
-  if(popupOpen){
-    console.log("popup? ", popupOpen)
-    const btnVal = gamepad.axes[0];
-    console.log(btnVal)
-    const contentWindow = document.querySelector("#howtoContent")
-    if(btnVal === -1) {
-      contentWindow.innerText = "hello prev"
-      console.log(contentWindow)
-      return;
-    } else if (btnVal === 1) {
-      contentWindow.innerText = "hello next"
-      console.log(contentWindow)
-    
-      return;
-    }
-  }
 }
 
 function tick() {
@@ -581,7 +579,7 @@ function checkCameraLoadAssets(currentPos)  {
   // OUTSIDE
   if(inZonePark + inZone1 + inZone2 + inZone3 == 0) {
     window.DYNAMIC_LOADED = false;
-    console.log("outside zone")
+    // console.log("outside zone")
 
     // unload all gltf
     try {

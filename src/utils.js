@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { slide2, slide3, slide4 } from './instructionScript';
 
 export function getRandomArbitrary(min, max) {
  return Math.random() * (max - min) + min;
@@ -96,6 +97,8 @@ export function retrieveEnergy(scene) {
 export function warnLowEnergy(scene, delta) {
   // dim the lights
 
+  showDescription("체력이 얼마 남지 않았습니다.")
+
   scene.traverse(obj => {
     if(!obj.name) return
     
@@ -133,4 +136,59 @@ export function showDescription ( objName ) {
     popup.classList.remove("show")
     window.DESC_POP = false;
   }, 3000)
+}
+
+export async function showHowto() {
+
+  const maxPage = 3;
+  const gamepadPage = document.querySelector("#howtoGamepad") // page 1
+  const contentPage = document.querySelector("#howtoPage") // page 2, 3, 4
+  
+  window.HOWTOPAGE += 1;
+  if(window.HOWTOPAGE > maxPage) {  // not higher than max
+    window.HOWTOPAGE = 1;
+  } 
+
+  console.log("page num: ", window.HOWTOPAGE)
+  console.log("contentSection: ", contentPage, gamepadPage)
+  
+  switch(window.HOWTOPAGE) {
+    case 1:
+      gamepadPage.style.display = 'block';
+      contentPage.style.display = 'none';
+      break;
+    case 2:
+      gamepadPage.style.display = 'none';
+      contentPage.style.display = 'block';
+      contentPage.innerHTML = slide2;
+      break;
+    case 3: 
+      gamepadPage.style.display = 'none';
+      contentPage.style.display = 'block';
+      contentPage.innerHTML = slide3;
+      break;
+    // case 4: 
+    //   gamepadPage.style.display = 'none';
+    //   contentPage.style.display = 'block';
+    //   contentPage.innerHTML = slide4;
+    //   break;
+  }
+  await sleep(5000);
+}
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function demo() {
+  console.log('Taking a break...');
+  await sleep(2000);
+  console.log('Two seconds later, showing sleep in a loop...');
+
+  // Sleep in loop
+  for (let i = 0; i < 5; i++) {
+    if (i === 3)
+      await sleep(2000);
+    console.log(i);
+  }
 }

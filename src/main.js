@@ -547,38 +547,38 @@ function checkCameraLoadAssets(currentPos)  {
   }
 
   // PARK
-  const centerX4 = ZONE_POS.GARDEN.x
-  const centerZ4 = ZONE_POS.GARDEN.z
-  const radius4 = ZONE_RADIUS.GARDEN
+  // const centerX4 = ZONE_POS.GARDEN.x
+  // const centerZ4 = ZONE_POS.GARDEN.z
+  // const radius4 = ZONE_RADIUS.GARDEN
 
-  const dx4 = Math.abs(currentPos.x - centerX4)
-  const dz4 = Math.abs(currentPos.z - centerZ4)
-  let inZonePark = dx4*dx4 + dz4*dz4 <= radius4*radius4
-  if(inZonePark) {
-    window.DYNAMIC_LOADED = false;
-    window.ZONE = "GARDEN"
-    console.log("inside : ", window.ZONE)
+  // const dx4 = Math.abs(currentPos.x - centerX4)
+  // const dz4 = Math.abs(currentPos.z - centerZ4)
+  // let inZonePark = dx4*dx4 + dz4*dz4 <= radius4*radius4
+  // if(inZonePark) {
+  //   // window.DYNAMIC_LOADED = false;
+  //   window.ZONE = "GARDEN"
+  //   console.log("inside : ", window.ZONE)
   
-    // unload zone 1, 2, 3 models
-    try {
-      scene.traverse(obj => {
-        if (typeof obj.zone === 'number') {
-          if(obj.zone < 4) {
-            scene.remove(obj)
-          }
-        }
-      })
-    } catch (err) {
-      console.log(err)
-    }
+  //   // unload zone 1, 2, 3 models
+  //   try {
+  //     scene.traverse(obj => {
+  //       if (typeof obj.zone === 'number') {
+  //         if(obj.zone < 4) {
+  //           scene.remove(obj)
+  //         }
+  //       }
+  //     })
+  //   } catch (err) {
+  //     console.log(err)
+  //   }
 
-    loadZones(window.ZONE)
+  //   loadZones(window.ZONE)
 
-  }
+  // }
 
   
-  // OUTSIDE
-  if(inZonePark + inZone1 + inZone2 + inZone3 == 0) {
+  // OUTSIDE, inZonePark +
+  if( inZone1 + inZone2 + inZone3 == 0) {
     window.DYNAMIC_LOADED = false;
     // console.log("outside zone")
 
@@ -616,7 +616,8 @@ function loadZones(zone) {
       break;
     
     case "GARDEN":
-      loadZoneParkGLB(scene);
+      console.log("GARDEN zone, dynamicLoaded? ", window.DYNAMIC_LOADED)
+      // loadZoneParkGLB(scene);
       break;
   }
 }
@@ -753,6 +754,7 @@ function loadDefaultEnvironment() {
     }
   }
 
+  loadZoneParkGLB(scene)  // default
   // loadZoneTwoGLB(scene)
   // loadZoneThreeGLB(scene)
 }

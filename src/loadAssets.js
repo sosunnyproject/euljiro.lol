@@ -99,7 +99,7 @@ export async function loadZoneParkGLB(scene) {
     }
   }
 
-  window.DYNAMIC_LOADED = true;  
+  // window.DYNAMIC_LOADED = true;  
 }
 
 

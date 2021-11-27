@@ -109,46 +109,46 @@ const ZONE4_Z_MAX = ZONE_POS.GARDEN.z + 300;
 
 const tigerlily = {
   url: TIGERLILY,
-  posX: 500, posY: 10, posZ: -1000, 
+  posX: 500, posY: 60, posZ: -1000, 
   rx: 0, ry: Math.PI/6.0, rz: 0,
-  scale: 40,
+  scale: 50,
   zone: 4,
-  name: "tigerlily"
+  name: "을지로에 남아있던 마지막 꽃"
 }
 
 const squirrel = {
   url: SQUIRREL,
-  posX: 800, posY: 10, posZ: 1200, 
+  posX: 800, posY: 50, posZ: 1200, 
   rx: 0, ry: -Math.PI/6.0, rz: 0,
-  scale: 30,
-  zone: 4,
-  name: "squirrel"
+  scale: 50,
+  // zone: 4,
+  name: "나는야 공원을 지키는 우람한 다람쥐"
 }
 
 const parkCat = {
   url: PARK_CAT,
-  posX: -600, posY: 10, posZ: 1700, 
+  posX: -600, posY: 50, posZ: 1700, 
   rx: 0, ry: Math.PI/6.0, rz: 0,
-  scale: 20,
-  zone: 4,
-  name: "parkcat"
+  scale: 40,
+  // zone: 4,
+  name: "잔디를 사랑한 나머지 초록색으로 변하고 있어"
 }
 
 const yellowBench = {
   url: YELLOW_BENCH,
-  posX: 1600, posY: 10, posZ: 500, 
+  posX: 1600, posY: 50, posZ: 500, 
   rx: 0, ry: Math.PI/4.0, rz: 0,
-  scale: 30,
-  zone: 4,
-  name: "yellowbench"
+  scale: 50,
+  // zone: 4,
+  name: "와서 잠시 앉아 쉬어가도 돼"
 }
 const cactus = {
   url: CACTUS,
   posX: -600, posY: 10, posZ: -1700, 
   rx: 0, ry: Math.PI/3.0, rz: 0,
   scale: 20,
-  zone: 4,
-  name: "cactus"
+  // zone: 4,
+  name: "메마른 땅에서 버티다보니 지금 여기에 있어"
 }
 export const DISTRICT_PARK_GLB = [ 
   tigerlily, squirrel, parkCat, yellowBench, cactus

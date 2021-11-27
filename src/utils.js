@@ -135,7 +135,7 @@ export function showDescription ( objName ) {
   setTimeout(() => {
     popup.classList.remove("show")
     window.DESC_POP = false;
-  }, 3000)
+  }, 6000)
 }
 
 export async function showHowto() {

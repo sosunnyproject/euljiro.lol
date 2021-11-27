@@ -2,6 +2,7 @@
 	"extends": "@parcel/config-default",
 	"transformers": {
 		"*.png": ["@parcel/transformer-raw"],
+		"*.jpg": ["@parcel/transformer-raw"],
    "*.glb": ["@parcel/transformer-raw"],
    "*.gltf": ["@parcel/transformer-raw"],
    "*.json": ["@parcel/transformer-raw"]

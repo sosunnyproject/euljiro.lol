@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { DISTRICT_ONE_GLB, DISTRICT_TWO_GLB, DISTRICT_THREE_GLB, MONUMENTS_GLB } from './models/glbLoader.js';
+import { DISTRICT_ONE_GLB, DISTRICT_TWO_GLB, DISTRICT_THREE_GLB, MONUMENTS_GLB, DISTRICT_PARK_GLB } from './models/glbLoader.js';
 import { updateLoadingProgress } from './utils.js';
 import uhbeeFont from "../assets/fonts/uhbeeRiceRegular.json"
 import euljiro10years from "../assets/fonts/bmEuljiro10years.json"
@@ -14,7 +14,7 @@ const mat = new THREE.MeshBasicMaterial({ color: 0xff00ff, opacity: 0.0, transpa
 
 export async function loadAssets(gltfLoader, fontLoader, textureLoader) {
 
- const loadNum = 1 + MONUMENTS_GLB.length + DISTRICT_TWO_GLB.length + DISTRICT_ONE_GLB.length + DISTRICT_THREE_GLB.length;
+ const loadNum = 1 + MONUMENTS_GLB.length + DISTRICT_TWO_GLB.length + DISTRICT_ONE_GLB.length + DISTRICT_THREE_GLB.length + DISTRICT_PARK_GLB.length;
  let count = 0
  
  MONUMENTS_GLB.forEach(model => {
@@ -62,6 +62,16 @@ export async function loadAssets(gltfLoader, fontLoader, textureLoader) {
 })
 
 
+DISTRICT_PARK_GLB.forEach(model => {
+  gltfLoader.load(model.url, 
+    (gltf) => {
+    model.gltf = gltf;
+    count++;
+    console.log("loaded 4", model.gltf)
+    let per = Math.floor((count / loadNum) * 100)
+    updateLoadingProgress(per);
+  })
+})
 
  // Load Font for TextGeometry
  fontLoader.load(
@@ -75,6 +85,21 @@ export async function loadAssets(gltfLoader, fontLoader, textureLoader) {
    }
  )
 
+}
+
+export async function loadZoneParkGLB(scene) {
+  console.log("loadZoneParkGLB")
+  
+  for (let i = 0; i < DISTRICT_PARK_GLB.length; i++) {
+    const model = DISTRICT_PARK_GLB[i]
+    try {
+      await onLoadAnimation(model.gltf, model, scene)
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
+  window.DYNAMIC_LOADED = true;  
 }
 
 

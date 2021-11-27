@@ -5,21 +5,20 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/examples/jsm/loaders/dracoloader';
 import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls.js';
 import { FontLoader } from 'three/examples/jsm/loaders/FontLoader';
-// import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
-// import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
-// import { BokehPass } from 'three/examples/jsm/postprocessing/BokehPass.js';
+import { NodePass } from 'three/examples/jsm/nodes/postprocessing/NodePass.js';
+import * as Nodes from 'three/examples/jsm/nodes/Nodes.js';
 
 import Stats from 'three/examples/jsm/libs/stats.module';
 import { WEBGL } from 'three/examples/jsm/WebGL';
 
-import { getRandomArbitrary, getRandomInt, retrieveEnergy, showDescription, warnLowEnergy } from './utils.js';
+import { getRandomArbitrary, getRandomInt, retrieveEnergy, showDescription, showHowto, warnLowEnergy } from './utils.js';
 import { ZONE_NAMES, ZONE_POS, ZONE_RADIUS, ZONE_RESET_POS } from './globalConstants.js';
 
 // import model urls
 import { MONUMENTS_GLB } from './models/glbLoader.js';
 
 import { updateStepProgress, updateLoadingProgress, updateStepNum } from './utils';
-import { loadAssets, loadZoneOneGLB, loadZoneThreeGLB, loadZoneTwoGLB, onLoadAnimation } from './loadAssets.js';
+import { loadAssets, loadZoneOneGLB, loadZoneParkGLB, loadZoneThreeGLB, loadZoneTwoGLB, onLoadAnimation } from './loadAssets.js';
 import { instantiateZone3 } from './renderZone3.js';
 import { renderShutter } from './renderZone1.js';
 import { renderSkyDome, renderGrounds, renderBackgroundTriangle, renderMountain } from './renderGlobal';
@@ -27,11 +26,16 @@ import { instantiateParkObj } from './renderZonePark.js';
 
 let stats, camera, renderer, pointerControls;
 
+// render pass
+let composer, nodepass, screen, blurScreen;
+const frame = new Nodes.NodeFrame();
+// screen = new Nodes.ScreenNode();
+
 let prevTime = performance.now();
 const velocity = new THREE.Vector3();
 const direction = new THREE.Vector3();
 
-let popupOpen = false;
+let popupOpen = true;
 let myHeight = 50;
 
 // raycaster
@@ -43,16 +47,14 @@ let raycaster = new THREE.Raycaster(rayOrigin, rayDirection, 0, 100); // rayOrig
 let raycaster2 = new THREE.Raycaster(rayOrigin, rayZ, 0, 100); // rayOrigin, rayDirection, 0, 10
 
 // raycaster.set(rayOrigin, rayDirection)
-let enableRaycast = false;
-let cubeRenderTarget2, cubeCamera2;
-const postprocessing = {};
 
 // Zones
-window.STEP_LIMIT = 5000
+window.STEP_LIMIT = 2000
 window.ZONE = "ONE"
 window.DYNAMIC_LOADED = false;
 window.ACC_STEPS = window.STEP_LIMIT;
 window.RAYOBJ = []
+window.HOWTOPAGE = 1;
 
 // Clock: autoStart, elapsedTime, oldTime, running, startTime
 var clock = new THREE.Clock();
@@ -77,9 +79,14 @@ const WIDTH = window.innerWidth, HEIGHT = window.innerHeight
 renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
 renderer.outputEncoding = THREE.sRGBEncoding;
 renderer.setClearColor(new THREE.Color(0x000, 1.0));
+renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setSize(WIDTH, HEIGHT);
+
 // renderer.shadowMap.enabled = true;
 // renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+// Node Pass
+let nodepost = new Nodes.NodePostProcessing( renderer );
 
 // Camera
 const params = {
@@ -93,7 +100,7 @@ function makeCamera() {
   return new THREE.PerspectiveCamera(fov, aspect, zNear, zFar);
 }
 camera = makeCamera();
-camera.position.x = 5550;
+camera.position.x = 6750;
 camera.position.y = 100;
 camera.position.z = 0;  
 camera.lookAt(new THREE.Vector3(750, 0, -750));
@@ -101,7 +108,7 @@ camera.lookAt(new THREE.Vector3(750, 0, -750));
 // Scene
 const scene = new THREE.Scene()
 scene.background = new THREE.Color(0xbababa);
-// scene.fog = new THREE.FogExp2( 0xcdcdcd, 0.0008 );
+scene.fog = new THREE.FogExp2( 0xcdcdcd, 0.0008 );
 //scene.overrideMaterial = new THREE.MeshPhongMaterial({ color: 0xFFD580})
 window.SCENE = scene;
 
@@ -128,6 +135,10 @@ pointerControls.addEventListener('change', function () {
 
 blocker.addEventListener( 'click', function () {
   pointerControls.lock();
+
+  const howtoPopup = document.querySelector(".popup");
+  howtoPopup.classList.add("show");
+
 } );
 
 pointerControls.addEventListener( 'lock', function () {
@@ -242,13 +253,12 @@ function togglePopup () {
 }
 
 function resetPosition() {
-  camera.position.x = 6550;
-  camera.position.y = 100;
-  camera.position.z = 0;
+  camera.position.x = 300;
+  camera.position.y = 10;
+  camera.position.z = 100;
 
-  if(window.ACC_STEPS <= 0) {
-    console.log("체력소모")
-    showDescription("체력이 소모되었습니다. 처음 위치로 돌아갑니다. 공원으로 이동해서 에너지를 채워주세요.")
+  if((window.ACC_STEPS/window.STEP_LIMIT * 100) <= 10) {
+    showDescription("체력이 얼마 남지 않았습니다. 에너지를 채우기 위해 공원으로 곧 이동합니다.")
     window.ACC_STEPS = window.STEP_LIMIT
   }
 }
@@ -273,6 +283,10 @@ function xboxKeyPressed (gamepad) {
     if(!pointerControls?.isLocked) {
       console.log(pointerControls)
       console.log(pointerControls.isLocked)
+
+      // start howto popup in the beginning
+      const howtoPopup = document.querySelector(".popup");
+      howtoPopup.classList.add("show");
       try {
         pointerControls?.lock();
       } catch (err) {
@@ -314,17 +328,25 @@ function xboxKeyPressed (gamepad) {
     canJump = false;
     return;
   }
-  if(buttons[0].pressed) {
-    if(buttons[0].value) {
+  if(buttons[0].pressed) {  // open popup
+    if(!popupOpen && buttons[0].value) {
       popupOpen = true;
       togglePopup()
     }
+    // control for howto popup slide
+    if(popupOpen){
+      console.log("popup? ", popupOpen)
+      // const btnVal = buttons[0].pressed;
+      
+      setTimeout(showHowto(), 2000)
+    }
     return;
   }
-  if(buttons[2].pressed) {
+  if(buttons[2].pressed) { // close popup
     popupOpen = false;
     console.log(popupOpen)
     togglePopup()
+    window.HOWTOPAGE = 1;
     return;
   }
   if(buttons[8].pressed) {
@@ -366,24 +388,6 @@ function xboxAxesPressed(gamepad) {
 
   prevAxisX = movementX;
   prevAxisY = movementY;
-
-  // control for instruction popup slide
-  if(popupOpen){
-    console.log("popup? ", popupOpen)
-    const btnVal = gamepad.axes[0];
-    console.log(btnVal)
-    const contentWindow = document.querySelector("#howtoContent")
-    if(btnVal === -1) {
-      contentWindow.innerText = "hello prev"
-      console.log(contentWindow)
-      return;
-    } else if (btnVal === 1) {
-      contentWindow.innerText = "hello next"
-      console.log(contentWindow)
-    
-      return;
-    }
-  }
 }
 
 function tick() {
@@ -391,10 +395,13 @@ function tick() {
 
   // check energy progress
   let energyPercent = ((window.ACC_STEPS/window.STEP_LIMIT)*100) 
-  if( energyPercent < 20 ) {
+  if( energyPercent < 30 ) {
     warnLowEnergy(scene)
-  } else if ( energyPercent > 20 ) {
+    gradientBlurScreen(0.005)
+  } else if ( energyPercent > 30 ) {
     retrieveEnergy(scene)
+    gradientBlurScreen(-0.005)
+
   }
 
   
@@ -427,13 +434,12 @@ function tick() {
       obj.position.y += Math.sin(time*0.001)*0.5
     }
     if(obj.name === "trees") {  // animate tree's scale
-      obj.scale.x = Math.cos(time*0.0001) * 15
-      obj.scale.y = Math.cos(time*0.0001) * 15
-      obj.scale.z = Math.cos(time*0.0001) * 15
+      obj.scale.x = Math.cos(time*0.0001) * 12
+      obj.scale.y = Math.cos(time*0.0001) * 12
+      obj.scale.z = Math.cos(time*0.0001) * 12
     }
-    if(obj.tick) { // tick AnimatedFlower
-      console.log("tick? ", obj)
-      obj.tick(time)
+    if (typeof obj.tick === 'function') {   // tick AnimatedFlower
+      obj.tick(time);
     }
     if(obj.name.includes('apt')) { 
       const rand = obj.randomNoise;
@@ -553,23 +559,28 @@ function checkCameraLoadAssets(currentPos)  {
     window.ZONE = "GARDEN"
     console.log("inside : ", window.ZONE)
   
-    // unload all gltf
+    // unload zone 1, 2, 3 models
     try {
       scene.traverse(obj => {
         if (typeof obj.zone === 'number') {
+          if(obj.zone < 4) {
             scene.remove(obj)
           }
+        }
       })
     } catch (err) {
       console.log(err)
     }
+
+    loadZones(window.ZONE)
+
   }
 
   
   // OUTSIDE
   if(inZonePark + inZone1 + inZone2 + inZone3 == 0) {
     window.DYNAMIC_LOADED = false;
-    console.log("outside zone")
+    // console.log("outside zone")
 
     // unload all gltf
     try {
@@ -593,24 +604,19 @@ function loadZones(zone) {
   switch(zone) {
     case "ONE":
       loadZoneOneGLB(scene)
-      enableRaycast = true;
-      // scene.fog = new THREE.FogExp2( 0xcccccc, 0.002 );
-
       break;
 
     case "TWO":
       loadZoneTwoGLB(scene)
-      enableRaycast = true;
-      // scene.fog = new THREE.FogExp2( 0xcccccc, 0.002 );
-
       break;
 
     case "THREE":
       loadZoneThreeGLB(scene)
       instantiateZone3(scene)
-      enableRaycast = true;
-      // scene.fog = new THREE.FogExp2( 0xcccccc, 0.002 );
-
+      break;
+    
+    case "GARDEN":
+      loadZoneParkGLB(scene);
       break;
   }
 }
@@ -629,16 +635,19 @@ function init() {
     const energyHtml = document.querySelector( '.energyContainer' );
     energyHtml.style.visibility = 'visible';
   }
+
+  window.addEventListener( 'resize', onWindowResize );
+
 }
 
-function disableRaycastIntersect() {
-  console.log("raycast disabled")
+// function disableRaycastIntersect() {
+//   console.log("raycast disabled")
 
-  // rayObjects = []
-  enableRaycast = false;
+//   // rayObjects = []
+//   enableRaycast = false;
 
-  window.DYNAMIC_LOADED = false;
-}
+//   window.DYNAMIC_LOADED = false;
+// }
 
 function main() {
   renderer.autoClear = true;
@@ -670,6 +679,56 @@ function main() {
   scene.add( ambientLight );
 
   loadDefaultEnvironment()
+  // initPostprocessing()  // use nodes, pass
+  updateBlurMaterial() // use nodes
+}
+
+function initPostprocessing() {
+  // Blur Pass
+  // postprocessing
+  composer = new EffectComposer( renderer );
+  composer.addPass( new RenderPass( scene, camera ) );
+  nodepass = new NodePass();
+  composer.addPass( nodepass );
+  updateBlurMaterial()
+}
+
+function updateBlurMaterial() {
+  // Blur Nodes
+  let size = renderer.getDrawingBufferSize( new THREE.Vector2() );
+
+  blurScreen = new Nodes.BlurNode( new Nodes.ScreenNode() );
+  blurScreen.size = new THREE.Vector2( size.width, size.height );
+
+  nodepost.output = blurScreen;
+  blurScreen.radius.x = 0;
+  blurScreen.radius.y = 0;
+  console.log("init -------------- ", blurScreen)
+  // const bufferSize = renderer.getDrawingBufferSize( new THREE.Vector2() );
+  // console.log("updateBlurMaterial buffersize? ", bufferSize)
+  // const blurScreen = new Nodes.BlurNode( new Nodes.ScreenNode() );
+  // blurScreen.size = new THREE.Vector2( bufferSize.width, bufferSize.height );
+  // nodepass.input = blurScreen;
+  // blurScreen.radius.x = -10;
+  // blurScreen.radius.y = -10;
+  nodepost.needsUpdate = true;
+}
+
+function gradientBlurScreen(delta) {
+  if(delta < 0) {  // to CLEAR
+    while(blurScreen.radius.x >= 0) {
+      blurScreen.radius.x += delta
+      blurScreen.radius.y += delta
+    }
+    return;
+  }
+  if(delta > 0) {  // to BLUR
+    while(blurScreen.radius.x <= 5) {
+      blurScreen.radius.x += delta
+      blurScreen.radius.y += delta 
+    }
+  }
+  console.log("blur nodes", blurScreen, blurScreen.radius.x)
 }
 
 function loadDefaultEnvironment() {
@@ -761,7 +820,7 @@ function checkPointerControls() {
   prevTime = time;
 }
 
-// including animation loop
+// part of animation loop
 function render() {
 
   const canvas = renderer.domElement;
@@ -776,8 +835,15 @@ function render() {
     })
   }  
 
-  renderer.clear();
-  renderer.render( scene, camera );
+    frame.update(delta)
+    nodepost.render( scene, camera, frame );  
+
+  // if((window.ACC_STEPS/window.STEP_LIMIT * 100) < 10) {
+
+  // } else {
+  //   renderer.render(scene, camera)
+  // }
+
   stats.update()
 }
 
@@ -789,4 +855,16 @@ function initStats() {
   stats.domElement.style.top = '0px';
   document.querySelector("#stats-output").append(stats.domElement);
   return stats;
+}
+
+function onWindowResize() {
+
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+
+  renderer.setSize( window.innerWidth, window.innerHeight );
+  nodepost.setSize( window.innerWidth, window.innerHeight );
+
+  // composer.setSize( window.innerWidth, window.innerHeight );
+
 }

@@ -39,8 +39,8 @@ export function instantiateZone3 (scene) {
   renderBuildings(scene, 3, ringPosArr)
 
   makeSteps(scene, {x: ZONE_POS.THREE.x - 1000, z: ZONE_POS.THREE.z })
-  makeSteps(scene, {x: ZONE_POS.THREE.x - 2000, z: ZONE_POS.THREE.z - 1000 })
-  makeSteps(scene, {x: ZONE_POS.THREE.x - 2000, z: ZONE_POS.THREE.z + 1000 })
+  makeSteps(scene, {x: ZONE_POS.THREE.x - 800, z: ZONE_POS.THREE.z - 500 })
+  makeSteps(scene, {x: ZONE_POS.THREE.x + 500, z: ZONE_POS.THREE.z + 500 })
 }
 
 export function renderBuildings (scene, randNum, posArr) {

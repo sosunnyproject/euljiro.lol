@@ -69,7 +69,7 @@ export function updateLoadingProgress(value) {
   }
 }
 
-const deltaValue = 0.001
+const deltaValue = 0.005
 
 export function retrieveEnergy(scene) {
   scene.traverse(obj => {
@@ -129,7 +129,7 @@ export function showDescription ( objName ) {
   window.DESC_POP = true;
 
   const descPopup = document.querySelector("#descContent")
-  descPopup.innerText = "This is " + objName
+  descPopup.innerText = objName
   // console.log(descPopup, objName)
 
   setTimeout(() => {

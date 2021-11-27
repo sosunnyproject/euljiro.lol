@@ -49,7 +49,7 @@ export function renderGrounds(scene) {
     },
     vertexShader: vertexShader,
     fragmentShader: metallicFrag,
-    side: THREE.DoubleSide,
+    side: THREE.BackSide,
     transparent: true
   })
   const ground1 = new CircleGround(ZONE_POS["ONE"], ZONE_RADIUS.ONE, metallicShader, "shader ground")
@@ -74,7 +74,7 @@ export function renderGrounds(scene) {
     },
       vertexShader: vertexShader,
       fragmentShader: newCoffeeFragment,
-      side: THREE.DoubleSide
+      side: THREE.BackSide
   } );
 
   const ground2 = new CircleGround(ZONE_POS["TWO"], ZONE_RADIUS.TWO, coffeeShader, "shader ground");
@@ -92,7 +92,7 @@ export function renderGrounds(scene) {
     uniforms: skyuniforms,
     vertexShader: skyVertex,
     fragmentShader: skyFrag,
-    side: THREE.DoubleSide
+    side: THREE.BackSide
   } );
   // const ground3Mat = new THREE.MeshPhongMaterial({ color: 0x77777, side: THREE.DoubleSide });
   const ground3 = new CircleGround(ZONE_POS["THREE"], ZONE_RADIUS.THREE, skyMat, "ground");;
@@ -111,7 +111,7 @@ export function renderGrounds(scene) {
     },
     vertexShader: vertexShader,  
     fragmentShader: turbulenceFragment, 
-    side: THREE.DoubleSide
+    side: THREE.BackSide
   } ); 
 
   // grass colors: 0x679436

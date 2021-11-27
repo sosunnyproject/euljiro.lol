@@ -85,12 +85,8 @@ export function instantiateParkObj(scene) {
     var plainMat = new THREE.MeshPhongMaterial({color: 0xC0B9DD })
 
     const Ltree1 = generateLsystemTree(plainMat, "ffBAf>A", "^fB++fB<<fvB", "f<f>B>f--AvA", 5, 0.08, 2.0);
-    Ltree1.position.set(-800, 0, -100)
-    Ltree1.scale.set(10, 10, 10)
-
-    const Ltree2 = generateLsystemTree(plainMat, "ffAf>B", "^fB++fAvvB", "f<B+f--vA", 5, 0.08, 2.0);
-    Ltree2.position.set(-600, 0, 1200)
-    Ltree2.scale.set(18, 18, 18)
+    Ltree1.position.set(-1600, 0, -1100)
+    Ltree1.scale.set(15, 15, 15)
 
     const Ltree3 = generateLsystemTree(plainMat, "f--f++A++B----A", "^^fv++<f-->Bf<^^f<B", "f-->Af++++fA<A", 5, 0.07, 2.0);
     Ltree3.position.set(1000, 0, -1200)
@@ -98,14 +94,13 @@ export function instantiateParkObj(scene) {
 
     const Ltree4 = Ltree3.clone()
     Ltree4.position.set(-1500, 0, 1000)
-    // Ltree4.scale.set(1/2, 1/2, 1/2)
 
     // const lsystemTree2 = generateLsystemTree("ffBAf>A", "^ffAvvfB+fv--B", "f<A>B<f--A+B", 4, 0.1, 1.8);
     const CenterTree = generateLsystemTree(neonMat, "ffBAf>AB", "^ffA<<fB+fvB", "f<B>ff>++A", 7, 0.08, 2.5);
     CenterTree.position.set(0, 0, 0);
     CenterTree.scale.set(80, 80, 80);
 
-    arr.push(CenterTree, Ltree1, Ltree2, Ltree3, Ltree4)
+    arr.push(CenterTree, Ltree1, Ltree3, Ltree4)
   }
   
   const flower3 = new AnimatedFlower({

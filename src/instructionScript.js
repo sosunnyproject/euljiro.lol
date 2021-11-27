@@ -9,7 +9,8 @@ export const slide2 = `
 
 export const slide3 = `
 전시장 밖에서 개인 컴퓨터로 감상하는 방법<br/>
-- euljiro.xyz 웹사이트에 접속한다.<br/>
+- 퍼블릭 웹사이트 주소는 추후에 인스타그램에 공개됩니다. <br />
+- @sosunnyproject & @c.enter.official <br/>
 - 키보드의 화살표 키 혹은 WASD 키로 앞.뒤.좌.우 이동가능<br/>
 - 마우스로 시야를 움직일 수 있다.<br/>
 - 새로고침 후, 인트로 화면을 클릭! 바로 1인칭 컨트롤 모드가 시작된다.<br/>

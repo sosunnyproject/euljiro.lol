@@ -5,9 +5,6 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/examples/jsm/loaders/dracoloader';
 import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls.js';
 import { FontLoader } from 'three/examples/jsm/loaders/FontLoader';
-// import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
-// import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
-// import { BokehPass } from 'three/examples/jsm/postprocessing/BokehPass.js';
 import { NodePass } from 'three/examples/jsm/nodes/postprocessing/NodePass.js';
 import * as Nodes from 'three/examples/jsm/nodes/Nodes.js';
 
@@ -21,7 +18,7 @@ import { ZONE_NAMES, ZONE_POS, ZONE_RADIUS, ZONE_RESET_POS } from './globalConst
 import { MONUMENTS_GLB } from './models/glbLoader.js';
 
 import { updateStepProgress, updateLoadingProgress, updateStepNum } from './utils';
-import { loadAssets, loadZoneOneGLB, loadZoneThreeGLB, loadZoneTwoGLB, onLoadAnimation } from './loadAssets.js';
+import { loadAssets, loadZoneOneGLB, loadZoneParkGLB, loadZoneThreeGLB, loadZoneTwoGLB, onLoadAnimation } from './loadAssets.js';
 import { instantiateZone3 } from './renderZone3.js';
 import { renderShutter } from './renderZone1.js';
 import { renderSkyDome, renderGrounds, renderBackgroundTriangle, renderMountain } from './renderGlobal';
@@ -50,7 +47,6 @@ let raycaster = new THREE.Raycaster(rayOrigin, rayDirection, 0, 100); // rayOrig
 let raycaster2 = new THREE.Raycaster(rayOrigin, rayZ, 0, 100); // rayOrigin, rayDirection, 0, 10
 
 // raycaster.set(rayOrigin, rayDirection)
-let enableRaycast = false;
 
 // Zones
 window.STEP_LIMIT = 2000
@@ -104,7 +100,7 @@ function makeCamera() {
   return new THREE.PerspectiveCamera(fov, aspect, zNear, zFar);
 }
 camera = makeCamera();
-camera.position.x = 6550;
+camera.position.x = 6750;
 camera.position.y = 100;
 camera.position.z = 0;  
 camera.lookAt(new THREE.Vector3(750, 0, -750));
@@ -261,7 +257,7 @@ function resetPosition() {
   camera.position.y = 10;
   camera.position.z = 100;
 
-  if(window.ACC_STEPS <= 50) {
+  if((window.ACC_STEPS/window.STEP_LIMIT * 100) <= 10) {
     showDescription("체력이 얼마 남지 않았습니다. 에너지를 채우기 위해 공원으로 곧 이동합니다.")
     window.ACC_STEPS = window.STEP_LIMIT
   }
@@ -399,10 +395,10 @@ function tick() {
 
   // check energy progress
   let energyPercent = ((window.ACC_STEPS/window.STEP_LIMIT)*100) 
-  if( energyPercent < 50 ) {
+  if( energyPercent < 30 ) {
     warnLowEnergy(scene)
     gradientBlurScreen(0.005)
-  } else if ( energyPercent > 50 ) {
+  } else if ( energyPercent > 30 ) {
     retrieveEnergy(scene)
     gradientBlurScreen(-0.005)
 
@@ -438,9 +434,9 @@ function tick() {
       obj.position.y += Math.sin(time*0.001)*0.5
     }
     if(obj.name === "trees") {  // animate tree's scale
-      obj.scale.x = Math.cos(time*0.0001) * 15
-      obj.scale.y = Math.cos(time*0.0001) * 15
-      obj.scale.z = Math.cos(time*0.0001) * 15
+      obj.scale.x = Math.cos(time*0.0001) * 12
+      obj.scale.y = Math.cos(time*0.0001) * 12
+      obj.scale.z = Math.cos(time*0.0001) * 12
     }
     if (typeof obj.tick === 'function') {   // tick AnimatedFlower
       obj.tick(time);
@@ -563,16 +559,21 @@ function checkCameraLoadAssets(currentPos)  {
     window.ZONE = "GARDEN"
     console.log("inside : ", window.ZONE)
   
-    // unload all gltf
+    // unload zone 1, 2, 3 models
     try {
       scene.traverse(obj => {
         if (typeof obj.zone === 'number') {
+          if(obj.zone < 4) {
             scene.remove(obj)
           }
+        }
       })
     } catch (err) {
       console.log(err)
     }
+
+    loadZones(window.ZONE)
+
   }
 
   
@@ -603,24 +604,19 @@ function loadZones(zone) {
   switch(zone) {
     case "ONE":
       loadZoneOneGLB(scene)
-      enableRaycast = true;
-      // scene.fog = new THREE.FogExp2( 0xcccccc, 0.002 );
-
       break;
 
     case "TWO":
       loadZoneTwoGLB(scene)
-      enableRaycast = true;
-      // scene.fog = new THREE.FogExp2( 0xcccccc, 0.002 );
-
       break;
 
     case "THREE":
       loadZoneThreeGLB(scene)
       instantiateZone3(scene)
-      enableRaycast = true;
-      // scene.fog = new THREE.FogExp2( 0xcccccc, 0.002 );
-
+      break;
+    
+    case "GARDEN":
+      loadZoneParkGLB(scene);
       break;
   }
 }
@@ -644,14 +640,14 @@ function init() {
 
 }
 
-function disableRaycastIntersect() {
-  console.log("raycast disabled")
+// function disableRaycastIntersect() {
+//   console.log("raycast disabled")
 
-  // rayObjects = []
-  enableRaycast = false;
+//   // rayObjects = []
+//   enableRaycast = false;
 
-  window.DYNAMIC_LOADED = false;
-}
+//   window.DYNAMIC_LOADED = false;
+// }
 
 function main() {
   renderer.autoClear = true;
@@ -839,8 +835,14 @@ function render() {
     })
   }  
 
-  frame.update(delta)
-  nodepost.render( scene, camera, frame );
+    frame.update(delta)
+    nodepost.render( scene, camera, frame );  
+
+  // if((window.ACC_STEPS/window.STEP_LIMIT * 100) < 10) {
+
+  // } else {
+  //   renderer.render(scene, camera)
+  // }
 
   stats.update()
 }
@@ -860,7 +862,7 @@ function onWindowResize() {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
 
-  // renderer.setSize( window.innerWidth, window.innerHeight );
+  renderer.setSize( window.innerWidth, window.innerHeight );
   nodepost.setSize( window.innerWidth, window.innerHeight );
 
   // composer.setSize( window.innerWidth, window.innerHeight );

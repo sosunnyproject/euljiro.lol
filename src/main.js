@@ -777,7 +777,8 @@ function checkPointerControls() {
     const onObject = intersections.length > 0;
     // console.log(window.RAYOBJ)
     if(onObject) {
-      showDescription( intersections[0].object?.name )
+      console.log(intersections[0].object?.name)
+      showDescription(  intersections[0].object?.desc ||  intersections[0].object?.name )
     }
 
     // control speed of movement

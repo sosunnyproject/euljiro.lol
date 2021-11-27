@@ -213,6 +213,9 @@ export function onLoadAnimation(model, data, scene) {
   dummy.scale.set(data.scale*1.2 || 1, 1, data.scale*1.2 || 1)
   // scene.add(dummy)
   dummy.name = data.name;
+  if(data.desc) {
+    dummy.desc = data.desc;
+  }
   // console.log("dummy for bounding box", dummy)
   // const boxhelper = new THREE.BoxHelper( dummy, 0xff0000 );
   // boxhelper.setFromObject(dummy)

@@ -49,7 +49,7 @@ let raycaster2 = new THREE.Raycaster(rayOrigin, rayZ, 0, 100); // rayOrigin, ray
 // raycaster.set(rayOrigin, rayDirection)
 
 // Zones
-window.STEP_LIMIT = 2000
+window.STEP_LIMIT = 4000
 window.ZONE = "ONE"
 window.DYNAMIC_LOADED = false;
 window.ACC_STEPS = window.STEP_LIMIT;

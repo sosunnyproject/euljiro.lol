@@ -1,3 +1,4 @@
+/*
 import * as THREE from 'three';
 import { getRandomArbitrary, getRandomInt } from '../utils.js';
 import { generateTriangleCat, generateTriangleGround, generateFloorNeons } from '../models/catRoads.js';
@@ -78,7 +79,6 @@ export function generateDistrictOneObjects() {
     arr.push(ball)
  }
 
-/** 
  for(let x = -1000; x < 1000; x += 50) {
    const ball = generateFloorNeons(new THREE.Vector3(242/255, 227/255, 19/255), 10.5)
    ball.rotation.y = Math.PI/2.0;
@@ -126,7 +126,7 @@ for(let z = -1000; z < 1000; z+= 30) {
 
   arr.push(ball)
 }
-*/
+
  const axes = new THREE.AxesHelper(20);  // The X axis is red. The Y axis is green. The Z axis is blue.
  arr.push(axes)
 
@@ -218,3 +218,4 @@ for(let z = -1000; z < 1000; z+= 30) {
 
  return arr;
 }
+*/

@@ -1,3 +1,4 @@
+/**
 import * as THREE from 'three';
 
 export function generateDistrictThreeObjects() {
@@ -33,3 +34,4 @@ export function generateDistrictThreeObjects() {
 
  return arr
 }
+*/

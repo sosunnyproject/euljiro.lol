@@ -1,4 +1,5 @@
 // https://threejsfundamentals.org/threejs/lessons/threejs-cameras.html
+/**
 import * as THREE from 'three';
 
 import { getRandomArbitrary, getRandomInt } from './utils.js';
@@ -107,14 +108,14 @@ export function generateDistrictGardenObjects() {
     // const tree = generateTree(position)
     // arr.push(tree);  
   }
-  /*
+  
   for(let i = 0; i < 100; i++){
     const x = getRandomArbitrary(2000, 3000)
     const tree = generateTree(x + ZONE_POS.ONE.x, 0, getRandomArbitrary(-5000, 50))
     arr.push(tree);  
   }
-  */
   
+
 
  {
    const skyColor = 0xB1E1FF;  // light blue
@@ -180,3 +181,4 @@ export function generateDistrictGardenObjects() {
 
  return arr;
 }
+*/

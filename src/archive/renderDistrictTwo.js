@@ -1,3 +1,4 @@
+/**
 import * as THREE from 'three';
 import coffeeRiverFragment from './shaders/coffee.frag.js';
 import vertexShader from './shaders/vertex.glsl.js';
@@ -33,3 +34,4 @@ export function generateDistrictTwoObjects() {
 
  return arr
 }
+ */

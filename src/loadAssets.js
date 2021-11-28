@@ -1,10 +1,7 @@
 import * as THREE from 'three';
 import { DISTRICT_ONE_GLB, DISTRICT_TWO_GLB, DISTRICT_THREE_GLB, MONUMENTS_GLB, DISTRICT_PARK_GLB } from './models/glbLoader.js';
 import { updateLoadingProgress } from './utils.js';
-import uhbeeFont from "../assets/fonts/uhbeeRiceRegular.json"
-import euljiro10years from "../assets/fonts/bmEuljiro10years.json"
-import euljiroRegular from "../assets/fonts/bmEuljiroRegular.json"
-import { DynamicDrawUsage } from 'three';
+// import uhbeeFont from "../assets/fonts/uhbeeRiceRegular.json"
 import { ZONE_POS } from './globalConstants.js';
 
 const box = new THREE.BoxGeometry(5, 40, 5, 10, 10)
@@ -14,7 +11,7 @@ const mat = new THREE.MeshBasicMaterial({ color: 0xff00ff, opacity: 0.0, transpa
 
 export async function loadAssets(gltfLoader, fontLoader, textureLoader) {
 
- const loadNum = 1 + MONUMENTS_GLB.length + DISTRICT_TWO_GLB.length + DISTRICT_ONE_GLB.length + DISTRICT_THREE_GLB.length + DISTRICT_PARK_GLB.length;
+ const loadNum = MONUMENTS_GLB.length + DISTRICT_TWO_GLB.length + DISTRICT_ONE_GLB.length + DISTRICT_THREE_GLB.length + DISTRICT_PARK_GLB.length;
  let count = 0
  
  MONUMENTS_GLB.forEach(model => {
@@ -74,16 +71,16 @@ DISTRICT_PARK_GLB.forEach(model => {
 })
 
  // Load Font for TextGeometry
- fontLoader.load(
-   uhbeeFont,
-   (font) => {
-     window.UHBEE_FONT = font;
-     count++;
-     console.log("loaded")
-     let per = Math.floor((count / loadNum) * 100)
-     updateLoadingProgress(per);
-   }
- )
+//  fontLoader.load(
+//    uhbeeFont,
+//    (font) => {
+//      window.UHBEE_FONT = font;
+//      count++;
+//      console.log("loaded")
+//      let per = Math.floor((count / loadNum) * 100)
+//      updateLoadingProgress(per);
+//    }
+//  )
 
 }
 

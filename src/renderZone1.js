@@ -1,11 +1,11 @@
 import * as THREE from 'three';
 import { ZONE_POS } from './globalConstants';
-import ShutterPattern from '../assets/png/shutter.png'
-import shutter1 from '../assets/png/shutterart1.png'
-import shutter2 from '../assets/png/shutterart2.png'
-import shutter3 from '../assets/png/shutterart3.png'
-import shutter4 from '../assets/png/shutterart4.png'
-import shutter5 from '../assets/png/shutterart5.png'
+import ShutterPattern from '../assets/png/shutter.JPG'
+import shutter1 from '../assets/png/png2jpg/shutterart1.jpg'
+import shutter2 from '../assets/png/png2jpg/shutterart2.jpg'
+import shutter3 from '../assets/png/png2jpg/shutterart3.jpg'
+import shutter4 from '../assets/png/png2jpg/shutterart4.jpg'
+import shutter5 from '../assets/png/png2jpg/shutterart5.jpg'
 
 export function renderShutter (scene, posZ) {
     

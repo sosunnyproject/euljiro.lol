@@ -27,9 +27,9 @@ import SPA_SIGN from "../../assets/districtTwo/Spa19.glb"
 // import RAINBOW_WEED from "../../assets/districtTwo/weed2.glb"
 import COFFEE_CUP from "../../assets/districtTwo/Pinkcoffee17.glb"
 import LION from "../../assets/districtTwo/Lion19.glb"
-import PURPLE_SUNGLASS from "../../assets/districtTwo/purple.glb"
-import ORANGE_SUNGLASS from "../../assets/districtTwo/orange.glb"
-import GREEN_SUNGLASS from "../../assets/districtTwo/green.glb"
+import PURPLE_SUNGLASS from "../../assets/districtTwo/Purple15.glb"
+import ORANGE_SUNGLASS from "../../assets/districtTwo/Orange17.glb"
+import GREEN_SUNGLASS from "../../assets/districtTwo/Green17.glb"
 import IPOD from "../../assets/districtTwo/Ipod14.glb"
 import CAMERA from "../../assets/districtTwo/Camera15.glb"
 // import OLD_PHONE from "../../assets/districtTwo/oldPhone.glb"
@@ -144,9 +144,9 @@ const yellowBench = {
 }
 const cactus = {
   url: CACTUS,
-  posX: -600, posY: 10, posZ: -1700, 
+  posX: -600, posY: 60, posZ: -1700, 
   rx: 0, ry: Math.PI/3.0, rz: 0,
-  scale: 20,
+  scale: 40,
   // zone: 4,
   name: "메마른 땅에서 버티다보니 지금 여기에 있어"
 }
@@ -512,20 +512,20 @@ const catfishShutter = {
   zone: 2
 }
 
-const octopusShutter = {
-  url: OCTOPUS_SHUTTER,
-  posX: 1150, posY: 50, posZ: -2800,
-  rx: 0, ry: 0, rz: 0,
-  scale: 80,
-  zone: 2
-}
+// const octopusShutter = {
+//   url: OCTOPUS_SHUTTER,
+//   posX: 1150, posY: 50, posZ: -2800,
+//   rx: 0, ry: 0, rz: 0,
+//   scale: 80,
+//   zone: 2
+// }
 
 export const DISTRICT_TWO_GLB = [ 
   tape, bear, fork, knife, 
   purpleSunglass, greenSunglass, orangeSunglass, 
   spaSign, coffeeCup,
-  camera, cheese, ipod, //oldPhone, weedRainbow,
-  lionShutter, diamondShutter, pabloShutter, octopusShutter, catfishShutter
+  camera, cheese, ipod, //oldPhone, weedRainbow,octopusShutter, 
+  lionShutter, diamondShutter, pabloShutter, catfishShutter
  ]
  
 // DISTRICT THREE

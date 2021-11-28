@@ -1,21 +1,20 @@
-import ROBOT_FACE from "../../assets/robot_face.glb"
-import PURPLE_CONE from "../../assets/purple_cone.glb"
-import BLUE_CONE from "../../assets/blue_cone.glb"
-import PINK_CONE from "../../assets/pink_cone2.glb"
+import ROBOT_FACE from "../../assets/districtOne/robot_face.glb"
+import PURPLE_CONE from "../../assets/districtOne/purple_cone.glb"
+import BLUE_CONE from "../../assets/districtOne/blue_cone.glb"
+import PINK_CONE from "../../assets/districtOne/pink_cone2.glb"
 import BIRD_1 from "../../assets/districtOne/Bird0.glb"
 import BIRD_2 from "../../assets/districtOne/Bird1-0.glb"
-// import CCTV from "../../assets/cctv.glb"
+import BIRD_BOT from "../../assets/districtOne/RoboBird0.glb"
+import CCTV from "../../assets/Cctv0.glb"
 import OZ_ROBOT from "../../assets/districtOne/Ozrobot0.glb"
 import ROBOT_GUIDE from "../../assets/districtOne/RobotGuide.glb"
 import ROCKET from "../../assets/districtOne/Rocket20.glb"
-// import WORKER_1 from "../../assets/districtOne/worker1.glb"
 import WORKER_2 from "../../assets/districtOne/Worker0.glb"
-// import BIRD_BOT from "../../assets/districtOne/bird_bot.glb"
-import ROBOT_TIGER from "../../assets/districtOne/RoboTiger0.glb"
+import ROBOT_TIGER from "../../assets/districtOne/RoboTiger15.glb"
 import ROBOT_BIRD from "../../assets/districtOne/robotBird.glb"
 import TRADE_NEON from "../../assets/districtOne/NeonTrade.glb"
-import ROBOT_CRANE from "../../assets/districtOne/robotCrane.glb"
-import ROBOT_CHIP from "../../assets/districtOne/robotChip.glb"
+import ROBOT_CRANE from "../../assets/districtOne/Cranebot0.glb"
+import ROBOT_CHIP from "../../assets/districtOne/Arduinobot0.glb"
 
 // district 2
 import COFFEE_SPA from "../../assets/districtTwo/coffeeSpa2.glb"
@@ -23,30 +22,26 @@ import TAPE from "../../assets/districtTwo/Tape19.glb"
 import BEAR from "../../assets/districtTwo/Bear28.glb"
 import FORK from "../../assets/districtTwo/fork.glb"
 import KNIFE from "../../assets/districtTwo/knife.glb"
-import SPA_SIGN from "../../assets/districtTwo/Spa19.glb"
-// import RAINBOW_WEED from "../../assets/districtTwo/weed2.glb"
+import SPA_SIGN from "../../assets/districtTwo/Spa0.glb"
+import RAINBOW_WEED from "../../assets/districtTwo/Cannabis0.glb"
 import COFFEE_CUP from "../../assets/districtTwo/Pinkcoffee17.glb"
 import LION from "../../assets/districtTwo/Lion19.glb"
 import PURPLE_SUNGLASS from "../../assets/districtTwo/Purple15.glb"
 import ORANGE_SUNGLASS from "../../assets/districtTwo/Orange17.glb"
 import GREEN_SUNGLASS from "../../assets/districtTwo/Green17.glb"
-import IPOD from "../../assets/districtTwo/Ipod14.glb"
-import CAMERA from "../../assets/districtTwo/Camera15.glb"
-// import OLD_PHONE from "../../assets/districtTwo/oldPhone.glb"
+import IPOD from "../../assets/districtTwo/Ipod0.glb"
+import CAMERA from "../../assets/districtTwo/Camera0.glb"
+import OLD_PHONE from "../../assets/districtTwo/Oldphone0.glb"
 import CHEESE from "../../assets/districtTwo/CheeseStatic.glb"
 import PABLO_SHUTTER from "../../assets/districtTwo/Pablo25.glb"
-import DIAMOND_SHUTTER from "../../assets/districtTwo/Diamond15.glb"
+import DIAMOND_SHUTTER from "../../assets/districtTwo/Diamond0.glb"
 import CATFISH_SHUTTER from "../../assets/districtTwo/Catfish25.glb"
-// import OCTOPUS_SHUTTER from "../../assets/districtTwo/Octopus33.glb"
 
 // district 3
-// import BNB from "../../assets/districtThree/bnb.glb"
 import BNBstatic from "../../assets/districtThree/Bnbstatic.glb"
 import BTCstatic from "../../assets/districtThree/Btcstatic.glb"
 import ETHstatic from "../../assets/districtThree/Ethstatic.glb"
-// import BTC from "../../assets/districtThree/btc.glb"
-// import ETH from "../../assets/districtThree/eth.glb"
-import EXCAVATOR from "../../assets/districtThree/construction.glb"
+import EXCAVATOR from "../../assets/districtThree/Crane57.glb"
 
 // park
 import TIGERLILY from "../../assets/Tigerlily45.glb"
@@ -177,7 +172,7 @@ const rocket = {
  }
  const purpleCone = {
   url: PURPLE_CONE,
-  posX: 4900, posY: 20, posZ: -85, 
+  posX: 4900, posY: 30, posZ: -85, 
   // posX: getRandomInt(ZONE1_X_MIN, ZONE1_X_MAX), posY: 10, posZ: getRandomInt(ZONE1_Z_MIN, ZONE1_Z_MAX),
   rx: 0, ry: -Math.PI/3.5, rz: 0,
   scale: 25,
@@ -195,16 +190,16 @@ const rocket = {
   name: "robotGuide",
   desc: "로봇 다리? 인간 팔? 말만 하세요!"
  }
-//  const cctv = {
-//   name: "cctv",
-//   url: CCTV,
-//   posX: 4400, posY: 80, posZ: -800, 
-//  //  posX: getRandomInt(ZONE1_X_MIN, ZONE1_X_MAX), posY: 10, posZ: getRandomInt(ZONE1_Z_MIN, ZONE1_Z_MAX),
-//   rx: 0, ry: Math.PI/6.0, rz: 0,
-//   scale: 60,
-//   zone: 1,
-//   desc: "모든 걸 다 지켜보고 있다니까?!"
-//  }
+ const cctv = {
+  name: "cctv",
+  url: CCTV,
+  posX: 4400, posY: 80, posZ: -800, 
+ //  posX: getRandomInt(ZONE1_X_MIN, ZONE1_X_MAX), posY: 10, posZ: getRandomInt(ZONE1_Z_MIN, ZONE1_Z_MAX),
+  rx: 0, ry: Math.PI/6.0, rz: 0,
+  scale: 60,
+  zone: 1,
+  desc: "모든 걸 다 지켜보고 있다니까?!"
+ }
 
 const bird1 = {
   url: BIRD_1,
@@ -312,16 +307,16 @@ const blueCone = {
   desc: "길거리 생활이 지겨워서 이식 좀 해봤더니 얼굴이 이게 뭐야. 그래도 날 무시하진 않아서 좋긴 하네."
  }
 
-//  const birdBot = {
-//   url: BIRD_BOT,
-//   posX: 2700, posY: 150, posZ: 1175,
-//   // posX: getRandomInt(ZONE1_X_MIN, ZONE1_X_MAX), posY: 10, posZ: getRandomInt(ZONE1_Z_MIN, ZONE1_Z_MAX),
-//   rx: 0, ry: Math.PI/3, rz: 0,
-//   scale: 80,
-//   zone: 1,
-//   name: "birdBot",
-//   desc: "로봇에게는 인간이, 인간에게는 로봇이 필요할 수 밖에!"
-//  }
+ const birdBot = {
+  url: BIRD_BOT,
+  posX: 2700, posY: 150, posZ: 1175,
+  // posX: getRandomInt(ZONE1_X_MIN, ZONE1_X_MAX), posY: 10, posZ: getRandomInt(ZONE1_Z_MIN, ZONE1_Z_MAX),
+  rx: 0, ry: Math.PI/3, rz: 0,
+  scale: 80,
+  zone: 1,
+  name: "birdBot",
+  desc: "로봇에게는 인간이, 인간에게는 로봇이 필요할 수 밖에!"
+ }
 
 const pinkCone = {
  url: PINK_CONE,
@@ -340,7 +335,7 @@ export const DISTRICT_ONE_GLB = [
  bird1, bird2, 
  ozRobot, robotGuide, rocket,
  robotBird, robotTiger, tradeNeon,
- worker2, // worker1, birdBot, cctv,
+ worker2, birdBot, cctv, // worker1, 
  robotChip, robotCrane
 ]
 
@@ -380,14 +375,14 @@ const fork = {
   desc: "을지로의 맛집, 내가 안 가본 데가 없지. 내 맛집 리뷰가 최고인데, 이 곰덩어리가 나보다 유명하다니 짜증나."
 }
 
-// const weedRainbow = {
-//   url: RAINBOW_WEED,
-//   posX: 250, posY: 80, posZ: -4500,
-//   rx: 0, ry: -Math.PI/2, rz: 0,
-//   scale: 50,
-//   zone: 2,
-//   desc: "모두 나를 보면 금방 취해서 잠들더라...나는 그냥 이야기를 듣기만 했을 뿐인데. 아무리 합법이라지만 너무 피곤하니까 날 좀 내버려둬."
-// }
+const weedRainbow = {
+  url: RAINBOW_WEED,
+  posX: 250, posY: 80, posZ: -4500,
+  rx: 0, ry: -Math.PI/2, rz: 0,
+  scale: 50,
+  zone: 2,
+  desc: "모두 나를 보면 금방 취해서 잠들더라...나는 그냥 이야기를 듣기만 했을 뿐인데. 아무리 합법이라지만 너무 피곤하니까 날 좀 내버려둬."
+}
 const coffeeCup = {
   url: COFFEE_CUP,
   posX: 40, posY: 120, posZ: -2500,
@@ -452,14 +447,14 @@ const ipod = {
 }
 
 
-// const oldPhone = {
-//   url: OLD_PHONE,
-//   posX: 200, posY: 30, posZ: -3000,
-//   rx: 0, ry: 0, rz: 0,
-//   scale: 30,
-//   zone: 2,
-//   desc: "꼭 몇 십년에 한 번씩 날 꺼내서 자랑하더라. 질린다고 할 땐 언제고 특이해서 좋다나."
-// }
+const oldPhone = {
+  url: OLD_PHONE,
+  posX: 200, posY: 30, posZ: -3000,
+  rx: 0, ry: 0, rz: 0,
+  scale: 30,
+  zone: 2,
+  desc: "꼭 몇 십년에 한 번씩 날 꺼내서 자랑하더라. 질린다고 할 땐 언제고 특이해서 좋다나."
+}
 
 const cheese = {
   url: CHEESE,
@@ -512,19 +507,11 @@ const catfishShutter = {
   zone: 2
 }
 
-// const octopusShutter = {
-//   url: OCTOPUS_SHUTTER,
-//   posX: 1150, posY: 50, posZ: -2800,
-//   rx: 0, ry: 0, rz: 0,
-//   scale: 80,
-//   zone: 2
-// }
-
 export const DISTRICT_TWO_GLB = [ 
   tape, bear, fork, knife, 
   purpleSunglass, greenSunglass, orangeSunglass, 
-  spaSign, coffeeCup,
-  camera, cheese, ipod, //oldPhone, weedRainbow,octopusShutter, 
+  spaSign, coffeeCup, weedRainbow,
+  camera, cheese, ipod, oldPhone,
   lionShutter, diamondShutter, pabloShutter, catfishShutter
  ]
  

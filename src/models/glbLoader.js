@@ -239,7 +239,7 @@ const bird2 = {
   scale: 120,
   zone: 1,
   name: "ozRobot",
-  desc: "나야말로 로봇들의 아버지같은 존재 아니겠어? (SEENAME 셔터아트)"
+  desc: "나야말로 로봇들의 아버지같은 존재 아니겠어?"
  }
  
 const blueCone = {
@@ -261,7 +261,7 @@ const blueCone = {
   scale: 70,
   zone: 1,
   name: "worker2",
-  desc: "로봇 팔이 나보다 정교하니까, 나는 이런 반복 작업을 하는 게 편해"
+  desc: "로봇 팔이 나보다 정교하니까, 나는 이런 반복 작업이 더 편해"
  }
  const robotBird = {
   url: ROBOT_BIRD,
@@ -271,7 +271,7 @@ const blueCone = {
   scale: 50,
   zone: 1,
   name: "robotBird",
-  desc: "내 날개 어때? 요즘은 진짜 새 같은 피부도 만든다니까? 하필이면 닭둘기 피부라 높이 날지는 못하지만..."
+  desc: "내 날개 어때? 요즘은 진짜 새 같은 피부도 만든다니까?"
  }
 
  const tradeNeon = {
@@ -293,7 +293,7 @@ const blueCone = {
   scale: 40,
   zone: 1,
   name: "robotChip",
-  desc: "규율만 잘 지키면 언제든지 환영이야"
+  desc: "이 칩이 없으면 로봇도 죽은 몸일 뿐이야."
  }
 
  const robotTiger = {
@@ -304,7 +304,7 @@ const blueCone = {
   scale: 60,
   zone: 1,
   name: "robotTiger",
-  desc: "길거리 생활이 지겨워서 이식 좀 해봤더니 얼굴이 이게 뭐야. 그래도 날 무시하진 않아서 좋긴 하네."
+  desc: "길거리 생활이 지겨워서 이식 좀 해봤지. 더이상 날 무시하진 않아서 좋긴 하네."
  }
 
  const birdBot = {
@@ -354,7 +354,7 @@ const tape = {
   rx: 0, ry: 0, rz: 0,
   scale: 30,
   zone: 2,
-  desc: "옛날에는 나처럼 생긴 애가 노래를 틀곤 했어. 저 아이팟보다 내가 훨씬 오래됐다고! 요즘은 나 같은 애 보기 힘들 걸?"
+  desc: "저 아이팟보다 내가 훨씬 오래됐다고! 요즘은 나 같은 애 보기 힘들 걸?"
 }
 
 const bear = {
@@ -381,7 +381,7 @@ const weedRainbow = {
   rx: 0, ry: -Math.PI/2, rz: 0,
   scale: 50,
   zone: 2,
-  desc: "모두 나를 보면 금방 취해서 잠들더라...나는 그냥 이야기를 듣기만 했을 뿐인데. 아무리 합법이라지만 너무 피곤하니까 날 좀 내버려둬."
+  desc: "모두 나를 보면 금방 잠들더라..."
 }
 const coffeeCup = {
   url: COFFEE_CUP,
@@ -389,7 +389,7 @@ const coffeeCup = {
   rx: 0, ry: 0, rz: 0,
   scale: 30,
   zone: 2,
-  desc: "카페가 너무 많아서 물이 아니라 커피로 강을 채운 지 벌써 오래야. "
+  desc: "카페가 너무 많아서 커피로 강을 채운 지 벌써 오래야. "
 }
 
 const spaSign = {
@@ -399,7 +399,7 @@ const spaSign = {
   rx: 0, ry: 0, rz: 0,
   scale: 30,
   zone: 2,
-  desc: "아주 오래 전에는 이 간판이 목욕탕을 뜻했다네? 내 눈에는 김이 모락모락나는 빵 같은데..."
+  desc: "아주 오래 전에 이 간판이 무슨 의미였는지 아는 사람?"
 }
 
 const purpleSunglass = {
@@ -408,7 +408,7 @@ const purpleSunglass = {
   rx: 0, ry: 0, rz: 0,
   scale: 60,
   zone: 2,
-  desc: "여기서 우리만큼 힙한 사람 봤어?"
+  desc: "여기서 우리만큼 힙한 애들 봤어?"
 }
 
 const camera = {
@@ -417,7 +417,7 @@ const camera = {
   rx: 0, ry: 0, rz: 0,
   scale: 30,
   zone: 2,
-  desc: "내가 옛날에 찍은 을지로 사진들 다 풀면 모두 멋있다고 아우성일걸"
+  desc: "내가 옛날에 찍은 을지로 사진들 보면 너무 힙해서 모두 기절할걸"
 }
 const greenSunglass = {
   url: GREEN_SUNGLASS,
@@ -434,7 +434,7 @@ const orangeSunglass = {
   rx: 0, ry: 0, rz: 0,
   scale: 60,
   zone: 2,
-  desc: "아무 사람이나 우리랑 어울릴 수 없지. 함부로 다가오지 못하게 무서운 춤을 출거야."
+  desc: "아무나 우리랑 어울릴 수 없지. 함부로 다가오지 못할걸."
 }
 
 const ipod = {
@@ -453,7 +453,7 @@ const oldPhone = {
   rx: 0, ry: Math.PI/6.0, rz: 0,
   scale: 30,
   zone: 2,
-  desc: "꼭 몇 십년에 한 번씩 날 꺼내서 자랑하더라. 질린다고 할 땐 언제고 특이해서 좋다나."
+  desc: "질린다고 할 땐 언제고 이제는 특이해서 좋다나."
 }
 
 const cheese = {
@@ -504,7 +504,8 @@ const catfishShutter = {
   posX: 100, posY: -10, posZ: -4800,
   rx: 0, ry: -Math.PI/3, rz: 0,
   scale: 100,
-  zone: 2
+  zone: 2,
+  desc: "예전에는 겨울에 이렇게 생긴 걸 먹었다네...?"
 }
 
 export const DISTRICT_TWO_GLB = [ 

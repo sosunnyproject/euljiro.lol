@@ -70,7 +70,7 @@ canvas {
 
 .descPopup {
 	position: absolute;
-	width: 50%;
+	width: 30%;
 	min-height: 10%;
 	margin-top: 30px;
 	background-color: rgba(0, 0, 0, 0.8);

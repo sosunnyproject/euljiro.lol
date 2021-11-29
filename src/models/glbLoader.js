@@ -349,18 +349,18 @@ const ZONE2_Z_MAX = ZONE_POS.TWO.z + 300;
 
 const tape = {
   url: TAPE,
-  posX: -200, posY: 10, posZ: -3700,
+  posX: -200, posY: 30, posZ: -3800,
   // posX: getRandomInt(ZONE2_X_MIN, ZONE2_X_MAX), posY: 10, posZ: getRandomInt(ZONE2_Z_MIN, ZONE2_Z_MAX),
   rx: 0, ry: 0, rz: 0,
-  scale: 10,
+  scale: 30,
   zone: 2,
   desc: "옛날에는 나처럼 생긴 애가 노래를 틀곤 했어. 저 아이팟보다 내가 훨씬 오래됐다고! 요즘은 나 같은 애 보기 힘들 걸?"
 }
 
 const bear = {
   url: BEAR,
-  posX: 450, posY: 10, posZ: -3500,
-  rx: 0, ry: 0, rz: 0,
+  posX: 450, posY: 40, posZ: -3500,
+  rx: 0, ry: Math.PI/5, rz: 0,
   scale: 30,
   zone: 2,
   desc: "나만큼 유행 안타고 스테디셀러인 애가 없지. 실수로 눈을 잃어버렸더니 특이하다고 더 좋아하더라니까?"
@@ -439,8 +439,8 @@ const orangeSunglass = {
 
 const ipod = {
   url: IPOD,
-  posX: 400, posY: 60, posZ: -4000,
-  rx: 0, ry: -Math.PI/2, rz: 0,
+  posX: 1000, posY: 60, posZ: -2800,
+  rx: 0, ry: Math.PI/4, rz: 0,
   scale: 30,
   zone: 2,
   desc: "hi... i love music ... thank you and you...?"
@@ -449,8 +449,8 @@ const ipod = {
 
 const oldPhone = {
   url: OLD_PHONE,
-  posX: 200, posY: 30, posZ: -3000,
-  rx: 0, ry: 0, rz: 0,
+  posX: 200, posY: 70, posZ: -3000,
+  rx: 0, ry: Math.PI/6.0, rz: 0,
   scale: 30,
   zone: 2,
   desc: "꼭 몇 십년에 한 번씩 날 꺼내서 자랑하더라. 질린다고 할 땐 언제고 특이해서 좋다나."
@@ -467,7 +467,7 @@ const cheese = {
 
 const knife = {
   url: KNIFE,
-  posX: -800, posY: 120, posZ: -4200,
+  posX: -800, posY: 130, posZ: -4200,
   rx: Math.PI, ry: -Math.PI/2.0, rz: 0,
   scale: 30,
   zone: 2,

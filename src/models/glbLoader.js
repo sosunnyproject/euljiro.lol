@@ -18,7 +18,7 @@ import ROBOT_CHIP from "../../assets/districtOne/Arduinobot0.glb"
 
 // district 2
 import COFFEE_SPA from "../../assets/districtTwo/Coffeecupsap27.glb"
-import TAPE from "../../assets/districtTwo/Tape19.glb"
+import TAPE from "../../assets/districtTwo/Tape0.glb"
 import BEAR from "../../assets/districtTwo/Bear28.glb"
 import FORK from "../../assets/districtTwo/fork.glb"
 import KNIFE from "../../assets/districtTwo/Knife27.glb"

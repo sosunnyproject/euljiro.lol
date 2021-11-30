@@ -56,6 +56,10 @@ window.ACC_STEPS = window.STEP_LIMIT;
 window.RAYOBJ = []
 window.HOWTOPAGE = 1;
 window.PREV_STEPS = window.STEP_LIMIT;
+window.STALE = 0;
+if(window.localStorage.getItem('autoReset') == null) {  // if there's no item yet
+  window.localStorage.setItem('autoReset', 'false')
+}
 
 // Clock: autoStart, elapsedTime, oldTime, running, startTime
 var clock = new THREE.Clock();
@@ -140,6 +144,7 @@ blocker.addEventListener( 'click', function () {
   const howtoPopup = document.querySelector(".popup");
   howtoPopup.classList.add("show");
 
+  tick();
 } );
 
 pointerControls.addEventListener( 'lock', function () {
@@ -151,8 +156,8 @@ pointerControls.addEventListener( 'lock', function () {
 
 pointerControls.addEventListener( 'unlock', function () {
 
-  // blocker.style.display = 'block';
-  // instructions.style.display = '';
+  blocker.style.display = 'block';
+  instructions.style.display = '';
 
 } );
 
@@ -553,7 +558,6 @@ function checkCameraLoadAssets(currentPos)  {
   // OUTSIDE zones
   function unloadZonesModels() {
     if( inZone1 + inZone2 + inZone3 == 0) {
-      console.log("unload zone123 models")
       window.DYNAMIC_LOADED = false;
 
       // unload all gltf
@@ -561,8 +565,11 @@ function checkCameraLoadAssets(currentPos)  {
       try {
         scene.traverse(obj => {
           if (typeof obj?.zone === 'number') {
-            if(obj.zone < 4) {
-              scene.remove(obj)
+
+            if(obj?.zone < 4) {
+              console.log("unload zone123 models")
+              if(obj.parent === scene) scene.remove(obj) 
+              //TypeError: Cannot read properties of undefined (reading 'traverse') at Scene.traverse 
             }
           }
         })
@@ -629,7 +636,6 @@ function init() {
     console.log("init")
     initStats();
     if(scene) main()
-    tick();
 
     const energyHtml = document.querySelector( '.energyContainer' );
     energyHtml.style.visibility = 'visible';
@@ -824,11 +830,31 @@ function render() {
     frame.update(delta)
     nodepost.render( scene, camera, frame );  
 
-  // if((window.ACC_STEPS/window.STEP_LIMIT * 100) < 10) {
+    // CHECK if it's playing
+    let frameCount = nodepost.renderer.info.render.frame;
+    if(frameCount%100 == 0) {
+      if(window.PREV_STEPS === window.ACC_STEPS) { // stale
+        window.STALE += 1
+      } else {
+        window.STALE = 0;  // walking
+        let hasReset = window.localStorage.getItem('autoReset')
+        if(hasReset === 'true') {
+          window.localStorage.setItem('autoReset', 'false')
+        }
+      }
 
-  // } else {
-  //   renderer.render(scene, camera)
-  // }
+      window.PREV_STEPS = window.ACC_STEPS
+
+      if(window.STALE >= 180) { // check if stale for 3~4 minutes
+        let hasReset = window.localStorage.getItem('autoReset')
+        console.log("stale over 4 minute, did it reset before?", hasReset)
+        if(hasReset === 'false') {  // reset if not reset previously
+          location.reload()
+          window.localStorage.setItem('autoReset', 'true')
+
+        }
+      }
+    }
 
   stats.update()
 }

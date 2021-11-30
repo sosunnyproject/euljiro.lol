@@ -87,7 +87,7 @@ const excavator = {
   scale: 120,
   type: "monument",
   name: "coffeeSpa",
-  desc: "을지로에 있는 모든 커피를 마셨더니..."
+  desc: "을지로에 있는 모든 커피를 마셨더니 온몸이 들썩들썩"
 }
 
 export const MONUMENTS_GLB = [
@@ -104,11 +104,11 @@ const ZONE4_Z_MAX = ZONE_POS.GARDEN.z + 300;
 
 const tigerlily = {
   url: TIGERLILY,
-  posX: 500, posY: 90, posZ: -1000, 
+  posX: 500, posY: 100, posZ: -1000, 
   rx: 0, ry: Math.PI/6.0, rz: 0,
   scale: 70,
   zone: 4,
-  name: "을지로에 남아있던 마지막 꽃"
+  name: "을지로에 남아있던 마지막 꽃, 나는 Tiger Lily"
 }
 
 const squirrel = {
@@ -126,7 +126,7 @@ const parkCat = {
   rx: 0, ry: Math.PI/6.0, rz: 0,
   scale: 40,
   // zone: 4,
-  name: "잔디를 사랑한 나머지 초록색으로 변하고 있어"
+  name: "잔디를 꾸욱~꾹~"
 }
 
 const yellowBench = {
@@ -139,7 +139,7 @@ const yellowBench = {
 }
 const cactus = {
   url: CACTUS,
-  posX: -600, posY: 60, posZ: -1700, 
+  posX: -600, posY: 80, posZ: -1700, 
   rx: 0, ry: Math.PI/3.0, rz: 0,
   scale: 40,
   // zone: 4,
@@ -385,7 +385,7 @@ const weedRainbow = {
 }
 const coffeeCup = {
   url: COFFEE_CUP,
-  posX: 40, posY: 90, posZ: -2500,
+  posX: 40, posY: 55, posZ: -2500,
   rx: 0, ry: 0, rz: 0,
   scale: 30,
   zone: 2,

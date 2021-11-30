@@ -144,7 +144,7 @@ blocker.addEventListener( 'click', function () {
   const howtoPopup = document.querySelector(".popup");
   howtoPopup.classList.add("show");
 
-  tick();
+  tick();  // start animate after blocker is gone
 } );
 
 pointerControls.addEventListener( 'lock', function () {

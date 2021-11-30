@@ -41,7 +41,7 @@ import CATFISH_SHUTTER from "../../assets/districtTwo/Catfish17.glb"
 import BNBstatic from "../../assets/districtThree/Bnbstatic.glb"
 import BTCstatic from "../../assets/districtThree/Btcstatic.glb"
 import ETHstatic from "../../assets/districtThree/Ethstatic.glb"
-import EXCAVATOR from "../../assets/districtThree15.glb"
+import EXCAVATOR from "../../assets/districtThree/Crane15.glb"
 
 // park
 import TIGERLILY from "../../assets/park/Tigerlily15.glb"
@@ -104,9 +104,9 @@ const ZONE4_Z_MAX = ZONE_POS.GARDEN.z + 300;
 
 const tigerlily = {
   url: TIGERLILY,
-  posX: 500, posY: 60, posZ: -1000, 
+  posX: 500, posY: 90, posZ: -1000, 
   rx: 0, ry: Math.PI/6.0, rz: 0,
-  scale: 50,
+  scale: 70,
   zone: 4,
   name: "을지로에 남아있던 마지막 꽃"
 }
@@ -349,7 +349,7 @@ const ZONE2_Z_MAX = ZONE_POS.TWO.z + 300;
 
 const tape = {
   url: TAPE,
-  posX: -200, posY: 30, posZ: -3800,
+  posX: -240, posY: 30, posZ: -3800,
   // posX: getRandomInt(ZONE2_X_MIN, ZONE2_X_MAX), posY: 10, posZ: getRandomInt(ZONE2_Z_MIN, ZONE2_Z_MAX),
   rx: 0, ry: 0, rz: 0,
   scale: 30,
@@ -359,7 +359,7 @@ const tape = {
 
 const bear = {
   url: BEAR,
-  posX: 450, posY: 40, posZ: -3500,
+  posX: 450, posY: 60, posZ: -3500,
   rx: 0, ry: Math.PI/5, rz: 0,
   scale: 30,
   zone: 2,
@@ -368,11 +368,11 @@ const bear = {
 
 const fork = {
   url: FORK,
-  posX: 450, posY: 150, posZ: -3550,
+  posX: 450, posY: 150, posZ: -3700,
   rx: 0, ry: 0, rz: 0,
   scale: 30,
   zone: 2,
-  desc: "을지로의 맛집, 내가 안 가본 데가 없지. 내 맛집 리뷰가 최고인데, 이 곰덩어리가 나보다 유명하다니 짜증나."
+  desc: "을지로 맛집? 나 정도는 되야 안다고 할 수 있지."
 }
 
 const weedRainbow = {
@@ -385,7 +385,7 @@ const weedRainbow = {
 }
 const coffeeCup = {
   url: COFFEE_CUP,
-  posX: 40, posY: 120, posZ: -2500,
+  posX: 40, posY: 95, posZ: -2500,
   rx: 0, ry: 0, rz: 0,
   scale: 30,
   zone: 2,
@@ -394,9 +394,10 @@ const coffeeCup = {
 
 const spaSign = {
   url: SPA_SIGN,
-  posX: 50, posY: 10, posZ: -2500,
+  posX: 900, posY: 60, posZ: -3700,
+  // posX: 50, posY: 10, posZ: -2500,
   // posX: getRandomInt(ZONE2_X_MIN, ZONE2_X_MAX), posY: 30, posZ: getRandomInt(ZONE2_Z_MIN, ZONE2_Z_MAX),
-  rx: 0, ry: 0, rz: 0,
+  rx: 0, ry: Math.PI/3.0, rz: 0,
   scale: 30,
   zone: 2,
   desc: "아주 오래 전에 이 간판이 무슨 의미였는지 아는 사람?"
@@ -421,7 +422,7 @@ const camera = {
 }
 const greenSunglass = {
   url: GREEN_SUNGLASS,
-  posX: -1200, posY: 70, posZ: -3500,
+  posX: -1000, posY: 70, posZ: -3500,
   rx: 0, ry: 0, rz: 0,
   scale: 60,
   zone: 2,
@@ -467,7 +468,7 @@ const cheese = {
 
 const knife = {
   url: KNIFE,
-  posX: -800, posY: 130, posZ: -4200,
+  posX: -800, posY: 160, posZ: -4200,
   rx: Math.PI, ry: -Math.PI/2.0, rz: 0,
   scale: 30,
   zone: 2,
@@ -476,7 +477,7 @@ const knife = {
 
 const pabloShutter = {
   url: PABLO_SHUTTER,
-  posX: 1200, posY: 90, posZ: -4000,
+  posX: 1200, posY: 90, posZ: -3500,
   rx: 0, ry: -Math.PI/2.0, rz: 0,
   scale: 80,
   zone: 2,
@@ -494,7 +495,7 @@ const lionShutter = {
 
 const diamondShutter = {
   url: DIAMOND_SHUTTER,
-  posX: 700, posY: 120, posZ: -4700,
+  posX: 700, posY: 120, posZ: -4400,
   rx: 0, ry: Math.PI/2, rz: 0,
   scale: 70,
   zone: 2,
@@ -503,7 +504,7 @@ const diamondShutter = {
 
 const catfishShutter = {
   url: CATFISH_SHUTTER,
-  posX: 100, posY: -10, posZ: -4800,
+  posX: 100, posY: -10, posZ: -4600,
   rx: 0, ry: -Math.PI/3, rz: 0,
   scale: 100,
   zone: 2,

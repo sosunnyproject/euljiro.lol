@@ -1,7 +1,7 @@
 {
   "scripts": {
     "start": "parcel -p 4000 index.html",
-    "predeploy": "rm -rf dist && parcel build ./index.html --public-url https://sosunnyproject.github.io/threejs-euljiro/",
+    "predeploy": "rm -rf dist && parcel build ./index.html --public-url https://sosunnyproject.github.io/euljiro.lol/",
     "deploy": "gh-pages -d dist"
   },
   "dependencies": {

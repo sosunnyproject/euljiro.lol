@@ -24,7 +24,7 @@ import FORK from "../../assets/districtTwo/fork.glb"
 import KNIFE from "../../assets/districtTwo/Knife0.glb"
 import SPA_SIGN from "../../assets/districtTwo/Spa0.glb"
 import RAINBOW_WEED from "../../assets/districtTwo/Cannabis0.glb"
-import COFFEE_CUP from "../../assets/districtTwo/Pinkcoffee17.glb"
+import COFFEE_CUP from "../../assets/districtTwo/Pinkcoffee0.glb"
 import LION from "../../assets/districtTwo/Lion11.glb"
 import PURPLE_SUNGLASS from "../../assets/districtTwo/Purple15.glb"
 import ORANGE_SUNGLASS from "../../assets/districtTwo/Orange17.glb"
@@ -46,7 +46,7 @@ import EXCAVATOR from "../../assets/districtThree/Crane15.glb"
 // park
 import TIGERLILY from "../../assets/park/Tigerlily15.glb"
 import SQUIRREL from "../../assets/park/Squirrel17.glb"
-import YELLOW_BENCH from "../../assets/park/Yellowbench10.glb"
+import YELLOW_BENCH from "../../assets/park/Yellowbench0.glb"
 import PARK_CAT from "../../assets/park/GreenCat25.glb"
 import CACTUS from "../../assets/park/Cactus34.glb"
 
@@ -385,7 +385,7 @@ const weedRainbow = {
 }
 const coffeeCup = {
   url: COFFEE_CUP,
-  posX: 40, posY: 95, posZ: -2500,
+  posX: 40, posY: 90, posZ: -2500,
   rx: 0, ry: 0, rz: 0,
   scale: 30,
   zone: 2,

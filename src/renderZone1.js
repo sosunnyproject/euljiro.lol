@@ -75,7 +75,7 @@ function renderShutterPlane(scene, posZ, material) {
         const position = new THREE.Vector3(
             ZONE_POS.ONE.x + 2550 + i*size + (1*i), 50, posZ       
         )
-        console.log("shutter", position)
+        // console.log("shutter", position)
  
         const matrix = new THREE.Matrix4()
         matrix.setPosition(position)

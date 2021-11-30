@@ -102,6 +102,7 @@ export function renderBuildings (scene, randNum, posArr) {
         mesh.setMatrixAt(i, matrix)
         // mesh.zone = 3;
         mesh.name = 'apt'
+        mesh.desc= '수직 상승의 기회, 잡고 싶니?'
         mesh.needsUpdate = true;
 
         // enable tick
@@ -126,6 +127,7 @@ export function makeSteps(scene, pos) {
     const g1 = new THREE.BoxGeometry(size, height, size)
     const gmat = new THREE.MeshPhongMaterial({ color: 0x222222 })
     const boxTest = new THREE.Mesh(g1, gmat)
+    boxTest.name = "점프해서 열심히 올라가 봐. 어려울걸?"
     boxTest.translateX(pos.x)
     boxTest.translateZ(pos.z)
     boxTest.zone = 3

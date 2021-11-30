@@ -58,7 +58,7 @@ export function generateTree(position) {
  grassMesh.position.y = y + 20 * 10
  grassMesh.position.z = z
  grassMesh.scale.set(20, 20, 20)
- grassMesh.name = "animate"
+ grassMesh.name = "trees"
  tree.add(grassMesh)
 
  const trunkColors = [ "rgb(232, 174, 183)", "rgb(115, 72, 48)", "rgb(94, 116, 127)", "rgb(197, 152, 73)", "rgb(156, 179, 128)" ]

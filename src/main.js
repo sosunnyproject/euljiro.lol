@@ -434,9 +434,9 @@ function tick() {
       obj.position.y += Math.sin(time*0.001)*0.5
     }
     if(obj.name === "trees") {  // animate tree's scale
-      obj.scale.x = Math.cos(time*0.0001) * 12
-      obj.scale.y = Math.cos(time*0.0001) * 12
-      obj.scale.z = Math.cos(time*0.0001) * 12
+      obj.scale.x = Math.cos(time*0.0003) * 12
+      obj.scale.y = Math.cos(time*0.0003) * 12
+      obj.scale.z = Math.cos(time*0.0003) * 12
     }
     if (typeof obj.tick === 'function') {   // tick AnimatedFlower
       obj.tick(time);
@@ -586,8 +586,10 @@ function checkCameraLoadAssets(currentPos)  {
     try {
       scene?.traverse(obj => {
         if (typeof obj?.zone === 'number') {
+          if(obj.zone < 4) {
             scene.remove(obj)
           }
+        }
       })
     } catch (err) {
      console.log(err)

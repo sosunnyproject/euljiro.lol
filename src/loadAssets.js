@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { DISTRICT_ONE_GLB, DISTRICT_TWO_GLB, DISTRICT_THREE_GLB, MONUMENTS_GLB, DISTRICT_PARK_GLB } from './models/glbLoader.js';
-import { updateLoadingProgress } from './utils.js';
+import { showDescription, updateLoadingProgress } from './utils.js';
 // import uhbeeFont from "../assets/fonts/uhbeeRiceRegular.json"
 import { ZONE_POS } from './globalConstants.js';
 
@@ -102,7 +102,7 @@ export async function loadZoneParkGLB(scene) {
 
 export async function loadZoneOneGLB(scene) {
   console.log("loadZoneOneGLB")
-  
+  showDescription("1구역 테크JIRO입니다.")
   for (let i = 0; i < DISTRICT_ONE_GLB.length; i++) {
     const model = DISTRICT_ONE_GLB[i]
     try {
@@ -117,6 +117,7 @@ export async function loadZoneOneGLB(scene) {
 
 export async function loadZoneTwoGLB(scene) {
   console.log("loadZoneTwoGLB")
+  showDescription("2구역 힙JIRO입니다.")
 
   for (let i = 0; i < DISTRICT_TWO_GLB.length; i++) {
     const model = DISTRICT_TWO_GLB[i]
@@ -133,6 +134,7 @@ export async function loadZoneTwoGLB(scene) {
 
 export async function loadZoneThreeGLB(scene) {
   console.log("loadZoneThreeGLB")
+  showDescription("3구역 빌딩JIRO입니다.")
 
   for (let i = 0; i < DISTRICT_THREE_GLB.length; i++) {
     const model = DISTRICT_THREE_GLB[i]

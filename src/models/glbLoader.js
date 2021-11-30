@@ -168,7 +168,7 @@ const rocket = {
   scale: 40,
   zone: 1,
   name: "rocket",
-  desc: "접는 도시 을지로 테크JIRO 입성 완료"
+  desc: "난 여기에서 로켓을 만들어 우주로 떠날거야"
  }
  const purpleCone = {
   url: PURPLE_CONE,
@@ -193,12 +193,12 @@ const rocket = {
  const cctv = {
   name: "cctv",
   url: CCTV,
-  posX: 4400, posY: 80, posZ: -800, 
+  posX: 4400, posY: 120, posZ: -800, 
  //  posX: getRandomInt(ZONE1_X_MIN, ZONE1_X_MAX), posY: 10, posZ: getRandomInt(ZONE1_Z_MIN, ZONE1_Z_MAX),
   rx: 0, ry: Math.PI/6.0, rz: 0,
   scale: 60,
   zone: 1,
-  desc: "모든 걸 다 지켜보고 있다니까?!"
+  desc: "어허, 모든 걸 다 지켜보고 있다니까?!"
  }
 
 const bird1 = {
@@ -239,7 +239,7 @@ const bird2 = {
   scale: 120,
   zone: 1,
   name: "ozRobot",
-  desc: "나야말로 로봇들의 아버지같은 존재 아니겠어?"
+  desc: "나야말로 로봇들의 조상 아니겠어?"
  }
  
 const blueCone = {
@@ -377,7 +377,7 @@ const fork = {
 
 const weedRainbow = {
   url: RAINBOW_WEED,
-  posX: 250, posY: 80, posZ: -4500,
+  posX: 250, posY: 80, posZ: -4000,
   rx: 0, ry: -Math.PI/2, rz: 0,
   scale: 50,
   zone: 2,
@@ -404,7 +404,7 @@ const spaSign = {
 
 const purpleSunglass = {
   url: PURPLE_SUNGLASS,
-  posX: -1600, posY: 70, posZ: -4300,
+  posX: -1300, posY: 70, posZ: -4300,
   rx: 0, ry: 0, rz: 0,
   scale: 60,
   zone: 2,
@@ -479,7 +479,8 @@ const pabloShutter = {
   posX: 1200, posY: 90, posZ: -4000,
   rx: 0, ry: -Math.PI/2.0, rz: 0,
   scale: 60,
-  zone: 2  
+  zone: 2,
+  desc: "을지로는 가을이었다. by 파블로"
 }
 
 const lionShutter = {
@@ -493,10 +494,11 @@ const lionShutter = {
 
 const diamondShutter = {
   url: DIAMOND_SHUTTER,
-  posX: 700, posY: 120, posZ: -4800,
+  posX: 700, posY: 120, posZ: -4700,
   rx: 0, ry: Math.PI/2, rz: 0,
   scale: 70,
-  zone: 2
+  zone: 2,
+  desc: "이 구역의 힙스터는 나야"
 }
 
 const catfishShutter = {
@@ -517,33 +519,39 @@ export const DISTRICT_TWO_GLB = [
  ]
  
 // DISTRICT THREE
-const ZONE3_X_MIN = ZONE_POS.THREE.x - 300;
-const ZONE3_X_MAX = ZONE_POS.THREE.x + 300;
-const ZONE3_Z_MIN = ZONE_POS.THREE.z - 300;
-const ZONE3_Z_MAX = ZONE_POS.THREE.z + 300;
+const ZONE3_X_MIN = ZONE_POS.THREE.x - 500;
+const ZONE3_X_MAX = ZONE_POS.THREE.x + 500;
+const ZONE3_Z_MIN = ZONE_POS.THREE.z - 500;
+const ZONE3_Z_MAX = ZONE_POS.THREE.z + 500;
 
 const bnb = {
   url: BNBstatic,
-  posX: getRandomInt(ZONE3_X_MIN, ZONE3_X_MAX), posY: 50,  posZ: getRandomInt(ZONE3_Z_MIN, ZONE3_Z_MAX),
+  posX: getRandomInt(ZONE3_X_MIN, ZONE3_X_MAX), posY: 70,  posZ: getRandomInt(ZONE3_Z_MIN, ZONE3_Z_MAX),
   rx: 0, ry: 0, rz: 0,
-  scale: 10,
-  zone: 3
+  scale: 30,
+  zone: 3,
+  name: "coins",
+  desc: "본 작품은 특정 상품이나 서비스의 판매나 투자권유 또는 조언을 위하여 제작된 것이 아닙니다."
 }
 
 const eth = {
   url: ETHstatic,
-  posX: getRandomInt(ZONE3_X_MIN, ZONE3_X_MAX), posY: 50,  posZ: getRandomInt(ZONE3_Z_MIN, ZONE3_Z_MAX),
+  posX: getRandomInt(ZONE3_X_MIN, ZONE3_X_MAX), posY: 70,  posZ: getRandomInt(ZONE3_Z_MIN, ZONE3_Z_MAX),
   rx: 0, ry: 0, rz: 0,
-  scale: 10,
-  zone: 3
+  scale: 30,
+  zone: 3,
+  name: "coins",
+  desc: "본 작품은 특정 상품이나 서비스의 판매나 투자권유 또는 조언을 위하여 제작된 것이 아닙니다."
 }
 
 const btc = {
   url: BTCstatic,
-  posX: getRandomInt(ZONE3_X_MIN, ZONE3_X_MAX), posY: 50,  posZ: getRandomInt(ZONE3_Z_MIN, ZONE3_Z_MAX),
+  posX: getRandomInt(ZONE3_X_MIN, ZONE3_X_MAX), posY: 70,  posZ: getRandomInt(ZONE3_Z_MIN, ZONE3_Z_MAX),
   rx: 0, ry: 0, rz: 0,
-  scale: 10,
-  zone: 3
+  scale: 30,
+  zone: 3,
+  name: "coins",
+  desc: "본 작품은 특정 상품이나 서비스의 판매나 투자권유 또는 조언을 위하여 제작된 것이 아닙니다."
 }
 
 export const DISTRICT_THREE_GLB = [ 

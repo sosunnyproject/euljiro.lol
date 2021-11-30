@@ -193,7 +193,11 @@ const onKeyDown = function ( event ) {
 
     case 'ArrowRight':
     case 'KeyD':
-      moveRight = true;
+      if(popupOpen) {
+        showHowto()
+      } else {
+        moveRight = true;
+      }
       break;
 
     case 'Space':
@@ -343,8 +347,8 @@ function xboxKeyPressed (gamepad) {
     if(popupOpen){
       console.log("popup? ", popupOpen)
       // const btnVal = buttons[0].pressed;
-      
-      setTimeout(showHowto(), 2000)
+      showHowto()
+      // setTimeout(showHowto(), 2000)
     }
     return;
   }

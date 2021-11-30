@@ -13,6 +13,7 @@ export function getRandomInt(min, max) {
 
 export function updateStepNum() {
   // console.log(window.ACC_STEPS)
+
   if(window.ZONE === "GARDEN") {
     if(window.ACC_STEPS <= window.STEP_LIMIT) {
       window.ACC_STEPS++;
@@ -23,10 +24,13 @@ export function updateStepNum() {
     }
   }
 
-  // console.log("updateStepNum? ", window.ACC_STEPS)
+  // console.log("updateStepNum? ", window.PREV_STEPS, window.ACC_STEPS)
 
   let per = Math.floor((window.ACC_STEPS / window.STEP_LIMIT) * 100 )
   updateStepProgress(per)
+
+  // check prev and curr acc_steps
+  // window.PREV_STEPS = window.ACC_STEPS
 }
 
 // https://stackoverflow.com/questions/56421795/how-to-change-the-color-of-progressvalue-webkit-progress-value-property

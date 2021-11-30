@@ -47,6 +47,7 @@ import EXCAVATOR from "../../assets/districtThree/Crane15.glb"
 import TIGERLILY from "../../assets/park/Tigerlily15.glb"
 import SQUIRREL from "../../assets/park/Squirrel17.glb"
 import YELLOW_BENCH from "../../assets/park/Yellowbench0.glb"
+import BLUE_BENCH from "../../assets/park/Bluebench0.glb"
 import PARK_CAT from "../../assets/park/GreenCat25.glb"
 import CACTUS from "../../assets/park/Cactus34.glb"
 
@@ -61,7 +62,7 @@ const ZONE1_Z_MAX = ZONE_POS.ONE.z + 300;
 
 const robotFace = {
  url: ROBOT_FACE,
- posX: ZONE_POS.ONE.x, posY: 200, posZ: ZONE_POS.ONE.z + 50,
+ posX: ZONE_POS.ONE.x, posY: 240, posZ: ZONE_POS.ONE.z + 50,
  rx: 0, ry: 0, rz: 0,
  scale: 130,
  type: "monument",
@@ -122,7 +123,7 @@ const squirrel = {
 
 const parkCat = {
   url: PARK_CAT,
-  posX: -600, posY: 50, posZ: 1700, 
+  posX: -600, posY: 40, posZ: 1700, 
   rx: 0, ry: Math.PI/6.0, rz: 0,
   scale: 40,
   zone: 4,
@@ -135,7 +136,15 @@ const yellowBench = {
   rx: 0, ry: Math.PI/4.0, rz: 0,
   scale: 50,
   zone: 4,
-  name: "와서 잠시 앉아 쉬어가도 돼"
+  name: "잔디밭에 잠시 앉아 쉬어가"
+}
+const blueBench = {
+  url: BLUE_BENCH,
+  posX: -700, posY: 50, posZ: -150, 
+  rx: 0, ry: Math.PI/4.0, rz: 0,
+  scale: 50,
+  zone: 4,
+  name: "잔디와 함께 바람도 쐬고 쉬었다 가"
 }
 const cactus = {
   url: CACTUS,
@@ -143,10 +152,10 @@ const cactus = {
   rx: 0, ry: Math.PI/3.0, rz: 0,
   scale: 40,
   zone: 4,
-  name: "메마른 땅에서 버티다보니 지금 여기에 있어"
+  name: "메말랐던 을지로에 푸르른 잔디가 생기니까 너무 좋아"
 }
 export const DISTRICT_PARK_GLB = [ 
-  tigerlily, squirrel, parkCat, yellowBench, cactus
+  tigerlily, squirrel, parkCat, yellowBench, cactus, blueBench
  ]
  
 
@@ -172,7 +181,7 @@ const rocket = {
  }
  const purpleCone = {
   url: PURPLE_CONE,
-  posX: 4900, posY: 30, posZ: -85, 
+  posX: 4900, posY: 45, posZ: -85, 
   // posX: getRandomInt(ZONE1_X_MIN, ZONE1_X_MAX), posY: 10, posZ: getRandomInt(ZONE1_Z_MIN, ZONE1_Z_MAX),
   rx: 0, ry: -Math.PI/3.5, rz: 0,
   scale: 25,

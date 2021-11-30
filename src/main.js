@@ -49,12 +49,13 @@ let raycaster2 = new THREE.Raycaster(rayOrigin, rayZ, 0, 100); // rayOrigin, ray
 // raycaster.set(rayOrigin, rayDirection)
 
 // Zones
-window.STEP_LIMIT = 4000
+window.STEP_LIMIT = 3500
 window.ZONE = ""
 window.DYNAMIC_LOADED = false;
 window.ACC_STEPS = window.STEP_LIMIT;
 window.RAYOBJ = []
 window.HOWTOPAGE = 1;
+window.PREV_STEPS = window.STEP_LIMIT;
 
 // Clock: autoStart, elapsedTime, oldTime, running, startTime
 var clock = new THREE.Clock();
@@ -429,10 +430,16 @@ function tick() {
 
     if(obj?.name?.includes("shader")) {
       // update shader material
-      obj.material.uniforms.u_time.value = time * 0.002; 
+      if (window.ZONE === "GARDEN") {
+        if(obj.name.includes("grass")) {  // grass shader only in PARK
+          obj.material.uniforms.u_time.value = time * 0.002; 
+        }
+      } else {
+        obj.material.uniforms.u_time.value = time * 0.002; 
+      }
     }
     if(obj.name === "robotFace") {
-      obj.position.y += Math.sin(time*0.001)*0.5
+      obj.position.y += Math.sin(time*0.002)*2.0
     }
     if(obj.name === "trees") {  // animate tree's scale
       obj.scale.x = Math.cos(time*0.0003) * 12
@@ -442,18 +449,11 @@ function tick() {
     if (typeof obj.tick === 'function') {   // tick AnimatedFlower
       obj.tick(time);
     }
-    if(obj.name.includes('apt')) { 
-      const rand = obj.randomNoise;
-      obj.position.y += Math.sin(time*0.0005)*rand
-      // for(let i = 0; i < 10; i++) {
-      //   const matrix = new THREE.Matrix4()
-      //   const position = new THREE.Vector3(getRandomInt(-300, 300), 100, getRandomInt(-300, 300))
-      //   matrix.setPosition(position)
-
-      //   matrix.makeScale(getRandomInt(1, 3), 1, getRandomInt(1, 3))
-      //   obj.setMatrixAt(i, matrix)
-      // }
-
+    if (window.ZONE === "THREE") {
+      if(obj.name.includes('apt')) { 
+        const rand = obj.randomNoise;
+        obj.position.y += Math.sin(time*0.0005)*rand
+      }
     }
   })
 

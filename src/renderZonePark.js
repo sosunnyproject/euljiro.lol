@@ -215,7 +215,7 @@ function renderGrassShader2(scene, position) {
       // here the displacement is made stronger on the blades tips.
       float dispPower = 1.0 - cos( uv.y * 3.1416 / 2.0 );
       
-      float displacement = sin( mvPosition.z + u_time * 0.5 ) * ( 0.4 * dispPower );
+      float displacement = sin( mvPosition.z + u_time * 1.2 ) * ( 0.8 * dispPower );
       mvPosition.z += displacement;
       
       //
@@ -253,10 +253,10 @@ function renderGrassShader2(scene, position) {
     // MESH
     /////////
     
-    const instanceNumber = 5000000;
+    const instanceNumber = 500000;
     const dummy = new THREE.Object3D();
     
-    const geometry = new THREE.PlaneGeometry( 0.5, 5, 1, 4 );
+    const geometry = new THREE.PlaneGeometry( 1.5, 6, 1, 4 );
     geometry.translate( 0, 1, 0 ); // move grass blade geometry lowest point at 0.
     
     const instancedMesh = new THREE.InstancedMesh( geometry, leavesMaterial, instanceNumber );

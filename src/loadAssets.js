@@ -70,18 +70,6 @@ DISTRICT_PARK_GLB.forEach(model => {
   })
 })
 
- // Load Font for TextGeometry
-//  fontLoader.load(
-//    uhbeeFont,
-//    (font) => {
-//      window.UHBEE_FONT = font;
-//      count++;
-//      console.log("loaded")
-//      let per = Math.floor((count / loadNum) * 100)
-//      updateLoadingProgress(per);
-//    }
-//  )
-
 }
 
 export async function loadZoneParkGLB(scene) {
@@ -145,42 +133,7 @@ export async function loadZoneThreeGLB(scene) {
     }
   }
 
-  try {
-    scene.traverse(obj => {
-      if (typeof obj.zone === 'number') {
-
-        if(obj.zone !== 3) {
-          // console.log("TRAVERSE TWO: ", obj)
-          scene.remove(obj)
-        }
-      }
-    })
-  } catch (err) {
-   console.log(err)
-  }
-
   window.DYNAMIC_LOADED = true;  
-}
-
-export async function loadParkAnimals(scene, gltfLoader) {
-  let dummy = {
-    posX: ZONE_POS.GARDEN.x, posY: 100, posZ: ZONE_POS.GARDEN + 500,
-    rx: 0, ry: 0, rz: 0,
-    scale: 1,
-    name: "animals"
-   }
-
-  // gltfLoader.load(Buffalo,
-  //   (gltf) => {
-  //     console.log(gltf)
-  //     console.log("buffalo : ", gltf.scene.children[0])
-  //     console.log("buffalo onloadanim? : ", gltf.scene.children[0].scene)
-  //     try {
-  //       onLoadAnimation(gltf.scene.children[0], dummy, scene)
-  //     } catch (err) {
-  //       console.log(err)
-  //     }
-  //   })
 }
 
 export function onLoadAnimation(model, data, scene) {

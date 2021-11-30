@@ -72,6 +72,8 @@ export function updateLoadingProgress(value) {
 const deltaValue = 0.005
 
 export function retrieveEnergy(scene) {
+  if(!scene && !scene?.traverse) return;
+
   scene.traverse(obj => {
     if(!obj.name) return;
     if(obj.name.includes("light")) {
@@ -94,10 +96,12 @@ export function retrieveEnergy(scene) {
   })
 }
 
-export function warnLowEnergy(scene, delta) {
+export function warnLowEnergy(scene) {
   // dim the lights
 
   showDescription("체력이 얼마 남지 않았습니다. 공원으로 이동해서 에너지를 채워주세요!")
+
+  if(!scene && !scene?.traverse) return;
 
   scene.traverse(obj => {
     if(!obj.name) return

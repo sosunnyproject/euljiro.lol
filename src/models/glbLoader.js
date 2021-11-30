@@ -116,7 +116,7 @@ const squirrel = {
   posX: 800, posY: 50, posZ: 1200, 
   rx: 0, ry: -Math.PI/6.0, rz: 0,
   scale: 50,
-  // zone: 4,
+  zone: 4,
   name: "나는야 공원을 지키는 우람한 다람쥐"
 }
 
@@ -125,7 +125,7 @@ const parkCat = {
   posX: -600, posY: 50, posZ: 1700, 
   rx: 0, ry: Math.PI/6.0, rz: 0,
   scale: 40,
-  // zone: 4,
+  zone: 4,
   name: "잔디를 꾸욱~꾹~"
 }
 
@@ -134,7 +134,7 @@ const yellowBench = {
   posX: 1600, posY: 50, posZ: 500, 
   rx: 0, ry: Math.PI/4.0, rz: 0,
   scale: 50,
-  // zone: 4,
+  zone: 4,
   name: "와서 잠시 앉아 쉬어가도 돼"
 }
 const cactus = {
@@ -142,7 +142,7 @@ const cactus = {
   posX: -600, posY: 80, posZ: -1700, 
   rx: 0, ry: Math.PI/3.0, rz: 0,
   scale: 40,
-  // zone: 4,
+  zone: 4,
   name: "메마른 땅에서 버티다보니 지금 여기에 있어"
 }
 export const DISTRICT_PARK_GLB = [ 

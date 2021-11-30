@@ -50,7 +50,7 @@ let raycaster2 = new THREE.Raycaster(rayOrigin, rayZ, 0, 100); // rayOrigin, ray
 
 // Zones
 window.STEP_LIMIT = 4000
-window.ZONE = "ONE"
+window.ZONE = ""
 window.DYNAMIC_LOADED = false;
 window.ACC_STEPS = window.STEP_LIMIT;
 window.RAYOBJ = []
@@ -423,11 +423,12 @@ function tick() {
     }
   } 
 
-  // update shader material
+  if(!scene && !scene?.traverse) return;
   scene.traverse(obj => {
     if(!obj.name) return;
 
     if(obj?.name?.includes("shader")) {
+      // update shader material
       obj.material.uniforms.u_time.value = time * 0.002; 
     }
     if(obj.name === "robotFace") {
@@ -464,22 +465,13 @@ function tick() {
 };
 
 window.addEventListener('click', function () {
-  console.log(scene.children)
   console.log("check position:", pointerControls.getObject().position) 
   // console.log("check rotation:", pointerControls.getObject().rotation)
 })
 
 function checkCameraLoadAssets(currentPos)  {
 
- // zone 1
-//  if(currentPos.x > ZONE_POS && currentPos.x < 850) {
-//     if(currentPos.z < -600 && currentPos.z > -850) {
-//       window.ZONE = "ONE"
-//       loadZones()
-//     }
-//   }
-
-  // circle zone
+  // Zone 1
   const centerX1 = ZONE_POS.ONE.x
   const centerZ1 = ZONE_POS.ONE.z
   const radius1 = ZONE_RADIUS.ONE
@@ -506,14 +498,7 @@ function checkCameraLoadAssets(currentPos)  {
     return;
   }
 
- // zone 2
-//  if(currentPos.x < -600 && currentPos.x > -850) {
-//    if(currentPos.z < -600 && currentPos.z > -850) {
-//      window.ZONE = "TWO"
-//      loadZones()
-//    }
-//  }
-
+  // ZONE 2
   const centerX2 = ZONE_POS.TWO.x
   const centerZ2 = ZONE_POS.TWO.z
   const radius2 = ZONE_RADIUS.TWO
@@ -530,6 +515,7 @@ function checkCameraLoadAssets(currentPos)  {
     return;
   }
 
+  // ZONE 3
   const centerX3 = ZONE_POS.THREE.x
   const centerZ3 = ZONE_POS.THREE.z
   const radius3 = ZONE_RADIUS.THREE
@@ -554,47 +540,58 @@ function checkCameraLoadAssets(currentPos)  {
   const dx4 = Math.abs(currentPos.x - centerX4)
   const dz4 = Math.abs(currentPos.z - centerZ4)
   let inZonePark = dx4*dx4 + dz4*dz4 <= radius4*radius4
+
   if(inZonePark) {
-  //  window.DYNAMIC_LOADED = false;
     window.ZONE = "GARDEN"
     console.log("inside : ", window.ZONE)
   
-  //  unload zone 1, 2, 3 models
-    try {
-      scene.traverse(obj => {
-        if (typeof obj.zone === 'number') {
-          if(obj.zone < 4) {
-            scene.remove(obj)
+    // loadZones(window.ZONE)
+  } 
+
+  unloadZonesModels()
+
+  // OUTSIDE zones
+  function unloadZonesModels() {
+    if( inZone1 + inZone2 + inZone3 == 0) {
+      console.log("unload zone123 models")
+      window.DYNAMIC_LOADED = false;
+
+      // unload all gltf
+      if(!scene && !scene?.traverse) return;
+      try {
+        scene.traverse(obj => {
+          if (typeof obj?.zone === 'number') {
+            if(obj.zone < 4) {
+              scene.remove(obj)
+            }
           }
-        }
-      })
-    } catch (err) {
-      console.log(err)
+        })
+      } catch (err) {
+       console.log(err)
+      }
     }
-
-  //   loadZones(window.ZONE)
-
   }
 
+  function unloadParkModels() {
+    if(!inZonePark) {
+      // window.DYNAMIC_LOADED = false;
+      console.log("unload park models")
   
-  // OUTSIDE, inZonePark +
-  if( inZone1 + inZone2 + inZone3 == 0) {
-    window.DYNAMIC_LOADED = false;
-    // console.log("outside zone")
-
-    // unload all gltf
-    try {
-      scene?.traverse(obj => {
-        if (typeof obj?.zone === 'number') {
-          if(obj.zone < 4) {
-            scene.remove(obj)
+      if(!scene && !scene?.traverse) return;
+      try {
+        scene.traverse(obj => {
+          if (typeof obj?.zone === 'number') {
+            if(obj.zone === 4) {
+              scene.remove(obj)
+            }
           }
-        }
-      })
-    } catch (err) {
-     console.log(err)
+        })
+      } catch (err) {
+       console.log(err)
+      }
     }
-  } 
+  }
+  
 
 }
 
@@ -618,7 +615,6 @@ function loadZones(zone) {
       break;
     
     case "GARDEN":
-      console.log("GARDEN zone, dynamicLoaded? ", window.DYNAMIC_LOADED)
       // loadZoneParkGLB(scene);
       break;
   }
@@ -627,12 +623,12 @@ function loadZones(zone) {
 function init() {
 
   if(!WEBGL.isWebGLAvailable()) {
-    const warning = WEBGL.getWebGLErrorMessage();
+    const warning = WEBGL.getWebGLErrorMessage() + "WebGL을 지원하지 않는 컴퓨터일 수 있습니다. 아니라면, 새로고침을 시도해주세요.";
     document.getElementById( 'container' ).appendChild( warning );
   } else {
     console.log("init")
     initStats();
-    main()
+    if(scene) main()
     tick();
 
     const energyHtml = document.querySelector( '.energyContainer' );
@@ -642,15 +638,6 @@ function init() {
   window.addEventListener( 'resize', onWindowResize );
 
 }
-
-// function disableRaycastIntersect() {
-//   console.log("raycast disabled")
-
-//   // rayObjects = []
-//   enableRaycast = false;
-
-//   window.DYNAMIC_LOADED = false;
-// }
 
 function main() {
   renderer.autoClear = true;
@@ -743,8 +730,6 @@ function loadDefaultEnvironment() {
   renderMountain(scene)
 
   instantiateParkObj(scene)
-
-  // renderSkyDome(scene)
   
   // monument gltf
   for (let i = 0; i < MONUMENTS_GLB.length; i++) {
@@ -757,8 +742,6 @@ function loadDefaultEnvironment() {
   }
 
   loadZoneParkGLB(scene)  // default
-  // loadZoneTwoGLB(scene)
-  // loadZoneThreeGLB(scene)
 }
 
 function checkPointerControls() {
@@ -777,11 +760,9 @@ function checkPointerControls() {
     const interX = raycaster.intersectObjects( window.RAYOBJ , false )
     const interZ = raycaster2.intersectObjects(window.RAYOBJ, false)
     const intersections = interX.concat(interZ)
-    // console.log("x or z ray: ",  intersections)
     const onObject = intersections.length > 0;
-    // console.log(window.RAYOBJ)
     if(onObject) {
-      console.log(intersections[0].object?.name)
+      // console.log(intersections[0].object?.name)
       showDescription(  intersections[0].object?.desc ||  intersections[0].object?.name )
     }
 
@@ -801,7 +782,7 @@ function checkPointerControls() {
     if ( moveLeft || moveRight ) velocity.x -= direction.x * 400.0 * delta;
 
     if ( onObject === true ) {
-      console.log("JUMP YES")
+      // console.log("JUMP YES")
       velocity.y = Math.max( 0, velocity.y);
       canJump = true;
 

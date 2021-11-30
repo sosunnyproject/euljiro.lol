@@ -8,7 +8,7 @@ import BIRD_BOT from "../../assets/districtOne/RoboBird0.glb"
 import CCTV from "../../assets/districtOne/Cctv0.glb"
 import OZ_ROBOT from "../../assets/districtOne/Ozrobot0.glb"
 import ROBOT_GUIDE from "../../assets/districtOne/RobotGuide.glb"
-import ROCKET from "../../assets/districtOne/Rocket20.glb"
+import ROCKET from "../../assets/districtOne/Rocket0.glb"
 import WORKER_2 from "../../assets/districtOne/Worker0.glb"
 import ROBOT_TIGER from "../../assets/districtOne/RoboTiger15.glb"
 import ROBOT_BIRD from "../../assets/districtOne/robotBird.glb"
@@ -21,11 +21,11 @@ import COFFEE_SPA from "../../assets/districtTwo/Coffeecupspa27.glb"
 import TAPE from "../../assets/districtTwo/Tape0.glb"
 import BEAR from "../../assets/districtTwo/Bear28.glb"
 import FORK from "../../assets/districtTwo/fork.glb"
-import KNIFE from "../../assets/districtTwo/Knife27.glb"
+import KNIFE from "../../assets/districtTwo/Knife0.glb"
 import SPA_SIGN from "../../assets/districtTwo/Spa0.glb"
 import RAINBOW_WEED from "../../assets/districtTwo/Cannabis0.glb"
 import COFFEE_CUP from "../../assets/districtTwo/Pinkcoffee17.glb"
-import LION from "../../assets/districtTwo/Lion19.glb"
+import LION from "../../assets/districtTwo/Lion11.glb"
 import PURPLE_SUNGLASS from "../../assets/districtTwo/Purple15.glb"
 import ORANGE_SUNGLASS from "../../assets/districtTwo/Orange17.glb"
 import GREEN_SUNGLASS from "../../assets/districtTwo/Green17.glb"
@@ -33,22 +33,22 @@ import IPOD from "../../assets/districtTwo/Ipod0.glb"
 import CAMERA from "../../assets/districtTwo/Camera0.glb"
 import OLD_PHONE from "../../assets/districtTwo/Oldphone0.glb"
 import CHEESE from "../../assets/districtTwo/CheeseStatic.glb"
-import PABLO_SHUTTER from "../../assets/districtTwo/Pablo25.glb"
+import PABLO_SHUTTER from "../../assets/districtTwo/Pablo18.glb"
 import DIAMOND_SHUTTER from "../../assets/districtTwo/Diamond0.glb"
-import CATFISH_SHUTTER from "../../assets/districtTwo/Catfish25.glb"
+import CATFISH_SHUTTER from "../../assets/districtTwo/Catfish17.glb"
 
 // district 3
 import BNBstatic from "../../assets/districtThree/Bnbstatic.glb"
 import BTCstatic from "../../assets/districtThree/Btcstatic.glb"
 import ETHstatic from "../../assets/districtThree/Ethstatic.glb"
-import EXCAVATOR from "../../assets/districtThree/Crane57.glb"
+import EXCAVATOR from "../../assets/districtThree15.glb"
 
 // park
-import TIGERLILY from "../../assets/Tigerlily45.glb"
-import SQUIRREL from "../../assets/Squirrel40.glb"
-import YELLOW_BENCH from "../../assets/Yellowbench37.glb"
-import PARK_CAT from "../../assets/Parkcat40.glb"
-import CACTUS from "../../assets/Cactus34.glb"
+import TIGERLILY from "../../assets/park/Tigerlily15.glb"
+import SQUIRREL from "../../assets/park/Squirrel17.glb"
+import YELLOW_BENCH from "../../assets/park/Yellowbench10.glb"
+import PARK_CAT from "../../assets/park/GreenCat25.glb"
+import CACTUS from "../../assets/park/Cactus34.glb"
 
 import { getRandomInt } from "../utils"
 import { ZONE_POS } from "../globalConstants"
@@ -233,7 +233,7 @@ const bird2 = {
  }
  const ozRobot = {
   url: OZ_ROBOT,
-  posX: 2400, posY: 35, posZ: -705,
+  posX: 2400, posY: 25, posZ: -705,
   // posX: getRandomInt(ZONE1_X_MIN, ZONE1_X_MAX), posY: 10, posZ: getRandomInt(ZONE1_Z_MIN, ZONE1_Z_MAX),
   rx: 0, ry: -Math.PI/6.0, rz: 0,
   scale: 120,
@@ -478,7 +478,7 @@ const pabloShutter = {
   url: PABLO_SHUTTER,
   posX: 1200, posY: 90, posZ: -4000,
   rx: 0, ry: -Math.PI/2.0, rz: 0,
-  scale: 60,
+  scale: 80,
   zone: 2,
   desc: "을지로는 가을이었다. by 파블로"
 }

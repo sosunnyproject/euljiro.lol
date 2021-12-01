@@ -842,7 +842,7 @@ function render() {
     if(frameCount%100 == 0) {
       if(window.PREV_STEPS === window.ACC_STEPS) { // stale
         window.STALE += 1
-        console.log("stale", window.STALE)
+        // console.log("stale", window.STALE)
       } else {
         window.STALE = 0;  // walking
         // let hasReset = window.localStorage.getItem('autoReset')

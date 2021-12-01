@@ -144,7 +144,7 @@ blocker.addEventListener( 'click', function () {
   const howtoPopup = document.querySelector(".popup");
   howtoPopup.classList.add("show");
 
-  tick();  // start animate after blocker is gone
+  // tick();  // start animate after blocker is gone
 } );
 
 pointerControls.addEventListener( 'lock', function () {
@@ -156,8 +156,8 @@ pointerControls.addEventListener( 'lock', function () {
 
 pointerControls.addEventListener( 'unlock', function () {
 
-  blocker.style.display = 'block';
-  instructions.style.display = '';
+  // blocker.style.display = 'block';
+  // instructions.style.display = '';
 
 } );
 
@@ -639,8 +639,8 @@ function init() {
   } else {
     console.log("init")
     initStats();
-    if(scene) main()
-
+    main()
+    tick()
     const energyHtml = document.querySelector( '.energyContainer' );
     energyHtml.style.visibility = 'visible';
   }

@@ -57,9 +57,9 @@ window.RAYOBJ = []
 window.HOWTOPAGE = 1;
 window.PREV_STEPS = window.STEP_LIMIT;
 window.STALE = 0;
-if(window.localStorage.getItem('autoReset') == null) {  // if there's no item yet
-  window.localStorage.setItem('autoReset', 'false')
-}
+// if(window.localStorage.getItem('autoReset') == null) {  // if there's no item yet
+//   window.localStorage.setItem('autoReset', 'false')
+// }
 
 // Clock: autoStart, elapsedTime, oldTime, running, startTime
 var clock = new THREE.Clock();
@@ -290,6 +290,9 @@ function xboxKeyPressed (gamepad) {
   const buttons = gamepad.buttons;
 
   if(buttons[1].touched) {  // B button
+    console.log("b btn clicked")
+    console.log(buttons[1].touched)
+    console.log(pointerControls)
     if(!pointerControls?.isLocked) {
       console.log(pointerControls)
       console.log(pointerControls.isLocked)
@@ -839,24 +842,25 @@ function render() {
     if(frameCount%100 == 0) {
       if(window.PREV_STEPS === window.ACC_STEPS) { // stale
         window.STALE += 1
+        console.log("stale", window.STALE)
       } else {
         window.STALE = 0;  // walking
-        let hasReset = window.localStorage.getItem('autoReset')
-        if(hasReset === 'true') {
-          window.localStorage.setItem('autoReset', 'false')
-        }
+        // let hasReset = window.localStorage.getItem('autoReset')
+        // if(hasReset === 'true') {
+        //   window.localStorage.setItem('autoReset', 'false')
+        // }
       }
 
       window.PREV_STEPS = window.ACC_STEPS
 
       if(window.STALE >= 180) { // check if stale for 3~4 minutes
-        let hasReset = window.localStorage.getItem('autoReset')
-        console.log("stale over 4 minute, did it reset before?", hasReset)
-        if(hasReset === 'false') {  // reset if not reset previously
+        // let hasReset = window.localStorage.getItem('autoReset')
+        // console.log("stale over 4 minute, did it reset before?", hasReset)
+        // if(hasReset === 'false') {  // reset if not reset previously
           location.reload()
-          window.localStorage.setItem('autoReset', 'true')
+          // window.localStorage.setItem('autoReset', 'true')
 
-        }
+        // }
       }
     }
 

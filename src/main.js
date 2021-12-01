@@ -317,8 +317,6 @@ blocker.addEventListener( 'click', function () {
   const howtoPopup = document.querySelector(".popup");
   howtoPopup.classList.add("show");
 
-  main()
-  tick()
   // loadSounds()
   // tick();  // start animate after blocker is gone
 } );
@@ -663,6 +661,8 @@ function init() {
   } else {
     console.log("init")
     initStats();
+    main()
+    tick()
     const energyHtml = document.querySelector( '.energyContainer' );
     energyHtml.style.visibility = 'visible';
   }

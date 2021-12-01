@@ -123,43 +123,11 @@ controls.enableZoom = true;
 controls.enableDamping = true;
 controls.update();
 
-// Pointer Lock Controls & Instructions
-pointerControls = new PointerLockControls(camera, document.body);
-const instructions = document.getElementById( 'instructions' );
-const blocker = document.getElementById( 'blocker' );
-
-pointerControls.addEventListener('change', function () {
-
-  // camera position check
-  let currentPos = pointerControls.getObject().position
-  let currentRot = pointerControls.getObject().rotation  
-
-  checkCameraLoadAssets(currentPos)
-    
+// Add EventListener
+window.addEventListener('click', function () {
+  console.log("check position:", pointerControls.getObject().position) 
+  // console.log("check rotation:", pointerControls.getObject().rotation)
 })
-
-blocker.addEventListener( 'click', function () {
-  pointerControls.lock();
-
-  const howtoPopup = document.querySelector(".popup");
-  howtoPopup.classList.add("show");
-
-  // tick();  // start animate after blocker is gone
-} );
-
-pointerControls.addEventListener( 'lock', function () {
-
-  // instructions.style.display = 'none';
-  blocker.style.display = 'none';
-
-} );
-
-pointerControls.addEventListener( 'unlock', function () {
-
-  // blocker.style.display = 'block';
-  // instructions.style.display = '';
-
-} );
 
 // GamePad Interaction
 window.gamepadConnected = false;
@@ -168,79 +136,6 @@ let moveBackward = false;
 let moveLeft = false;
 let moveRight = false;
 let canJump = false;
-
-// Key Controls
-const onKeyDown = function ( event ) {
-  updateStepNum()
-  if(window.ACC_STEPS <= 0) resetPosition()
-
-  switch ( event.code ) {
-
-    case 'ArrowUp':
-    case 'KeyW':
-      moveForward = true;
-      break;
-
-    case 'ArrowLeft':
-    case 'KeyA':
-      moveLeft = true;
-      break;
-
-    case 'ArrowDown':
-    case 'KeyS':
-      moveBackward = true;
-      break;
-
-    case 'ArrowRight':
-    case 'KeyD':
-      if(popupOpen) {
-        showHowto()
-      } else {
-        moveRight = true;
-      }
-      break;
-
-    case 'Space':
-      if ( canJump === true ) velocity.y += 650;
-      canJump = false;
-      break;
-    
-    case 'KeyI':
-      popupOpen = !popupOpen;
-      console.log(popupOpen)
-      togglePopup()
-      break;
-  }
-};
-
-const onKeyUp = function ( event ) {
-
-  switch ( event.code ) {
-
-    case 'ArrowUp':
-    case 'KeyW':
-      moveForward = false;
-      break;
-
-    case 'ArrowLeft':
-    case 'KeyA':
-      moveLeft = false;
-      break;
-
-    case 'ArrowDown':
-    case 'KeyS':
-      moveBackward = false;
-      break;
-
-    case 'ArrowRight':
-    case 'KeyD':
-      moveRight = false;
-      break;
-  }
-};
-
-document.addEventListener( 'keydown', onKeyDown );
-document.addEventListener( 'keyup', onKeyUp );
 
 window.addEventListener("gamepadconnected", function(e) {
   console.log("Gamepad connected at index %d: %s. %d buttons, %d axes.",
@@ -253,26 +148,7 @@ window.addEventListener("gamepaddisconnected", function(e) {
   window.gamepadConnected = false;
 })
 
-function togglePopup () {
-  var popup = document.querySelector(".popup");
-  if(popupOpen) {
-    popup.classList.add("show");
-  } else {
-    popup.classList.remove("show")
-  }
-}
-
-function resetPosition() {
-  camera.position.x = 300;
-  camera.position.y = 10;
-  camera.position.z = 100;
-
-  if((window.ACC_STEPS/window.STEP_LIMIT * 100) <= 10) {
-    showDescription("체력이 얼마 남지 않았습니다. 에너지를 채우기 위해 공원으로 곧 이동합니다.")
-    window.ACC_STEPS = window.STEP_LIMIT
-  }
-}
-
+// gamepad before init
 function xboxKeyPressed (gamepad) {
   if(!gamepad) {
     console.log("ERROR: XBOX CONNECTION LOST")
@@ -403,6 +279,156 @@ function xboxAxesPressed(gamepad) {
   prevAxisY = movementY;
 }
 
+if (window.gamepadConnected) {
+  const gamepad = navigator.getGamepads()[0];
+  
+  if(!gamepad) {
+    console.log("ERROR: XBOX CONNECTION LOST") 
+    return;
+
+  } else {
+    try {
+      xboxKeyPressed(gamepad);
+      xboxAxesPressed(gamepad);
+    } catch (err) {
+      console.log("XBOX ERROR: ", err)
+    }  
+  }
+} 
+
+// Pointer Lock Controls & Instructions
+pointerControls = new PointerLockControls(camera, document.body);
+const instructions = document.getElementById( 'instructions' );
+const blocker = document.getElementById( 'blocker' );
+
+pointerControls.addEventListener('change', function () {
+
+  // camera position check
+  let currentPos = pointerControls.getObject().position
+  let currentRot = pointerControls.getObject().rotation  
+
+  checkCameraLoadAssets(currentPos)
+    
+})
+
+blocker.addEventListener( 'click', function () {
+  pointerControls.lock();
+
+  const howtoPopup = document.querySelector(".popup");
+  howtoPopup.classList.add("show");
+
+  main()
+  tick()
+  // loadSounds()
+  // tick();  // start animate after blocker is gone
+} );
+
+pointerControls.addEventListener( 'lock', function () {
+
+  // instructions.style.display = 'none';
+  blocker.style.display = 'none';
+  loadSounds()
+} );
+
+pointerControls.addEventListener( 'unlock', function () {
+
+  // blocker.style.display = 'block';
+  // instructions.style.display = '';
+
+} );
+
+// Key Controls
+const onKeyDown = function ( event ) {
+  updateStepNum()
+  if(window.ACC_STEPS <= 0) resetPosition()
+
+  switch ( event.code ) {
+
+    case 'ArrowUp':
+    case 'KeyW':
+      moveForward = true;
+      break;
+
+    case 'ArrowLeft':
+    case 'KeyA':
+      moveLeft = true;
+      break;
+
+    case 'ArrowDown':
+    case 'KeyS':
+      moveBackward = true;
+      break;
+
+    case 'ArrowRight':
+    case 'KeyD':
+      if(popupOpen) {
+        showHowto()
+      } else {
+        moveRight = true;
+      }
+      break;
+
+    case 'Space':
+      if ( canJump === true ) velocity.y += 650;
+      canJump = false;
+      break;
+    
+    case 'KeyI':
+      popupOpen = !popupOpen;
+      console.log(popupOpen)
+      togglePopup()
+      break;
+  }
+};
+
+const onKeyUp = function ( event ) {
+
+  switch ( event.code ) {
+
+    case 'ArrowUp':
+    case 'KeyW':
+      moveForward = false;
+      break;
+
+    case 'ArrowLeft':
+    case 'KeyA':
+      moveLeft = false;
+      break;
+
+    case 'ArrowDown':
+    case 'KeyS':
+      moveBackward = false;
+      break;
+
+    case 'ArrowRight':
+    case 'KeyD':
+      moveRight = false;
+      break;
+  }
+};
+document.addEventListener( 'keydown', onKeyDown );
+document.addEventListener( 'keyup', onKeyUp );
+
+function togglePopup () {
+  var popup = document.querySelector(".popup");
+  if(popupOpen) {
+    popup.classList.add("show");
+  } else {
+    popup.classList.remove("show")
+  }
+}
+
+function resetPosition() {
+  camera.position.x = 300;
+  camera.position.y = 10;
+  camera.position.z = 100;
+
+  if((window.ACC_STEPS/window.STEP_LIMIT * 100) <= 10) {
+    showDescription("체력이 얼마 남지 않았습니다. 에너지를 채우기 위해 공원으로 곧 이동합니다.")
+    window.ACC_STEPS = window.STEP_LIMIT
+  }
+}
+
 function tick() {
   const time = performance.now();
 
@@ -475,11 +501,6 @@ function tick() {
 
   checkPointerControls()
 };
-
-window.addEventListener('click', function () {
-  console.log("check position:", pointerControls.getObject().position) 
-  // console.log("check rotation:", pointerControls.getObject().rotation)
-})
 
 function checkCameraLoadAssets(currentPos)  {
 
@@ -642,8 +663,6 @@ function init() {
   } else {
     console.log("init")
     initStats();
-    main()
-    tick()
     const energyHtml = document.querySelector( '.energyContainer' );
     energyHtml.style.visibility = 'visible';
   }
@@ -755,6 +774,73 @@ function loadDefaultEnvironment() {
   }
 
   loadZoneParkGLB(scene)  // default
+}
+
+function loadSounds() {
+    
+  // audio test
+  const listener = new THREE.AudioListener();
+  camera.add(listener)
+
+  const sound1 = new THREE.PositionalAudio( listener );
+  sound1.setVolume(10.0)
+  sound1.setLoop(true)
+
+  const zone1Song = document.getElementById( 'zone1' );
+  sound1.setMediaElementSource( zone1Song );
+  sound1.setRefDistance( 60 );
+  sound1.setMaxDistance( ZONE_RADIUS.ONE )
+  zone1Song.play();
+  
+  const centerSphere = new THREE.SphereGeometry(100, 10, 10)
+  const material = new THREE.MeshPhongMaterial( { color: 0xff2200, opacity: 0.0, transparent: true } );
+  const mesh = new THREE.Mesh( centerSphere, material );
+  mesh.position.set(ZONE_POS.ONE.x + 600, ZONE_POS.ONE.y + 200, ZONE_POS.ONE.z)
+  scene.add( mesh );
+  mesh.add(sound1)
+
+  // park
+  const sound4 = new THREE.PositionalAudio( listener );
+  sound4.setVolume(11.0)
+  sound4.setLoop(true)
+  const parkSong = document.getElementById( 'zonepark' );
+  sound4.setMediaElementSource( parkSong );
+  sound4.setRefDistance( 80 );
+  sound4.setMaxDistance( ZONE_RADIUS.GARDEN )
+  parkSong.play();
+  
+  const parkMesh = new THREE.Mesh( centerSphere.clone(), material );
+  parkMesh.position.set(ZONE_POS.GARDEN.x , ZONE_POS.GARDEN.y + 400, ZONE_POS.GARDEN.z)
+  scene.add( parkMesh );
+  parkMesh.add(sound4)
+
+  // zone2 
+  const sound2 = new THREE.PositionalAudio( listener );
+  sound2.setVolume(8.0)
+  sound2.setLoop(true)
+  const zone2Song = document.getElementById( 'zone2' );
+  sound2.setMediaElementSource( zone2Song );
+  sound2.setRefDistance( 50 );
+  sound2.setMaxDistance( 500 )
+  zone2Song.play();
+  const zone2Mesh = new THREE.Mesh( centerSphere.clone(), material );
+  zone2Mesh.position.set(ZONE_POS.TWO.x , ZONE_POS.TWO.y + 200, ZONE_POS.TWO.z)
+  scene.add( zone2Mesh );
+  zone2Mesh.add(sound2)
+
+  // zone3
+  const sound3 = new THREE.PositionalAudio( listener );
+  sound3.setVolume(5.0)
+  sound3.setLoop(true)
+  const zone3Song = document.getElementById( 'zone3' );
+  sound3.setMediaElementSource( zone3Song );
+  sound3.setRefDistance( 40 );
+  sound3.setMaxDistance( 500 )
+  zone3Song.play();
+  const zone3Mesh = new THREE.Mesh( centerSphere.clone(), material );
+  zone3Mesh.position.set(ZONE_POS.THREE.x , ZONE_POS.THREE.y + 300, ZONE_POS.THREE.z)
+  scene.add( zone3Mesh );
+  zone3Mesh.add(sound3)
 }
 
 function checkPointerControls() {

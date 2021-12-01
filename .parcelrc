@@ -6,6 +6,9 @@
 		"*.jpeg": ["@parcel/transformer-raw"],
    "*.glb": ["@parcel/transformer-raw"],
    "*.gltf": ["@parcel/transformer-raw"],
-   "*.json": ["@parcel/transformer-raw"]
+   "*.json": ["@parcel/transformer-raw"],
+			"*.mp3": ["@parcel/transformer-raw"],
+			"*.ogg": ["@parcel/transformer-raw"]
+
 	}
 }

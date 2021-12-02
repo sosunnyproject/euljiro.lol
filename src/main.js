@@ -2,14 +2,14 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { DRACOLoader } from 'three/examples/jsm/loaders/dracoloader';
+import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls.js';
-import { FontLoader } from 'three/examples/jsm/loaders/FontLoader';
+import { FontLoader } from 'three/examples/jsm/loaders/.js';
 import { NodePass } from 'three/examples/jsm/nodes/postprocessing/NodePass.js';
 import * as Nodes from 'three/examples/jsm/nodes/Nodes.js';
 
 import Stats from 'three/examples/jsm/libs/stats.module';
-import { WEBGL } from 'three/examples/jsm/WebGL';
+import { WEBGL } from 'three/examples/jsm/WebGL.js';
 
 import { getRandomArbitrary, getRandomInt, retrieveEnergy, showDescription, showHowto, warnLowEnergy } from './utils.js';
 import { ZONE_NAMES, ZONE_POS, ZONE_RADIUS, ZONE_RESET_POS } from './globalConstants.js';

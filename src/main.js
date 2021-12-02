@@ -4,7 +4,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls.js';
-import { FontLoader } from 'three/examples/jsm/loaders/.js';
+import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js';
 import { NodePass } from 'three/examples/jsm/nodes/postprocessing/NodePass.js';
 import * as Nodes from 'three/examples/jsm/nodes/Nodes.js';
 

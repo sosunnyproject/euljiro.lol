@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { ZONE_POS, ZONE_RADIUS } from "./globalConstants"
 import { getRandomArbitrary, getRandomInt } from './utils';
-import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils'
+import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils.js'
 
 const ZONE3_X_MIN = ZONE_POS.THREE.x - 300;
 const ZONE3_X_MAX = ZONE_POS.THREE.x + 300;

@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { ZONE_POS } from './globalConstants';
+import { ZONE_POS } from './globalConstants.js';
 import ShutterPattern from '../assets/png/shutter2.jpg'
 import shutter1 from '../assets/png/png2jpg/shutterart1.jpg'
 import shutter2 from '../assets/png/png2jpg/shutterart2.jpg'

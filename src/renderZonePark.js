@@ -6,14 +6,10 @@ import { generateShaderTree, generateTree, generateTreeInPark } from './models/t
 import { generateMushroom } from './models/mushrooms.js';
 import cloudsFragment from './shaders/clouds.frag.js';
 import vertexShader from './shaders/vertex.glsl.js';
-import skyVertex from './shaders/skyVertex.glsl.js';
-import skyFrag from './shaders/skyFrag.glsl.js';
-import { FlowerPetals } from './models/flowerPetals.js';
 import { generateLsystemTree } from './lsystem/wrapper.js';
-import { floorPowerOfTwo } from 'three/src/math/mathutils';
 import AnimatedFlower from './models/AnimatedFlower.js';
 import { ZONE_POS, ZONE_RADIUS } from './globalConstants.js';
-import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils'
+import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils.js'
 import fogFragment from './shaders/fog.frag.js';
 
 export function instantiateParkObj(scene) {

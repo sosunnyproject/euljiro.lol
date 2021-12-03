@@ -278,7 +278,7 @@ function xboxAxesPressed(gamepad) {
   prevAxisX = movementX;
   prevAxisY = movementY;
 }
-
+/**
 if (window.gamepadConnected) {
   const gamepad = navigator.getGamepads()[0];
   
@@ -295,7 +295,7 @@ if (window.gamepadConnected) {
     }  
   }
 } 
-
+ */
 // Pointer Lock Controls & Instructions
 pointerControls = new PointerLockControls(camera, document.body);
 const instructions = document.getElementById( 'instructions' );
@@ -322,16 +322,16 @@ blocker.addEventListener( 'click', function () {
 } );
 
 pointerControls.addEventListener( 'lock', function () {
-
-  // instructions.style.display = 'none';
+  instructions.style.display = 'none';
   blocker.style.display = 'none';
-  loadSounds()
+
+  loadSounds() // this prevents going back between lock and unlock
 } );
 
 pointerControls.addEventListener( 'unlock', function () {
 
-  // blocker.style.display = 'block';
-  // instructions.style.display = '';
+  blocker.style.display = 'block';
+  instructions.style.display = '';
 
 } );
 
@@ -685,15 +685,15 @@ function main() {
   scene.add( dirLight2 );
   scene.add(target2)
   scene.add(dirLight2.target)
-  const helper2 = new THREE.DirectionalLightHelper( dirLight2, 50 );
-  scene.add( helper2 );
+  // const helper2 = new THREE.DirectionalLightHelper( dirLight2, 50 );
+  // scene.add( helper2 );
 
   const dirLight3 = new THREE.DirectionalLight( 0xB97A20 );
   dirLight3.position.set( 2000, 2000, 1000 );
   dirLight3.name = "light"
   scene.add( dirLight3 );
-  const helper3 = new THREE.DirectionalLightHelper( dirLight3, 50 );
-  scene.add( helper3 );
+  // const helper3 = new THREE.DirectionalLightHelper( dirLight3, 50 );
+  // scene.add( helper3 );
 
   const ambientLight = new THREE.AmbientLight( 0x777777 );
   ambientLight.intensity = 0.5;
@@ -750,7 +750,7 @@ function gradientBlurScreen(delta) {
       blurScreen.radius.y += delta 
     }
   }
-  console.log("blur nodes", blurScreen, blurScreen.radius.x)
+  // console.log("blur nodes", blurScreen, blurScreen.radius.x)
 }
 
 function loadDefaultEnvironment() {
@@ -779,6 +779,8 @@ function loadDefaultEnvironment() {
 function loadSounds() {
     
   // audio test
+  try {
+
   const listener = new THREE.AudioListener();
   camera.add(listener)
 
@@ -840,7 +842,11 @@ function loadSounds() {
   const zone3Mesh = new THREE.Mesh( centerSphere.clone(), material );
   zone3Mesh.position.set(ZONE_POS.THREE.x , ZONE_POS.THREE.y + 300, ZONE_POS.THREE.z)
   scene.add( zone3Mesh );
+  console.log("add zone3 sound")
   zone3Mesh.add(sound3)
+  } catch (err) {
+    console.log("sounds: ", err)
+  }
 }
 
 function checkPointerControls() {

@@ -91,7 +91,7 @@ canvas {
 	/* center */
 	top: 0;
 	right: 0;
-	left: 0;
+	left: -80px;
 	margin-left: auto;
 	margin-right: auto;
 }
@@ -108,7 +108,7 @@ canvas {
      bottom: 50px;
      width: 30%;
      right: 0;
-     left: 0;
+     left: -100px;
      margin-left: auto;
      margin-right: auto;
 	 visibility: hidden;

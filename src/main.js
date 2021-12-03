@@ -785,7 +785,7 @@ function loadSounds() {
   camera.add(listener)
 
   const sound1 = new THREE.PositionalAudio( listener );
-  sound1.setVolume(10.0)
+  sound1.setVolume(6.0)
   sound1.setLoop(true)
 
   const zone1Song = document.getElementById( 'zone1' );
@@ -803,7 +803,7 @@ function loadSounds() {
 
   // park
   const sound4 = new THREE.PositionalAudio( listener );
-  sound4.setVolume(11.0)
+  sound4.setVolume(8.0)
   sound4.setLoop(true)
   const parkSong = document.getElementById( 'zonepark' );
   sound4.setMediaElementSource( parkSong );
@@ -818,12 +818,12 @@ function loadSounds() {
 
   // zone2 
   const sound2 = new THREE.PositionalAudio( listener );
-  sound2.setVolume(8.0)
+  sound2.setVolume(6.0)
   sound2.setLoop(true)
   const zone2Song = document.getElementById( 'zone2' );
   sound2.setMediaElementSource( zone2Song );
-  sound2.setRefDistance( 50 );
-  sound2.setMaxDistance( 500 )
+  sound2.setRefDistance( 30 );
+  sound2.setMaxDistance( 200 )
   zone2Song.play();
   const zone2Mesh = new THREE.Mesh( centerSphere.clone(), material );
   zone2Mesh.position.set(ZONE_POS.TWO.x , ZONE_POS.TWO.y + 200, ZONE_POS.TWO.z)
@@ -832,12 +832,12 @@ function loadSounds() {
 
   // zone3
   const sound3 = new THREE.PositionalAudio( listener );
-  sound3.setVolume(5.0)
+  sound3.setVolume(4.5)
   sound3.setLoop(true)
   const zone3Song = document.getElementById( 'zone3' );
   sound3.setMediaElementSource( zone3Song );
-  sound3.setRefDistance( 40 );
-  sound3.setMaxDistance( 500 )
+  sound3.setRefDistance( 30 );
+  sound3.setMaxDistance( 200 )
   zone3Song.play();
   const zone3Mesh = new THREE.Mesh( centerSphere.clone(), material );
   zone3Mesh.position.set(ZONE_POS.THREE.x , ZONE_POS.THREE.y + 300, ZONE_POS.THREE.z)

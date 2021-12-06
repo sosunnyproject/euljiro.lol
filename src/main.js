@@ -945,11 +945,11 @@ function render() {
 
       window.PREV_STEPS = window.ACC_STEPS
 
-      if(window.STALE >= 1800) { // check if stale for 3~4 minutes
+      if(window.STALE >= 180) { // check if stale for 3~4 minutes
         // let hasReset = window.localStorage.getItem('autoReset')
         // console.log("stale over 4 minute, did it reset before?", hasReset)
         // if(hasReset === 'false') {  // reset if not reset previously
-          // location.reload  ()
+          location.reload()
           // window.localStorage.setItem('autoReset', 'true')
 
         // }

@@ -149,7 +149,7 @@ export function onLoadAnimation(model, data, scene) {
   if(data.scale) {
     const inputScale = data.scale
     if(data.zone < 4) {
-      model.scene.scale.set(inputScale, inputScale, inputScale/10)
+      model.scene.scale.set(inputScale, inputScale, inputScale/3)
     } else {
       model.scene.scale.set(inputScale, inputScale, inputScale)
     }

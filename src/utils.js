@@ -143,7 +143,7 @@ export function showDescription ( objName ) {
 
 export async function showHowto() {
 
-  const maxPage = 3;
+  const maxPage = 4;
   const gamepadPage = document.querySelector("#howtoGamepad") // page 1
   const contentPage = document.querySelector("#howtoPage") // page 2, 3, 4
   
@@ -170,11 +170,11 @@ export async function showHowto() {
       contentPage.style.display = 'block';
       contentPage.innerHTML = slide3;
       break;
-    // case 4: 
-    //   gamepadPage.style.display = 'none';
-    //   contentPage.style.display = 'block';
-    //   contentPage.innerHTML = slide4;
-    //   break;
+    case 4: 
+      gamepadPage.style.display = 'none';
+      contentPage.style.display = 'block';
+      contentPage.innerHTML = slide4;
+      break;
   }
   await sleep(5000);
 }

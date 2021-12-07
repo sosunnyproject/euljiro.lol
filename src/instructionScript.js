@@ -20,8 +20,9 @@ export const slide3 = `
 
 export const slide4 = `
 Thanks to  <br/>
-서울문화재단 <br/>
-을지예술센터 <br/>
-Music : 김자현 <br/>
-Tools : Threejs, Monstermash <br/>
+서울문화재단 Seoul Foundation of Arts and Culture <br/>
+<a href="https://www.instagram.com/c.enter_official/" target="_blank">을지예술센터 Eulji Art Center</a> <br/>
+<a href="https://readymag.com/u16519807/1261048/" target="_blank">Co-Producer : 이유준</a> <br/>
+<a href="https://klovesmart.wixsite.com/mypage" target="_blank">Music : 김자현</a> <br/>
+Tools : Threejs, Monstermash, Pixabay sounds <br/>
 `

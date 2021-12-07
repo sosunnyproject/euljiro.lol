@@ -17,7 +17,14 @@ canvas {
 	height: 100%;
 	display: block;
 }
-
+a {
+	color:rgb(0, 255, 255);
+	z-index: 20;
+}
+a:visited {
+	color:rgb(0, 255, 255);
+	z-index: 20;
+}
 .popup {
 	position: absolute;
 	width: 60%;
@@ -220,7 +227,7 @@ canvas {
 	top: 0;
 	width: 50px;
 	height: 100px;
-	border: 20px solid  #03c75a;
+	border: 20px solid rgb(0, 255, 255);
 	box-sizing: border-box;
 }
   

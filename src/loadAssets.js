@@ -148,7 +148,11 @@ export function onLoadAnimation(model, data, scene) {
 
   if(data.scale) {
     const inputScale = data.scale
-    model.scene.scale.set(inputScale, inputScale, inputScale)
+    if(data.zone < 4) {
+      model.scene.scale.set(inputScale, inputScale, inputScale/10)
+    } else {
+      model.scene.scale.set(inputScale, inputScale, inputScale)
+    }
   } else if(!data.type) {
     model.scene.scale.set(10, 10, 10);
   } else if(data.type === "monument"){

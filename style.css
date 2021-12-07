@@ -105,9 +105,9 @@ a:visited {
    .descPopup.show {
     display: block;
     visibility: visible;
-    -webkit-animation: fadeIn 1s;
-    animation: fadeIn 1s;
-    animation-timing-function: ease-in-out;
+    /* -webkit-animation: fadeIn 0.2s;
+    animation: fadeIn 0.2s;
+    animation-timing-function: ease-in-out; */
    }
 
    .energyContainer {

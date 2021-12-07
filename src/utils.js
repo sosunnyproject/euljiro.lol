@@ -153,7 +153,7 @@ export async function showHowto() {
   } 
 
   console.log("page num: ", window.HOWTOPAGE)
-  console.log("contentSection: ", contentPage, gamepadPage)
+  // console.log("contentSection: ", contentPage, gamepadPage)
   
   switch(window.HOWTOPAGE) {
     case 1:
@@ -176,7 +176,7 @@ export async function showHowto() {
       contentPage.innerHTML = slide4;
       break;
   }
-  await sleep(5000);
+  // await sleep(5000);
 }
 
 function sleep(ms) {

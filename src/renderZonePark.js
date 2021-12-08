@@ -22,6 +22,7 @@ export function instantiateParkObj(scene) {
   // const shaderTree = generateShaderTree(10, -2, 0)
 
   // mushrooms
+  /*
   const m = generateMushroom()
 
   for(let i = 0; i < 10; i++){
@@ -30,8 +31,10 @@ export function instantiateParkObj(scene) {
       mClone.translateZ(Math.random() * 2000)
       arr.push(mClone)
   }
+  */
 
   // Clouds
+  /*
   const torusKnotGeom = new THREE.TorusKnotGeometry( 10, 6, 100, 20 );
   torusKnotGeom.scale(2, 2, 2)
 
@@ -52,8 +55,8 @@ export function instantiateParkObj(scene) {
 
        torusMesh.setMatrixAt(i, matrix)
    }
-
-   arr.push(torusMesh)
+   */
+  //  arr.push(torusMesh)
 
   {
     // lsystem trees
@@ -96,7 +99,7 @@ export function instantiateParkObj(scene) {
     CenterTree.position.set(0, 0, 0);
     CenterTree.scale.set(80, 80, 80);
 
-    arr.push(CenterTree, Ltree1, Ltree3, Ltree4)
+    arr.push(CenterTree, Ltree3, Ltree4) // Ltree1,
   }
   
   const flower3 = new AnimatedFlower({
@@ -113,7 +116,7 @@ export function instantiateParkObj(scene) {
   })
   f2.position.set(1910, 150, -510)
 
-  arr.push(flower3, f2)
+  // arr.push(flower3, f2)
 
   // add all to scene
   for(let i = 0; i < arr.length; i++ ){
@@ -249,10 +252,10 @@ function renderGrassShader2(scene, position) {
     // MESH
     /////////
     
-    const instanceNumber = 500000;
+    const instanceNumber = 200000;
     const dummy = new THREE.Object3D();
     
-    const geometry = new THREE.PlaneGeometry( 1.5, 6, 1, 4 );
+    const geometry = new THREE.PlaneGeometry( 2, 6, 1, 4 );
     geometry.translate( 0, 1, 0 ); // move grass blade geometry lowest point at 0.
     
     const instancedMesh = new THREE.InstancedMesh( geometry, leavesMaterial, instanceNumber );

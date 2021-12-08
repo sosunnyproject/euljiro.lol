@@ -134,7 +134,7 @@ export function makeSteps(scene, pos) {
     window.RAYOBJ.push(boxTest)        
     scene.add(boxTest)
 
-    for(let i = 1; i < 50; i++){
+    for(let i = 1; i < 25; i++){
         const box2 = boxTest.clone();
         box2.position.x += size * i;
         box2.position.y += height * i;

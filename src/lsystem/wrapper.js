@@ -43,7 +43,8 @@ export function generateLsystemTree(material, axiom, rule1, rule2, iter, radiusR
 
     // result
     var totalGeometry = new THREE.BoxGeometry(4, 4, 4);
-    
+    let petalGeom = new THREE.SphereBufferGeometry(1.4, 20, 20, Math.PI / 3.0, Math.PI / 3.0);
+
     var totalMesh = new THREE.Mesh(totalGeometry, material)
     let topPoint = new THREE.Vector3(0, -1.0, 0);
 
@@ -113,7 +114,7 @@ export function generateLsystemTree(material, axiom, rule1, rule2, iter, radiusR
         const grassColors = ["rgb(227, 101, 91)", "rgb(220, 214, 247)", "rgb(217, 237, 146)", "rgb(181,228,140)", "rgb(153,217,140)", "rgb(118,200,147)", "rgb(82,182,154)", "rgb(52,160,164)"]
         const grassInd = getRandomInt(0, grassColors.length)
 
-        if (branchLength < 0 || branchRadius < -1)
+        if (branchLength < 0 || branchRadius < -0.25)
             return topTargetPoint;
       
         // var branch = new THREE.CylinderGeometry(branchRadius * (1 - radiusReductionFactor), branchRadius, branchLength, 9);
@@ -121,7 +122,7 @@ export function generateLsystemTree(material, axiom, rule1, rule2, iter, radiusR
         var branchCylinder = new THREE.CylinderGeometry(branchRadius * (1 - radiusReductionFactor), branchRadius - 0.1, branchLength, 9);
         var grassCube = new THREE.BoxGeometry(branchRadius+1.5, branchRadius+1.5, branchRadius+1.5)
         // var grassSphere = new THREE.SphereBufferGeometry(branchRadius+1.5, 24, 24)
-        let petalGeom = new THREE.SphereBufferGeometry(branchRadius+1.5, 20, 20, Math.PI / 3.0, Math.PI / 3.0);
+        let petalClone = petalGeom.clone()
 
         var greenMat = new THREE.MeshPhongMaterial({color: 0x31E981})
         var pinkMat = new THREE.MeshPhongMaterial({color: 0xC0B9DD})
@@ -131,8 +132,8 @@ export function generateLsystemTree(material, axiom, rule1, rule2, iter, radiusR
         var bottomPoint = new THREE.Vector3(0.0, - branchLength / 2, 0);
       
         var branchMesh;
-        if(branchRadius < (branchRadiusThreshold || 0.1)) {
-            branchMesh = new THREE.Mesh(petalGeom, randomMat);
+        if(branchRadius < 0.24) {
+            branchMesh = new THREE.Mesh(petalClone, randomMat);
 
         } else {
             branchMesh = new THREE.Mesh(branchCylinder, material);

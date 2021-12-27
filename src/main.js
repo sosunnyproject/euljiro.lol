@@ -317,6 +317,8 @@ blocker.addEventListener( 'click', function () {
   const howtoPopup = document.querySelector(".popup");
   howtoPopup.classList.add("show");
 
+  const energyHtml = document.querySelector( '.energyContainer' );
+  energyHtml.style.visibility = 'visible';
   // loadSounds()
   // tick();  // start animate after blocker is gone
 } );
@@ -460,6 +462,11 @@ function tick() {
     }
   } 
 
+  // fill energy when standing in Park
+  if (window.ZONE === "GARDEN") {
+    updateStepNum() 
+  }
+
   if(!scene && !scene?.traverse) return;
   scene.traverse(obj => {
     if(!obj.name) return;
@@ -575,7 +582,6 @@ function checkCameraLoadAssets(currentPos)  {
   if(inZonePark) {
     window.ZONE = "GARDEN"
     console.log("inside : ", window.ZONE)
-  
     // loadZones(window.ZONE)
   } 
 
@@ -663,8 +669,6 @@ function init() {
     initStats();
     main()
     tick()
-    const energyHtml = document.querySelector( '.energyContainer' );
-    energyHtml.style.visibility = 'visible';
   }
 
   window.addEventListener( 'resize', onWindowResize );
@@ -918,7 +922,7 @@ function render() {
   camera.aspect = canvas.clientWidth / canvas.clientHeight;
   camera.updateProjectionMatrix();     
 
-  var delta = clock.getDelta();
+  const delta = clock.getDelta();
 
   if(window.MIXERS.length > 0) {
     window.MIXERS.forEach(mixer => {
@@ -926,7 +930,9 @@ function render() {
     })
   }  
 
-    frame.update(delta)
+  const elapse = clock.getElapsedTime()
+
+    frame.update(elapse)
     nodepost.render( scene, camera, frame );  
 
     // CHECK if it's playing

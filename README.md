@@ -42,6 +42,9 @@
 - public url: https://sosunnyproject.github.io/threejs-euljiro/
 - add static .glb files to local /dist file after the latest build. No need to push /dist to the github repo.
   - parcel bundler cannot find .glb models is they are located outside of `/dist` when they build.
+## deploying with netlify
+- *Build command* : `parcel build ./index.html`
+- *publish directory*: `dist`
 
 # Extra library resources
 -[PointerLock for First Person Control](https://threejs.org/examples/?q=control#misc_controls_pointerlock)

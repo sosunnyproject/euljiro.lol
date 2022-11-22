@@ -6,7 +6,34 @@
 		<title>EULJIRO HAS NO PARK</title>
 		<link rel="stylesheet" href="style.css">
 		<link rel="stylesheet" href="animate.scss">
-		<script type="module" src="src/main.js">
+		<script type="module" src="src/main.js"></script>
+		<script>
+			function onclickOption(e) {
+					console.log(e)
+			}
+			function onclickStart() {
+				
+				// form checked values
+				const form = document.querySelector('form')
+
+				const blockerHtml = document.querySelector('#blocker')
+				const animHtml = document.querySelector('.animation-wrapper')
+				const selectPageHtml =  document.querySelector('#selectPage')
+
+				console.log('showintro', blockerHtml)
+
+				blockerHtml.style.visibility = 'visible';
+				animHtml.setAttribute("style", "display: show;");
+				selectPageHtml.setAttribute("style", "display: none;");
+			}	
+			function setLang(lang) {
+				window.LANG = lang
+				window.localStorage.setItem('language', lang)
+			}
+			function setSpecs(spec) {
+				window.VERISON = spec
+				window.localStorage.setItem('version', spec)
+			}
 		</script>
 	</head>
   <body>
@@ -44,8 +71,38 @@
 						what is this?
 				</div>
 			</div>
+
+			<div id="selectPage">
+					을지로에는 공원이 없다 v.1.0<br />
+					Euljiro Has No Park v.1.0<br />
+						<div id="author"><a href="https://www.instagram.com/sosunnyproject/" target="_blank">Created by @sosunnyproject</a></div>
+
+				<div class="option-wrapper">
+							<div>언어 / Language</div>
+							<div>
+								<input class="option" type="radio" id="korean" name="lang" value="korean" onclick="setLang('ko')">
+								<label for="korean">korean</label>
+						</div>
+						<div>
+							<input class="option" type="radio" id="english" name="lang" value="english" onclick="setLang('en')">
+							<label for="english">english</label>
+					</div>
+				</div>
+				<!-- <div class="option-wrapper">
+						<div> 현재 접속한 컴퓨터 사양 / Device Specs</div>
+						<div>
+							<input class="option" type="radio" id="higher" name="specs" value="higher" onclick="setSpecs(1)">
+							<label for="higher">그래픽 카드 사양 높아유 NVIDIA GTX 1060 or higher</label>
+					</div>
+					<div>
+						<input class="option" type="radio" id="general" name="specs" value="general" onclick="setSpecs(2)">
+						<label for="general">그런 거 몰라유 what is that</label>
+				</div>
+				</div> -->
+				<button id="nextButton" onclick='onclickStart()'>START</button>
+		</div>
+
 			<div id="blocker">
-				 
 					<div id="instructions">
 						을지로에는 공원이 없다 v.1.0<br />
 						<div id="author"><a href="https://www.instagram.com/sosunnyproject/" target="_blank">Created by @sosunnyproject</a></div>
@@ -61,8 +118,7 @@
 								</div>
 							</div>
 							<div id="loadValue"></div>
-							B 버튼을 눌러도 시작되지 않는 경우 <br/>
-							도우미를 불러주세요.
+							로딩이 완료되면 화면을 클릭하세요.
 						</div>
 						<div class="animation-wrapper">
 							<span class="animate animate-1">자연을 잃어버린 미래의 을지로는 천재지변으로 인해</span>

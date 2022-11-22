@@ -55,7 +55,7 @@ export function updateLoadingProgress(value) {
   if(value < 100) {
     per.innerHTML='로딩중... Loading...';
   } else if (value >= 100) {
-    per.innerHTML='시작하려면 B 버튼을 눌러주세요.'
+    per.innerHTML=`시작하려면 화면을 클릭하거나 <br> 게임패드 B 버튼을 눌러주세요.`
   }
   if (value <= 50) {
     var degree = 18*value/5;

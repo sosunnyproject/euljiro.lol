@@ -16,6 +16,12 @@ import TRADE_NEON from "../../assets/districtOne/NeonTrade.glb"
 import ROBOT_CRANE from "../../assets/districtOne/Cranebot0.glb"
 import ROBOT_CHIP from "../../assets/districtOne/Arduinobot0.glb"
 
+// compressed
+// import ROBOT_BIRD from "../../assets/districtOne/bot_bird.glb"
+// import ROBOT_CRANE from "../../assets/districtOne/bot_truck.glb"
+// import ROBOT_CHIP from "../../assets/districtOne/bot_arduino.glb"
+// import ROBOT_TIGER from "../../assets/districtOne/bot_tiger.glb"
+
 // district 2
 import COFFEE_SPA from "../../assets/districtTwo/Coffeecupspa27.glb"
 import TAPE from "../../assets/districtTwo/Tape0.glb"
@@ -58,7 +64,6 @@ const ZONE1_X_MIN = ZONE_POS.ONE.x - 300;
 const ZONE1_X_MAX = ZONE_POS.ONE.x + 300;
 const ZONE1_Z_MIN = ZONE_POS.ONE.z - 300;
 const ZONE1_Z_MAX = ZONE_POS.ONE.z + 300;
-
 
 const robotFace = {
  url: ROBOT_FACE,

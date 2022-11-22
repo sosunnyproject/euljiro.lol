@@ -96,7 +96,7 @@ let nodepost = new Nodes.NodePostProcessing( renderer );
 // Camera
 const params = {
   fov: 60,
-  aspect: 2.5, 
+  aspect: window.innerWidth/window.innerHeight, 
   zNear: 1,
   zFar: 20000
 }

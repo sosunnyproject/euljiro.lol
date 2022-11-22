@@ -26,22 +26,27 @@ export async function loadAssets(gltfLoader, fontLoader, textureLoader) {
  })
 
  DISTRICT_ONE_GLB.forEach(model => {
-   gltfLoader.load(model.url, 
-     (gltf) => {
-     model.gltf = gltf;
-     count++;
-     console.log("loaded")
-     let per = Math.floor((count / loadNum) * 100)
-     updateLoadingProgress(per);
-   })
- })
+  try {
+    gltfLoader.load(model.url, 
+      (gltf) => {
+      console.log("loaded 1", model, model.url, gltf)
+ 
+      model.gltf = gltf;
+      count++;
+      let per = Math.floor((count / loadNum) * 100)
+      updateLoadingProgress(per);
+    }) 
+  } catch (e) {
+    console.log(e)
+  }
+})
 
  DISTRICT_TWO_GLB.forEach(model => {
    gltfLoader.load(model.url, 
      (gltf) => {
      model.gltf = gltf;
      count++;
-     console.log("loaded")
+    //  console.log("loaded")
      let per = Math.floor((count / loadNum) * 100)
      updateLoadingProgress(per);
    })
@@ -52,7 +57,7 @@ export async function loadAssets(gltfLoader, fontLoader, textureLoader) {
     (gltf) => {
     model.gltf = gltf;
     count++;
-    console.log("loaded 3", model.gltf)
+    // console.log("loaded 3", model.gltf)
     let per = Math.floor((count / loadNum) * 100)
     updateLoadingProgress(per);
   })
@@ -64,7 +69,7 @@ DISTRICT_PARK_GLB.forEach(model => {
     (gltf) => {
     model.gltf = gltf;
     count++;
-    console.log("loaded 4", model.gltf)
+    // console.log("loaded 4", model.gltf)
     let per = Math.floor((count / loadNum) * 100)
     updateLoadingProgress(per);
   })
